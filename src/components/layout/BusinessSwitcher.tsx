@@ -8,7 +8,7 @@ export function BusinessSwitcher() {
 
   return (
     <Select value={businessFilter} onValueChange={setBusinessFilter}>
-      <SelectTrigger className="h-9 w-[200px] gap-2" aria-label="Filtrar por negócio">
+      <SelectTrigger className="h-9 w-[230px] gap-2 bg-card" aria-label="Filtrar por negócio">
         <Building2 className="size-4 shrink-0 text-muted-foreground" />
         <SelectValue />
       </SelectTrigger>

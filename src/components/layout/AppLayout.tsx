@@ -13,10 +13,10 @@ export function AppLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur">
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b bg-card/85 px-4 backdrop-blur">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-5" />
-          <p className="truncate text-sm text-muted-foreground">{current?.label ?? "Superflow"}</p>
+          <p className="truncate font-heading text-sm font-medium">{current?.label ?? "Superflow"}</p>
           <div className="ml-auto">
             <BusinessSwitcher />
           </div>

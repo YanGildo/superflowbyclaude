@@ -22,17 +22,22 @@ interface Kpi {
 
 function KpiCard({ kpi }: { kpi: Kpi }) {
   return (
-    <Card>
-      <CardContent className="flex items-start justify-between gap-3 p-4">
+    <Card className="transition-shadow hover:shadow-md">
+      <CardContent className="flex items-start gap-3 p-4">
+        <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg",
+          kpi.tone === "bad" ? "bg-destructive/10 text-destructive"
+          : kpi.tone === "good" ? "bg-success/10 text-success"
+          : "bg-primary/10 text-primary")}>
+          <kpi.icon className="size-[18px]" />
+        </span>
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
-          <p className={cn("mt-2 text-2xl font-semibold tabular-nums",
-            kpi.tone === "good" && "text-success", kpi.tone === "bad" && "text-destructive")}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{kpi.label}</p>
+          <p className={cn("mt-1 font-heading text-2xl font-semibold tabular-nums",
+            kpi.tone === "bad" && "text-destructive")}>
             {kpi.value}
           </p>
-          {kpi.hint && <p className="mt-1 text-xs text-muted-foreground">{kpi.hint}</p>}
+          {kpi.hint && <p className="mt-0.5 text-xs text-muted-foreground">{kpi.hint}</p>}
         </div>
-        <kpi.icon className="size-4 shrink-0 text-muted-foreground" />
       </CardContent>
     </Card>
   );
@@ -41,10 +46,10 @@ function KpiCard({ kpi }: { kpi: Kpi }) {
 function Section({ title, kpis, loading }: { title: string; kpis: Kpi[]; loading: boolean }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-semibold text-muted-foreground">{title}</h2>
+      <h2 className="brand-eyebrow">{title}</h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {loading
-          ? kpis.map((k) => <Skeleton key={k.label} className="h-[104px] rounded-xl" />)
+          ? kpis.map((k) => <Skeleton key={k.label} className="h-[92px] rounded-xl" />)
           : kpis.map((k) => <KpiCard key={k.label} kpi={k} />)}
       </div>
     </section>
@@ -62,12 +67,32 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">{greeting()}{firstName ? `, ${firstName}` : ""}</h1>
-        <p className="text-sm text-muted-foreground">
+      <section className="brand-hero overflow-hidden rounded-2xl px-6 py-7 sm:px-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-cyan">
+          {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
+        </p>
+        <h1 className="mt-2 font-heading text-2xl font-semibold text-white sm:text-3xl">
+          {greeting()}{firstName ? `, ${firstName}` : ""}
+        </h1>
+        <p className="mt-1 text-sm text-white/70">
           {currentBusiness ? `Mostrando só ${currentBusiness.name}.` : "Visão consolidada de todos os negócios."}
         </p>
-      </div>
+        {k && (
+          <div className="mt-5 flex flex-wrap gap-2 text-xs">
+            <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/85">
+              {k.tarefasHoje} {k.tarefasHoje === 1 ? "tarefa" : "tarefas"} para hoje
+            </span>
+            <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/85">
+              {brl(k.entradasMes)} de entradas no mês
+            </span>
+            {k.tarefasAtrasadas > 0 && (
+              <span className="rounded-full border border-red-300/30 bg-red-400/10 px-3 py-1 text-red-100">
+                {k.tarefasAtrasadas} atrasada{k.tarefasAtrasadas > 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
+        )}
+      </section>
 
       {error && (
         <Alert variant="destructive">

@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["'Plus Jakarta Sans'", "Inter", "ui-sans-serif", "sans-serif"],
+        sans: ["Montserrat", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: ["Poppins", "Montserrat", "ui-sans-serif", "sans-serif"],
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
@@ -27,6 +27,12 @@ export default {
         elegant: "var(--shadow-lg)",
       },
       colors: {
+        brand: {
+          navy: "hsl(var(--brand-navy))",
+          blue: "hsl(var(--brand-blue))",
+          cyan: "hsl(var(--brand-cyan))",
+          ice: "hsl(var(--brand-ice))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
