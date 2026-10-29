@@ -15,6 +15,8 @@ import Setup from "@/pages/Setup";
 import Dashboard from "@/pages/Dashboard";
 import Configuracoes from "@/pages/Configuracoes";
 import EmBreve from "@/pages/EmBreve";
+import Tarefas from "@/pages/Tarefas";
+import Hoje from "@/pages/Hoje";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: 1 } },
@@ -55,6 +57,8 @@ function WorkspaceGate({ children }: { children: ReactNode }) {
 const BUILT: Record<string, ReactNode> = {
   "/": <Dashboard />,
   "/configuracoes": <Configuracoes />,
+  "/tarefas": <Tarefas />,
+  "/hoje": <Hoje />,
 };
 
 export default function App() {
