@@ -16,7 +16,10 @@ export function AppSidebar() {
   const name = (user?.user_metadata?.full_name as string | undefined) ?? user?.email ?? "";
   const initials = name.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?";
 
-  const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(path + "/"));
+  // Item "pai" (ex.: /financeiro) só fica ativo na própria rota quando há itens filhos no menu.
+  const hasChildren = (path: string) => NAV.some((s) => s.items.some((i) => i.path.startsWith(path + "/")));
+  const isActive = (path: string) =>
+    path === "/" || hasChildren(path) ? pathname === path : pathname === path || pathname.startsWith(path + "/");
 
   return (
     <Sidebar collapsible="icon">
@@ -50,7 +53,7 @@ export function AppSidebar() {
                         tooltip={item.label}
                         className="relative data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-white data-[active=true]:before:absolute data-[active=true]:before:inset-y-1.5 data-[active=true]:before:left-0 data-[active=true]:before:w-[3px] data-[active=true]:before:rounded-full data-[active=true]:before:bg-brand-cyan"
                       >
-                        <NavLink to={item.path} end={item.path === "/"}>
+                        <NavLink to={item.path} end>
                           <item.icon className={active ? "text-brand-cyan" : soon ? "opacity-60" : undefined} />
                           <span className={soon && !active ? "opacity-70" : undefined}>{item.label}</span>
                         </NavLink>

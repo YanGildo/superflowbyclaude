@@ -66,11 +66,11 @@ export const NAV: NavSection[] = [
     id: "financeiro",
     label: "Financeiro",
     items: [
-      { path: "/financeiro", label: "Visão geral", icon: Wallet, phase: 2, description: "Entradas, saídas e saldo por negócio." },
-      { path: "/financeiro/lancamentos", label: "Lançamentos", icon: ArrowLeftRight, phase: 2, description: "Todas as entradas e saídas." },
-      { path: "/financeiro/contas", label: "Pagar e receber", icon: Receipt, phase: 2, description: "Contas a pagar, a receber e recorrências." },
-      { path: "/financeiro/carteira", label: "Dívidas e cartões", icon: CreditCard, phase: 2, description: "Dívidas parceladas, cartões e contas bancárias." },
-      { path: "/financeiro/reservas", label: "Reservas e metas", icon: PiggyBank, phase: 2, description: "Reservas e metas financeiras." },
+      { path: "/financeiro", label: "Visão geral", icon: Wallet, phase: 0, description: "Entradas, saídas e saldo por negócio." },
+      { path: "/financeiro/lancamentos", label: "Lançamentos", icon: ArrowLeftRight, phase: 0, description: "Todas as entradas e saídas." },
+      { path: "/financeiro/contas", label: "Pagar e receber", icon: Receipt, phase: 0, description: "Contas a pagar, a receber e recorrências." },
+      { path: "/financeiro/carteira", label: "Dívidas e cartões", icon: CreditCard, phase: 0, description: "Dívidas parceladas, cartões e contas bancárias." },
+      { path: "/financeiro/reservas", label: "Reservas e metas", icon: PiggyBank, phase: 0, description: "Reservas e metas financeiras." },
     ],
   },
   {

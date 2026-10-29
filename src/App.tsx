@@ -22,6 +22,11 @@ import Metas from "@/pages/Metas";
 import Equipe from "@/pages/Equipe";
 import Lixeira from "@/pages/Lixeira";
 import Funis from "@/pages/Funis";
+import VisaoGeral from "@/pages/financeiro/VisaoGeral";
+import Lancamentos from "@/pages/financeiro/Lancamentos";
+import PagarReceber from "@/pages/financeiro/PagarReceber";
+import Carteira from "@/pages/financeiro/Carteira";
+import Reservas from "@/pages/financeiro/Reservas";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: 1 } },
@@ -69,6 +74,11 @@ const BUILT: Record<string, ReactNode> = {
   "/equipe": <Equipe />,
   "/lixeira": <Lixeira />,
   "/funis": <Funis />,
+  "/financeiro": <VisaoGeral />,
+  "/financeiro/lancamentos": <Lancamentos />,
+  "/financeiro/contas": <PagarReceber />,
+  "/financeiro/carteira": <Carteira />,
+  "/financeiro/reservas": <Reservas />,
 };
 
 export default function App() {

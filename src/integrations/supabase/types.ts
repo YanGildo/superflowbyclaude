@@ -151,3 +151,68 @@ export interface Funnel {
   created_at: string;
   updated_at: string;
 }
+
+/* ------------------------------ Financeiro ------------------------------ */
+
+export type AccountType = "corrente" | "dinheiro" | "reserva" | "investimento" | "carteira_digital" | "gateway" | "outro";
+export type TxType = "entrada" | "saida" | "transferencia";
+export type UseType = "pessoal" | "negocio" | "misto";
+export type BillRecurrence = "none" | "weekly" | "monthly" | "yearly";
+
+export interface FinAccount {
+  id: string; workspace_id: string; business_id: string | null; name: string; type: AccountType;
+  bank: string | null; initial_balance: number; color: string | null; archived_at: string | null; created_at: string;
+}
+
+export interface CreditCard {
+  id: string; workspace_id: string; business_id: string | null; name: string; brand: string | null;
+  last_digits: string | null; credit_limit: number; closing_day: number | null; due_day: number | null;
+  color: string | null; archived_at: string | null; created_at: string;
+}
+
+export interface FinCategory {
+  id: string; workspace_id: string; name: string; kind: "entrada" | "saida" | "ambos";
+  color: string | null; icon: string | null; essential: boolean;
+}
+
+export interface Transaction {
+  id: string; workspace_id: string; business_id: string | null; type: TxType; amount: number; date: string;
+  description: string; category_id: string | null; account_id: string | null; card_id: string | null;
+  to_account_id: string | null; method: string | null; status: "pago" | "pendente"; essential: boolean;
+  use_type: UseType; project_id: string | null; contact_id: string | null; source_type: string | null;
+  source_id: string | null; notes: string | null; deleted_at: string | null; created_at: string;
+}
+
+export interface Payable {
+  id: string; workspace_id: string; business_id: string | null; title: string; category_id: string | null;
+  amount: number; due_date: string; paid_date: string | null;
+  status: "pendente" | "pago" | "atrasado" | "cancelado" | "parcial"; method: string | null;
+  recurrence: BillRecurrence; debt_id: string | null; card_id: string | null; account_id: string | null;
+  installment_number: number | null; notes: string | null; created_at: string;
+}
+
+export interface Receivable {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string | null; proposal_id: string | null;
+  title: string; category_id: string | null; amount: number; expected_date: string; received_date: string | null;
+  status: "previsto" | "recebido" | "atrasado" | "cancelado" | "parcial"; recurrence: BillRecurrence;
+  account_id: string | null; notes: string | null; created_at: string;
+}
+
+export interface Debt {
+  id: string; workspace_id: string; business_id: string | null; name: string; creditor: string | null;
+  total_amount: number; installments_total: number; installment_amount: number | null; first_due_date: string | null;
+  interest_rate: number | null; status: "ativa" | "quitada" | "atrasada" | "renegociada" | "cancelada";
+  notes: string | null; created_at: string;
+}
+
+export interface FinGoal {
+  id: string; workspace_id: string; business_id: string | null; name: string;
+  kind: "reserva" | "faturamento" | "emergencia" | "independencia"; target: number;
+  period: "mensal" | "anual" | "unico" | null; deadline: string | null; color: string | null;
+  status: "ativa" | "pausada" | "concluida"; created_at: string;
+}
+
+export interface Reserve {
+  id: string; workspace_id: string; goal_id: string | null; name: string; amount: number; date: string;
+  status: "ativa" | "concluida" | "arquivada"; notes: string | null; created_at: string;
+}
