@@ -6,6 +6,7 @@ import {
   SidebarMenuItem, SidebarRail,
 } from "@/components/ui/sidebar";
 import { BrandMark } from "@/components/brand/BrandMark";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import { NAV } from "@/lib/nav";
 import { useAuth } from "@/lib/auth";
 
@@ -27,6 +28,7 @@ export function AppSidebar() {
             <p className="truncate text-[11px] text-sidebar-foreground/70">Operação completa</p>
           </div>
         </div>
+        <WorkspaceSwitcher />
       </SidebarHeader>
 
       <SidebarContent className="gap-0">

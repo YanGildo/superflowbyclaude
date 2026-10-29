@@ -38,7 +38,7 @@ export const NAV: NavSection[] = [
       { path: "/tarefas", label: "Tarefas", icon: ListTodo, phase: 0, description: "Listas, kanban e fluxos de produção num sistema só." },
       { path: "/projetos", label: "Projetos", icon: FolderKanban, phase: 0, description: "Iniciativas, entregas e próximas ações." },
       { path: "/metas", label: "Metas", icon: Target, phase: 0, description: "Objetivos com etapas que viram tarefas." },
-      { path: "/funis", label: "Funis", icon: Workflow, phase: 1, description: "Canvas visual de funis e jornadas." },
+      { path: "/funis", label: "Funis", icon: Workflow, phase: 0, description: "Canvas visual de funis e jornadas." },
     ],
   },
   {
@@ -93,8 +93,8 @@ export const NAV: NavSection[] = [
     label: "Sistema",
     items: [
       { path: "/configuracoes", label: "Configurações", icon: Settings, phase: 0, description: "Perfil, negócios e preferências." },
-      { path: "/equipe", label: "Equipe", icon: UsersRound, phase: 1, description: "Convidar outra pessoa e definir o acesso." },
-      { path: "/lixeira", label: "Lixeira", icon: Trash2, phase: 1, description: "Itens excluídos nos últimos 30 dias." },
+      { path: "/equipe", label: "Equipe", icon: UsersRound, phase: 0, description: "Convidar outra pessoa e definir o acesso." },
+      { path: "/lixeira", label: "Lixeira", icon: Trash2, phase: 0, description: "Itens excluídos nos últimos 30 dias." },
     ],
   },
 ];

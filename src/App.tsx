@@ -19,6 +19,9 @@ import Tarefas from "@/pages/Tarefas";
 import Hoje from "@/pages/Hoje";
 import Projetos from "@/pages/Projetos";
 import Metas from "@/pages/Metas";
+import Equipe from "@/pages/Equipe";
+import Lixeira from "@/pages/Lixeira";
+import Funis from "@/pages/Funis";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: 1 } },
@@ -63,6 +66,9 @@ const BUILT: Record<string, ReactNode> = {
   "/hoje": <Hoje />,
   "/projetos": <Projetos />,
   "/metas": <Metas />,
+  "/equipe": <Equipe />,
+  "/lixeira": <Lixeira />,
+  "/funis": <Funis />,
 };
 
 export default function App() {

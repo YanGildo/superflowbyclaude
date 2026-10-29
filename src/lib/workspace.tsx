@@ -9,6 +9,9 @@ export type BusinessFilter = "all" | string;
 
 interface WorkspaceState {
   workspace: Workspace | null;
+  workspaces: Workspace[];
+  setWorkspaceId: (id: string) => void;
+  isOwner: boolean;
   businesses: Business[];
   loading: boolean;
   error: string | null;
@@ -20,6 +23,7 @@ interface WorkspaceState {
 
 const WorkspaceContext = createContext<WorkspaceState | null>(null);
 const FILTER_KEY = "superflow:business-filter";
+const WS_KEY = "superflow:workspace";
 
 function readFilter(): BusinessFilter {
   try {
@@ -33,6 +37,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [businessFilter, setFilterState] = useState<BusinessFilter>(readFilter);
+  const [wsId, setWsId] = useState<string | null>(() => {
+    try { return localStorage.getItem(WS_KEY); } catch { return null; }
+  });
 
   const wsQuery = useQuery({
     queryKey: ["workspace", user?.id],
@@ -41,15 +48,25 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from("workspaces")
         .select("id, name, owner_id, settings")
-        .order("created_at")
-        .limit(1)
-        .maybeSingle();
+        .order("created_at");
       if (error) throw error;
-      return data as Workspace | null;
+      return (data ?? []) as Workspace[];
     },
   });
 
-  const workspace = wsQuery.data ?? null;
+  const workspaces = useMemo(() => wsQuery.data ?? [], [wsQuery.data]);
+  // escolhido > o seu próprio > o primeiro
+  const workspace =
+    workspaces.find((w) => w.id === wsId) ??
+    workspaces.find((w) => w.owner_id === user?.id) ??
+    workspaces[0] ?? null;
+
+  const setWorkspaceId = (id: string) => {
+    setWsId(id);
+    setFilterState("all");
+    try { localStorage.setItem(WS_KEY, id); localStorage.setItem(FILTER_KEY, "all"); } catch { /* sem storage */ }
+    qc.invalidateQueries();
+  };
 
   const bizQuery = useQuery({
     queryKey: ["businesses", workspace?.id],
@@ -89,6 +106,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const value: WorkspaceState = {
     workspace,
+    workspaces,
+    setWorkspaceId,
+    isOwner: Boolean(workspace && user && workspace.owner_id === user.id),
     businesses,
     loading: wsQuery.isLoading || (Boolean(workspace) && bizQuery.isLoading),
     error: error ? error.message : null,
