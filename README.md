@@ -15,7 +15,20 @@ Pronto e testado:
 - Configurações: cadastro de negócios (criar, renomear, cor, tipo, arquivar) e perfil
 - Banco completo de todas as fases (56 tabelas, segurança por usuário, automações)
 
-## Como colocar no ar (primeira vez)
+## Seu projeto (já criado)
+
+- Supabase: projeto **`superflow`** (`jxzogffjeedimdvcliqp`, região São Paulo), na organização "bearhunter".
+  É independente do projeto do BearHunter.
+- Banco já aplicado: 56 tabelas, segurança ativa em todas, automações, views e jobs agendados.
+- O `.env.local` deste pacote já aponta para ele (chave pública *publishable*, pode ficar no navegador).
+
+**Falta só 1 ajuste no painel do Supabase antes de criar sua conta:**
+Authentication → **URL Configuration** → Site URL = `http://localhost:8080` (e adicione o mesmo em Redirect URLs).
+Se preferir entrar sem confirmar e-mail: Authentication → Providers → Email → desligue **Confirm email**.
+
+Depois: `npm install` e `npm run dev`, abra http://localhost:8080 e clique em **Criar conta**.
+
+## Como montar do zero (outro ambiente)
 
 ### 1. Criar o banco
 1. Em [supabase.com](https://supabase.com), crie um projeto novo (região São Paulo).

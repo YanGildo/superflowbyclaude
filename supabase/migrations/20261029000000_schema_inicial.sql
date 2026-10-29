@@ -1472,3 +1472,26 @@ begin
   get diagnostics n = row_count;
   return n;
 end $$;
+
+-- Jobs e onboarding não podem ser chamados pela API pública (só pelo agendador / trigger).
+revoke execute on function public.job_mark_overdue()         from public, anon, authenticated;
+revoke execute on function public.job_purge_trash()          from public, anon, authenticated;
+revoke execute on function public.job_expire_subscriptions() from public, anon, authenticated;
+revoke execute on function public.handle_new_user()          from public, anon, authenticated;
+
+-- Endurecimento (recomendação do verificador do Supabase)
+alter function public.set_updated_at()              set search_path = public;
+alter function public.tasks_completed_at()          set search_path = public;
+alter function public.tasks_spawn_recurrence()      set search_path = public;
+alter function public.deals_stage_effects()         set search_path = public;
+alter function public.proposals_on_approve()        set search_path = public;
+alter function public.sales_to_transaction()        set search_path = public;
+alter function public.receivables_on_receive()      set search_path = public;
+alter function public.payables_on_pay()             set search_path = public;
+alter function public.debts_generate_installments() set search_path = public;
+alter function public.payments_on_paid()            set search_path = public;
+alter function public.payments_on_create()          set search_path = public;
+revoke execute on function public.is_member(uuid) from public, anon;
+revoke execute on function public.can_write(uuid) from public, anon;
+grant  execute on function public.is_member(uuid) to authenticated;
+grant  execute on function public.can_write(uuid) to authenticated;
