@@ -17,6 +17,8 @@ import Configuracoes from "@/pages/Configuracoes";
 import EmBreve from "@/pages/EmBreve";
 import Tarefas from "@/pages/Tarefas";
 import Hoje from "@/pages/Hoje";
+import Projetos from "@/pages/Projetos";
+import Metas from "@/pages/Metas";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: 1 } },
@@ -59,6 +61,8 @@ const BUILT: Record<string, ReactNode> = {
   "/configuracoes": <Configuracoes />,
   "/tarefas": <Tarefas />,
   "/hoje": <Hoje />,
+  "/projetos": <Projetos />,
+  "/metas": <Metas />,
 };
 
 export default function App() {

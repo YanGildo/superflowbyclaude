@@ -36,8 +36,8 @@ export const NAV: NavSection[] = [
     label: "Produtividade",
     items: [
       { path: "/tarefas", label: "Tarefas", icon: ListTodo, phase: 0, description: "Listas, kanban e fluxos de produção num sistema só." },
-      { path: "/projetos", label: "Projetos", icon: FolderKanban, phase: 1, description: "Iniciativas, entregas e próximas ações." },
-      { path: "/metas", label: "Metas", icon: Target, phase: 1, description: "Objetivos com etapas que viram tarefas." },
+      { path: "/projetos", label: "Projetos", icon: FolderKanban, phase: 0, description: "Iniciativas, entregas e próximas ações." },
+      { path: "/metas", label: "Metas", icon: Target, phase: 0, description: "Objetivos com etapas que viram tarefas." },
       { path: "/funis", label: "Funis", icon: Workflow, phase: 1, description: "Canvas visual de funis e jornadas." },
     ],
   },
