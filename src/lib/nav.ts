@@ -39,7 +39,7 @@ export const NAV: NavSection[] = [
     id: "crm",
     label: "CRM Agência",
     items: [
-      { path: "/agencia", label: "Dashboard da Agência", icon: Gauge, phase: 3, description: "Clientes, propostas, receita e demandas da agência." },
+      { path: "/agencia", label: "Dashboard da Agência", icon: Gauge, phase: 0, description: "Clientes, propostas, receita e demandas da agência." },
       { path: "/comercial", label: "Comercial", icon: KanbanSquare, phase: 0, description: "Pipeline, clientes, propostas, jornada, conversões e contatos." },
       { path: "/prospeccao", label: "Prospecção", icon: Search, phase: 3, description: "Busca de empresas no Google Maps (Apify), mapa e lista de prospects." },
       { path: "/scripts", label: "Scripts", icon: MessageSquareText, phase: 0, description: "Mensagens prontas por segmento, com variáveis." },
