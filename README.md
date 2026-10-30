@@ -75,6 +75,23 @@ where w.owner_id = (select id from auth.users where email = 'SEU-EMAIL')
 ```
 > Use `'viewer'` se ela só puder ver.
 
+## Qualidade de código (ESLint)
+
+Regras instaladas a partir do prompt 08 do *vibe-coding-toolkit* (limite de **350 linhas** por arquivo):
+
+| Comando | O que faz | Tempo medido |
+|---|---|---|
+| `npm run lint` | Lint rápido (sem tipos), inclui as regras `quality/*` | ~3–7 s |
+| `npm run lint:fix` | Corrige o que dá para corrigir sozinho | — |
+| `npm run lint:typed` | Nível com checagem de tipos (mais lento, ~800 MB de RAM) | ~14 s |
+
+- `quality/max-lines`: arquivo com mais de 350 linhas.
+- `quality/no-direct-console`: proíbe `console.*` solto no código.
+- `quality/no-direct-data-access`: telas/componentes não importam o cliente do Supabase; usam os hooks de `src/hooks`.
+
+Regras com problemas já existentes estão em `warn`, com a contagem anotada em `eslint.config.mjs` (linha de base).
+Quando a contagem de uma regra chegar a zero, ela volta para `error`.
+
 ## Estrutura
 
 ```
