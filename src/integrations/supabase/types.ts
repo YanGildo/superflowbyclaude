@@ -216,3 +216,83 @@ export interface Reserve {
   id: string; workspace_id: string; goal_id: string | null; name: string; amount: number; date: string;
   status: "ativa" | "concluida" | "arquivada"; notes: string | null; created_at: string;
 }
+
+/* ------------------------------ Comercial ------------------------------ */
+
+export type ContactStatus = "lead" | "em_negociacao" | "cliente_ativo" | "pausado" | "cancelado" | "perdido";
+export type Temperature = "frio" | "morno" | "quente";
+
+export interface Contact {
+  id: string; workspace_id: string; business_id: string | null; kind: "pessoa" | "empresa"; name: string;
+  company: string | null; contact_person: string | null; email: string | null; phone: string | null; whatsapp: string | null;
+  instagram: string | null; website: string | null; city: string | null; state: string | null; country: string | null;
+  segment: string | null; source: string | null; status: ContactStatus; temperature: Temperature | null; priority: Priority;
+  plan_name: string | null; monthly_value: number | null; start_date: string | null; services: string[];
+  next_action: string | null; next_contact_at: string | null; notes: string | null; meta: Record<string, unknown>;
+  deleted_at: string | null; created_at: string; updated_at: string;
+}
+
+export interface Pipeline { id: string; workspace_id: string; business_id: string | null; name: string; position: number }
+
+export interface PipelineStage {
+  id: string; workspace_id: string; pipeline_id: string; name: string; position: number;
+  outcome: "open" | "won" | "lost"; set_contact_status: ContactStatus | null; color: string | null;
+}
+
+export interface Deal {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string; pipeline_id: string; stage_id: string;
+  title: string; value: number | null; recurring_value: number | null; expected_close: string | null;
+  status: "open" | "won" | "lost"; lost_reason: string | null; position: number; closed_at: string | null;
+  deleted_at: string | null; created_at: string; updated_at: string;
+}
+
+export interface Activity {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string | null; deal_id: string | null;
+  category: "contato" | "conversao"; type: string; channel: string | null; summary: string | null; notes: string | null;
+  outcome: string | null; value: number | null; at: string; next_follow_up_at: string | null;
+  campaign_id: string | null; origin: string; created_at: string;
+}
+
+export interface Service {
+  id: string; workspace_id: string; business_id: string | null; name: string; description: string | null;
+  default_price: number | null; recurring: boolean; active: boolean;
+}
+
+export type ProposalStatus = "rascunho" | "enviada" | "em_negociacao" | "aprovada" | "recusada" | "expirada";
+
+export interface Proposal {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string; deal_id: string | null; title: string;
+  status: ProposalStatus; monthly_value: number; setup_fee: number; min_term_months: number | null;
+  payment_method: string | null; billing_day: number | null; valid_until: string | null; sent_at: string | null;
+  approved_at: string | null; notes: string | null; deleted_at: string | null; created_at: string;
+}
+
+export interface ProposalItem {
+  id: string; workspace_id: string; proposal_id: string; service_id: string | null; description: string;
+  quantity: number; unit_price: number; recurring: boolean; position: number;
+}
+
+export type JourneyMoment = "antes_fechar" | "onboarding" | "execucao" | "revisao";
+
+export interface JourneyItem {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string | null; moment: JourneyMoment;
+  title: string; description: string | null; done: boolean; due_date: string | null; position: number;
+}
+
+export interface ScriptSegment {
+  id: string; workspace_id: string; name: string; description: string | null; service_type: string | null;
+  categories: string[]; is_default: boolean; archived_at: string | null; position: number;
+}
+
+export interface Script {
+  id: string; workspace_id: string; segment_id: string | null; title: string; category: string | null;
+  moment: string | null; channel: string; body: string; tags: string[]; favorite: boolean;
+  archived_at: string | null; created_at: string; updated_at: string;
+}
+
+export interface ChatThread {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string; channel: string;
+  mode: "simulado" | "real"; last_message_at: string; created_at: string;
+}
+
+export interface ChatMessage { id: string; workspace_id: string; thread_id: string; direction: "in" | "out"; body: string; at: string }
