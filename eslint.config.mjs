@@ -7,8 +7,8 @@
 // (react-hooks + react-refresh preservados).
 //
 // Severidades medidas na instalação (30/10/2026): regra com 0 violações = "error";
-// regra com violações = "warn" + contagem (baseline). A migração de cada regra
-// termina quando a contagem chega a zero e ela volta para "error".
+// regra com violações = "warn" + contagem (baseline). Burndown concluído em
+// 30/10/2026 (prompt 02): todas as regras zeradas e em "error".
 import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
@@ -95,12 +95,12 @@ export default defineConfig([
         "error", // baseline 1 -> 0
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
-      complexity: ["warn", 12], // baseline: 22
+      complexity: ["error", 12], // baseline 22 -> 0
       "max-depth": ["error", 4],
-      "max-statements": ["warn", 20], // baseline: 4
+      "max-statements": ["error", 20], // baseline 4 -> 0
       "max-params": ["error", 4],
       "max-lines-per-function": [
-        "warn", // baseline: 3
+        "error", // baseline 3 -> 0
         { max: 150, skipBlankLines: true, skipComments: true },
       ],
       "max-nested-callbacks": ["error", 3],

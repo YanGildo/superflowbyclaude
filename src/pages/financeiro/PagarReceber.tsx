@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader, EmptyState } from "@/components/common/PageHeader";
 import { BillDialog } from "@/components/finance/BillDialog";
 import { BillRow, type BillRowActions } from "@/components/finance/BillRow";
-import { Summary } from "./Lancamentos";
+import { Summary } from "@/components/finance/Summary";
 import { useCategories, useFinMutations, usePayables, useReceivables } from "@/hooks/useFinance";
 import type { Payable, Receivable } from "@/integrations/supabase/types";
 import type { BillKind } from "@/lib/billForm";

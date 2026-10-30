@@ -89,8 +89,13 @@ Regras instaladas a partir do prompt 08 do *vibe-coding-toolkit* (limite de **35
 - `quality/no-direct-console`: proíbe `console.*` solto no código.
 - `quality/no-direct-data-access`: telas/componentes não importam o cliente do Supabase; usam os hooks de `src/hooks`.
 
-Regras com problemas já existentes estão em `warn`, com a contagem anotada em `eslint.config.mjs` (linha de base).
-Quando a contagem de uma regra chegar a zero, ela volta para `error`.
+Todas as regras estão em `error` e o projeto está com **0 avisos** (burndown concluído em 30/10/2026).
+Código novo que quebre alguma regra (função complexa demais, tela acessando o banco direto, etc.) falha no `npm run lint`.
+
+Onde fica cada coisa depois da limpeza:
+- acesso ao banco: `src/hooks` (ex.: `useTeam`, `useTrash`, `useSettings`) e `src/lib/*.ts`
+- regras de formulário e cálculos sem tela: `src/lib` (ex.: `txForm`, `billForm`, `bills`, `transactions`, `overview`, `goals`)
+- pedaços de tela: `src/components/<área>` (ex.: `team/`, `goals/`, `finance/wallet/`, `finance/overview/`)
 
 ## Estrutura
 

@@ -33,6 +33,46 @@ export function TaskCheck({ done, onToggle, label }: { done: boolean; onToggle: 
   );
 }
 
+function DueDate({ due, today, overdue }: { due: string; today: string; overdue: boolean }) {
+  return (
+    <span className={cn("inline-flex items-center gap-1", overdue && "font-medium text-destructive")}>
+      <Calendar className="size-3" />{due === today ? "Hoje" : shortDate(due)}{overdue && " · atrasada"}
+    </span>
+  );
+}
+
+/** Linha de detalhes sob o título: meu dia, prazo, repetição, fluxo, projeto, lista. */
+function TaskMeta({ task, lookups, today }: { task: Task; lookups: TaskLookups; today: string }) {
+  const flow = lookups.flowName?.(task.flow_id);
+  const project = lookups.projectName?.(task.project_id);
+  const list = lookups.listName?.(task.list_id);
+  return (
+    <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+      {task.my_day_date === today && <span className="inline-flex items-center gap-1 text-primary"><Sun className="size-3" />Meu dia</span>}
+      {task.due_date && <DueDate due={task.due_date} today={today} overdue={isOverdue(task, today)} />}
+      {task.recurrence !== "none" && <span className="inline-flex items-center gap-1"><Repeat className="size-3" />repete</span>}
+      {flow && <span className="inline-flex items-center gap-1"><ListChecks className="size-3" />{flow}</span>}
+      {project && <span className="inline-flex items-center gap-1"><FolderKanban className="size-3" />{project}</span>}
+      {list && <span>{list}</span>}
+    </div>
+  );
+}
+
+function ImportantStar({ important, onToggle }: { important: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={important ? "Tirar dos importantes" : "Marcar como importante"}
+      aria-pressed={important}
+      onClick={(e) => { e.stopPropagation(); onToggle(); }}
+      className={cn("shrink-0 rounded p-1 transition-colors",
+        important ? "text-warning" : "text-muted-foreground/40 hover:text-warning group-hover:text-muted-foreground")}
+    >
+      <Star className={cn("size-4", important && "fill-current")} />
+    </button>
+  );
+}
+
 export function TaskRow({
   task, onOpen, onToggleDone, onToggleImportant, lookups, selected, wrap,
 }: {
@@ -45,11 +85,6 @@ export function TaskRow({
   wrap?: boolean;
 }) {
   const done = task.status === "concluida";
-  const today = localISODate();
-  const overdue = isOverdue(task, today);
-  const flow = lookups.flowName?.(task.flow_id);
-  const project = lookups.projectName?.(task.project_id);
-  const list = lookups.listName?.(task.list_id);
 
   return (
     <div
@@ -69,18 +104,7 @@ export function TaskRow({
         >
           {task.title}
         </button>
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
-          {task.my_day_date === today && <span className="inline-flex items-center gap-1 text-primary"><Sun className="size-3" />Meu dia</span>}
-          {task.due_date && (
-            <span className={cn("inline-flex items-center gap-1", overdue && "font-medium text-destructive")}>
-              <Calendar className="size-3" />{task.due_date === today ? "Hoje" : shortDate(task.due_date)}{overdue && " · atrasada"}
-            </span>
-          )}
-          {task.recurrence !== "none" && <span className="inline-flex items-center gap-1"><Repeat className="size-3" />repete</span>}
-          {flow && <span className="inline-flex items-center gap-1"><ListChecks className="size-3" />{flow}</span>}
-          {project && <span className="inline-flex items-center gap-1"><FolderKanban className="size-3" />{project}</span>}
-          {list && <span>{list}</span>}
-        </div>
+        <TaskMeta task={task} lookups={lookups} today={localISODate()} />
       </div>
 
       {task.priority !== "media" && (
@@ -89,16 +113,7 @@ export function TaskRow({
         </span>
       )}
 
-      <button
-        type="button"
-        aria-label={task.is_important ? "Tirar dos importantes" : "Marcar como importante"}
-        aria-pressed={task.is_important}
-        onClick={(e) => { e.stopPropagation(); onToggleImportant(); }}
-        className={cn("shrink-0 rounded p-1 transition-colors",
-          task.is_important ? "text-warning" : "text-muted-foreground/40 hover:text-warning group-hover:text-muted-foreground")}
-      >
-        <Star className={cn("size-4", task.is_important && "fill-current")} />
-      </button>
+      <ImportantStar important={task.is_important} onToggle={onToggleImportant} />
     </div>
   );
 }

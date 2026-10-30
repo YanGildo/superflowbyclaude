@@ -3,13 +3,30 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { blockDef, type BlockNode as BlockNodeType } from "./blocks";
 import { cn } from "@/lib/utils";
 
+/** % que avança, com uma casa decimal; null sem números. */
+function conversionRate(visits?: number | null, conversions?: number | null): number | null {
+  if (!visits || visits <= 0 || conversions == null) return null;
+  return Math.round((conversions / visits) * 1000) / 10;
+}
+
+/** Números de visitas/conversões do bloco (some se nenhum foi preenchido). */
+function BlockStats({ visits, conversions }: { visits?: number | null; conversions?: number | null }) {
+  if (visits == null && conversions == null) return null;
+  const rate = conversionRate(visits, conversions);
+  return (
+    <div className="mt-2 flex gap-3 border-t pt-1.5 text-[11px] text-muted-foreground">
+      {visits != null && <span><b className="text-foreground">{visits}</b> entram</span>}
+      {conversions != null && <span><b className="text-foreground">{conversions}</b> avançam</span>}
+      {rate != null && <span className="ml-auto font-semibold text-primary">{rate}%</span>}
+    </div>
+  );
+}
+
 /** Bloco do funil: ícone colorido, nome e (se houver) números de visitas/conversões. */
 function BlockNodeImpl({ data, selected }: NodeProps<BlockNodeType>) {
   const def = blockDef(data.kind);
   const Icon = def.icon;
   const isNote = data.kind === "nota";
-  const rate = data.visits && data.conversions != null && data.visits > 0
-    ? Math.round((data.conversions / data.visits) * 1000) / 10 : null;
 
   return (
     <div
@@ -30,13 +47,7 @@ function BlockNodeImpl({ data, selected }: NodeProps<BlockNodeType>) {
         </div>
       </div>
       {isNote && data.note && <p className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">{data.note}</p>}
-      {(data.visits != null || data.conversions != null) && !isNote && (
-        <div className="mt-2 flex gap-3 border-t pt-1.5 text-[11px] text-muted-foreground">
-          {data.visits != null && <span><b className="text-foreground">{data.visits}</b> entram</span>}
-          {data.conversions != null && <span><b className="text-foreground">{data.conversions}</b> avançam</span>}
-          {rate != null && <span className="ml-auto font-semibold text-primary">{rate}%</span>}
-        </div>
-      )}
+      {!isNote && <BlockStats visits={data.visits} conversions={data.conversions} />}
       {!isNote && <Handle type="source" position={Position.Right} className="!size-2.5 !border-2 !border-card !bg-primary" />}
     </div>
   );

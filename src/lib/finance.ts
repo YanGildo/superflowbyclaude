@@ -55,3 +55,6 @@ export const ACCOUNT_TYPES: { value: FinAccount["type"]; label: string }[] = [
 ];
 
 export const METHODS = ["Pix", "Cartão de crédito", "Cartão de débito", "Boleto", "Dinheiro", "Transferência", "Gateway", "Outro"];
+
+/** Cores para contas e cartões (paleta da marca + neutros). */
+export const WALLET_COLORS = ["#0D47A1", "#26C6DA", "#059669", "#7c3aed", "#d97706", "#dc2626", "#0A1A2F", "#475569"];

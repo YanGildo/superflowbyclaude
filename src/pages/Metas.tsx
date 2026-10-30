@@ -1,33 +1,18 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { CalendarDays, Loader2, Pencil, Plus, Sun, Target, Trash2, X } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2, Plus, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader, EmptyState } from "@/components/common/PageHeader";
 import { RefSelect, SimpleSelect } from "@/components/common/RefSelect";
-import { TaskCheck } from "@/components/tasks/TaskRow";
+import { GoalCard } from "@/components/goals/GoalCard";
 import { useGoalMutations, useGoalSteps, useGoals, useProjects } from "@/hooks/useProjectsGoals";
-import { useAllTasks, useTaskMutations } from "@/hooks/useTasks";
-import type { Goal, GoalStep, Priority } from "@/integrations/supabase/types";
-import { GOAL_CATEGORIES, GOAL_STATUS_LABEL, PRIORITIES, PRIORITY, shortDate } from "@/lib/labels";
-import { brl, localISODate } from "@/lib/format";
-import { cn } from "@/lib/utils";
-
-/** Valor-alvo financeiro? Mostra em R$; senão em número simples. */
-const isMoney = (g: Goal) => g.category === "Financeiro" || g.category === "Vendas";
-
-function goalProgress(g: Goal, steps: GoalStep[]) {
-  if (g.status === "concluida") return 100;
-  if (g.target_value && g.target_value > 0) return Math.min(100, Math.round((g.current_value / g.target_value) * 100));
-  if (!steps.length) return 0;
-  return Math.round((steps.filter((s) => s.done).length / steps.length) * 100);
-}
+import { useAllTasks } from "@/hooks/useTasks";
+import type { Goal, Priority } from "@/integrations/supabase/types";
+import { GOAL_CATEGORIES, GOAL_STATUS_LABEL, PRIORITIES, PRIORITY } from "@/lib/labels";
 
 type Form = {
   title: string; description: string; category: string; status: Goal["status"]; priority: Priority;
@@ -120,86 +105,6 @@ function GoalDialog({ open, onOpenChange, goal }: { open: boolean; onOpenChange:
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function GoalCard({ goal, steps, linkedTasks, onEdit }: { goal: Goal; steps: GoalStep[]; linkedTasks: number; onEdit: () => void }) {
-  const m = useGoalMutations();
-  const { create } = useTaskMutations();
-  const [newStep, setNewStep] = useState("");
-  const pct = goalProgress(goal, steps);
-  const next = steps.find((s) => !s.done);
-  const today = localISODate();
-  const late = goal.deadline && goal.deadline < today && goal.status !== "concluida";
-
-  const addStep = (e: FormEvent) => {
-    e.preventDefault();
-    if (!newStep.trim()) return;
-    m.addStep.mutate({ goalId: goal.id, title: newStep, position: steps.length });
-    setNewStep("");
-  };
-
-  const nextToToday = async () => {
-    if (!next) return;
-    await create.mutateAsync({ title: next.title, goal_id: goal.id, project_id: goal.project_id, business_id: goal.business_id, my_day_date: today });
-    toast.success("Próxima etapa adicionada ao seu dia.");
-  };
-
-  return (
-    <Card className={cn("flex flex-col", goal.status === "concluida" && "opacity-75")}>
-      <CardContent className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{goal.category ?? "Meta"}</p>
-            <h3 className="font-heading font-semibold leading-snug">{goal.title}</h3>
-          </div>
-          <div className="flex shrink-0">
-            <Button size="icon" variant="ghost" className="size-8" aria-label="Editar meta" onClick={onEdit}><Pencil className="size-4" /></Button>
-            <Button size="icon" variant="ghost" className="size-8 text-muted-foreground hover:text-destructive" aria-label="Excluir meta" onClick={() => m.remove.mutate(goal.id)}><Trash2 className="size-4" /></Button>
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <div className="flex items-baseline justify-between text-xs">
-            <span className="text-muted-foreground">
-              {goal.target_value
-                ? `${isMoney(goal) ? brl(goal.current_value) : goal.current_value} de ${isMoney(goal) ? brl(goal.target_value) : goal.target_value}`
-                : steps.length ? `${steps.filter((s) => s.done).length}/${steps.length} etapas` : "Adicione etapas"}
-            </span>
-            <span className="font-heading text-sm font-semibold">{pct}%</span>
-          </div>
-          <Progress value={pct} className="h-2" />
-        </div>
-
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          {goal.deadline && <span className={cn("inline-flex items-center gap-1", late && "font-medium text-destructive")}><CalendarDays className="size-3.5" />{shortDate(goal.deadline)}{late && " · atrasada"}</span>}
-          {linkedTasks > 0 && <span>{linkedTasks} tarefa{linkedTasks > 1 ? "s" : ""} ligada{linkedTasks > 1 ? "s" : ""}</span>}
-          <span>{GOAL_STATUS_LABEL[goal.status]}</span>
-        </div>
-
-        <div className="space-y-1">
-          {steps.map((s) => (
-            <div key={s.id} className="group flex items-center gap-2.5 rounded-md px-1 py-0.5 hover:bg-accent/50">
-              <TaskCheck done={s.done} onToggle={() => m.toggleStep.mutate(s)} label={s.title} />
-              <span className={cn("flex-1 text-sm", s.done && "text-muted-foreground line-through")}>{s.title}</span>
-              <button aria-label={`Remover etapa ${s.title}`} onClick={() => m.removeStep.mutate(s.id)}
-                className="rounded p-0.5 text-muted-foreground opacity-0 hover:text-destructive group-hover:opacity-100"><X className="size-3.5" /></button>
-            </div>
-          ))}
-          <form onSubmit={addStep} className="flex items-center gap-2 px-1">
-            <Plus className="size-4 text-primary" />
-            <Input value={newStep} onChange={(e) => setNewStep(e.target.value)} placeholder="Adicionar etapa" aria-label={`Nova etapa para ${goal.title}`}
-              className="h-7 border-0 bg-transparent px-1 text-sm shadow-none focus-visible:ring-0" />
-          </form>
-        </div>
-
-        {next && goal.status !== "concluida" && (
-          <Button variant="outline" size="sm" className="mt-auto justify-start" onClick={nextToToday} disabled={create.isPending}>
-            <Sun className="size-4 text-primary" /><span className="truncate">Fazer hoje: {next.title}</span>
-          </Button>
-        )}
-      </CardContent>
-    </Card>
   );
 }
 
