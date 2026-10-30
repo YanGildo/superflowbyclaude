@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Sun, ListTodo, FolderKanban, Target, Workflow,
-  KanbanSquare, Users, FileText, Search, MessageSquareText,
-  CalendarRange, Clapperboard, Megaphone, PackageCheck,
+  KanbanSquare, Users, Search, MessageSquareText, MessagesSquare, Gauge,
+  Megaphone, PackageCheck, Plug,
   Wallet, ArrowLeftRight, Receipt, CreditCard, PiggyBank,
   BarChart3, Bot, GitBranch, Tag, Landmark, Repeat, Crown, Link2,
   Settings, Trash2, UsersRound, type LucideIcon,
@@ -24,17 +24,11 @@ export interface NavSection {
 
 export const NAV: NavSection[] = [
   {
-    id: "inicio",
-    label: "Início",
+    id: "geral",
+    label: "Geral",
     items: [
       { path: "/", label: "Dashboard", icon: LayoutDashboard, phase: 0, description: "Visão geral de todos os negócios." },
       { path: "/hoje", label: "Hoje", icon: Sun, phase: 0, description: "Tarefas do dia, agenda e pendências." },
-    ],
-  },
-  {
-    id: "produtividade",
-    label: "Produtividade",
-    items: [
       { path: "/tarefas", label: "Tarefas", icon: ListTodo, phase: 0, description: "Listas, kanban e fluxos de produção num sistema só." },
       { path: "/projetos", label: "Projetos", icon: FolderKanban, phase: 0, description: "Iniciativas, entregas e próximas ações." },
       { path: "/metas", label: "Metas", icon: Target, phase: 0, description: "Objetivos com etapas que viram tarefas." },
@@ -42,23 +36,22 @@ export const NAV: NavSection[] = [
     ],
   },
   {
-    id: "comercial",
-    label: "Comercial",
+    id: "crm",
+    label: "CRM Agência",
     items: [
-      { path: "/comercial/pipeline", label: "Pipeline", icon: KanbanSquare, phase: 3, description: "Kanban de oportunidades, do lead ao cliente ativo." },
-      { path: "/comercial/contatos", label: "Contatos", icon: Users, phase: 3, description: "Leads e clientes num cadastro único." },
-      { path: "/comercial/propostas", label: "Propostas", icon: FileText, phase: 3, description: "Proposta aprovada vira cliente ativo e mensalidade a receber." },
-      { path: "/comercial/prospeccao", label: "Prospecção", icon: Search, phase: 3, description: "Busca de empresas no Google Maps (Apify)." },
-      { path: "/comercial/scripts", label: "Scripts", icon: MessageSquareText, phase: 3, description: "Mensagens prontas com variáveis." },
+      { path: "/agencia", label: "Dashboard da Agência", icon: Gauge, phase: 3, description: "Clientes, propostas, receita e demandas da agência." },
+      { path: "/comercial", label: "Comercial", icon: KanbanSquare, phase: 3, description: "Pipeline, clientes, propostas, jornada, conversões e contatos." },
+      { path: "/prospeccao", label: "Prospecção", icon: Search, phase: 3, description: "Busca de empresas no Google Maps (Apify), mapa e lista de prospects." },
+      { path: "/scripts", label: "Scripts", icon: MessageSquareText, phase: 3, description: "Mensagens prontas por segmento, com variáveis." },
+      { path: "/whatsapp", label: "WhatsApp", icon: MessagesSquare, phase: 3, description: "WhatsApp simulado ligado ao CRM (o real entra nas integrações)." },
     ],
   },
   {
     id: "marketing",
     label: "Marketing",
     items: [
-      { path: "/marketing/planejamento", label: "Planejamento", icon: CalendarRange, phase: 4, description: "Plano de marketing e calendário." },
-      { path: "/marketing/producao", label: "Produção", icon: Clapperboard, phase: 4, description: "Conteúdos e vídeos: ideia → roteiro → gravação → edição → publicado." },
-      { path: "/marketing/campanhas", label: "Campanhas", icon: Megaphone, phase: 4, description: "Campanhas pagas e orgânicas por cliente." },
+      { path: "/marketing", label: "Marketing", icon: Megaphone, phase: 4, description: "Plano do mês, campanhas, conteúdos, vídeos, calendário e ideias." },
+      { path: "/marketing/campanhas-dashboard", label: "Dashboard de Campanhas", icon: BarChart3, phase: 4, description: "Investimento e resultado das campanhas (Meta/Google)." },
       { path: "/marketing/entregas", label: "Entregas", icon: PackageCheck, phase: 4, description: "Entregas para clientes com prazos e aprovação." },
     ],
   },
@@ -92,7 +85,8 @@ export const NAV: NavSection[] = [
     id: "sistema",
     label: "Sistema",
     items: [
-      { path: "/configuracoes", label: "Configurações", icon: Settings, phase: 0, description: "Perfil, negócios e preferências." },
+      { path: "/integracoes", label: "Integrações", icon: Plug, phase: 7, description: "Google, Microsoft, WhatsApp API, Telegram e outras conexões." },
+      { path: "/configuracoes", label: "Configurações", icon: Settings, phase: 0, description: "Perfil, negócios, aparência e preferências." },
       { path: "/equipe", label: "Equipe", icon: UsersRound, phase: 0, description: "Convidar outra pessoa e definir o acesso." },
       { path: "/lixeira", label: "Lixeira", icon: Trash2, phase: 0, description: "Itens excluídos nos últimos 30 dias." },
     ],
@@ -109,4 +103,5 @@ export const PHASE_LABEL: Record<number, string> = {
   4: "Fase 4 · Marketing",
   5: "Fase 5 · Telegram (painel)",
   6: "Fase 6 · Telegram (vendas)",
+  7: "Integrações",
 };

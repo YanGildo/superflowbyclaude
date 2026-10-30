@@ -8,6 +8,9 @@ import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/600.css";
 import "@fontsource/poppins/700.css";
 import "./index.css";
+import { applyTheme, readTheme } from "./lib/theme";
+
+applyTheme(readTheme());
 
 const root = document.getElementById("root");
 if (!root) throw new Error("index.html sem o elemento #root");

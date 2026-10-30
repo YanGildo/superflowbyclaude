@@ -16,6 +16,7 @@ import { useCreateBusiness, useProfile, useUpdateBusiness } from "@/hooks/useSet
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { CategoriesManager } from "@/components/finance/CategoriesManager";
+import { AppearanceTab } from "@/components/settings/AppearanceTab";
 
 const KINDS: { value: BusinessKind; label: string }[] = [
   { value: "pessoal", label: "Pessoal" },
@@ -155,17 +156,19 @@ export default function Configuracoes() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Configurações</h1>
-        <p className="text-sm text-muted-foreground">Negócios, categorias financeiras e perfil.</p>
+        <p className="text-sm text-muted-foreground">Negócios, categorias financeiras, perfil e aparência.</p>
       </div>
       <Tabs defaultValue="negocios">
         <TabsList>
           <TabsTrigger value="negocios">Negócios</TabsTrigger>
           <TabsTrigger value="categorias">Categorias</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
+          <TabsTrigger value="aparencia">Aparência</TabsTrigger>
         </TabsList>
         <TabsContent value="negocios" className="mt-4"><BusinessesTab /></TabsContent>
         <TabsContent value="categorias" className="mt-4"><CategoriesManager /></TabsContent>
         <TabsContent value="perfil" className="mt-4"><ProfileTab /></TabsContent>
+        <TabsContent value="aparencia" className="mt-4"><AppearanceTab /></TabsContent>
       </Tabs>
     </div>
   );

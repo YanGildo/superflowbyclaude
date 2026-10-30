@@ -95,6 +95,72 @@
 }
 
 @layer base {
+  /* Total Black: preto profundo com destaques azul/ciano. */
+  .theme-black {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 211 100% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 62%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 96%;
+    --border: 0 0% 15%;
+    --input: 0 0% 18%;
+    --ring: 187 71% 50%;
+    --sidebar-background: 0 0% 2%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-border: 0 0% 11%;
+  }
+
+  /* Híbrido: página escura, cards e janelas claros. */
+  .theme-hybrid {
+    --background: 214 72% 7%;
+    --foreground: 214 33% 95%;
+    --card: 213 58% 10%;
+    --card-foreground: 214 33% 95%;
+    --popover: 213 58% 10%;
+    --popover-foreground: 214 33% 95%;
+    --secondary: 213 45% 16%;
+    --secondary-foreground: 214 33% 95%;
+    --accent: 213 45% 17%;
+    --accent-foreground: 214 33% 95%;
+    --input: 213 40% 22%;
+    --muted-foreground: 214 20% 70%;
+    --border: 213 40% 20%;
+    --sidebar-background: 214 78% 5%;
+    --sidebar-border: 213 45% 13%;
+  }
+  .theme-hybrid .bg-card,
+  .theme-hybrid .bg-popover,
+  .theme-hybrid [role="dialog"],
+  .theme-hybrid [role="menu"],
+  .theme-hybrid [role="listbox"] {
+    --background: 0 0% 100%;
+    --card: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --foreground: 213 65% 11%;
+    --card-foreground: 213 65% 11%;
+    --popover-foreground: 213 65% 11%;
+    --muted: 214 32% 93%;
+    --muted-foreground: 214 16% 42%;
+    --accent: 205 60% 93%;
+    --accent-foreground: 213 65% 14%;
+    --secondary: 214 45% 93%;
+    --secondary-foreground: 213 65% 14%;
+    --border: 214 28% 87%;
+    --input: 214 28% 85%;
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer base {
   * { @apply border-border; }
 
   html { scroll-behavior: smooth; overflow-x: clip; }
@@ -111,6 +177,26 @@
   }
 
   main, main > * { min-width: 0; }
+
+  /* Barra de rolagem fina e discreta (aparece mais forte só ao passar o mouse). */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.25) transparent;
+  }
+  *:hover { scrollbar-color: hsl(var(--muted-foreground) / 0.45) transparent; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.3);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background-color: hsl(var(--muted-foreground) / 0.5); }
+
+  /* Menu lateral: rola sem mostrar barra. */
+  [data-sidebar="content"] { scrollbar-width: none; }
+  [data-sidebar="content"]::-webkit-scrollbar { display: none; }
 }
 
 @layer components {
