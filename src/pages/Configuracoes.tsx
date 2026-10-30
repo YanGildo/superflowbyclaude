@@ -1,5 +1,4 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, Loader2, Plus, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,8 +11,8 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { supabase } from "@/integrations/supabase/client";
-import type { Business, BusinessKind, Profile } from "@/integrations/supabase/types";
+import type { Business, BusinessKind } from "@/integrations/supabase/types";
+import { useCreateBusiness, useProfile, useUpdateBusiness } from "@/hooks/useSettings";
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { CategoriesManager } from "@/components/finance/CategoriesManager";
@@ -32,33 +31,13 @@ const COLORS = ["#7c3aed", "#2563eb", "#059669", "#d97706", "#dc2626", "#db2777"
 
 function ProfileTab() {
   const { user } = useAuth();
-  const qc = useQueryClient();
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile", user?.id],
-    enabled: Boolean(user),
-    queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
-      if (error) throw error;
-      return data as Profile | null;
-    },
-  });
+  const { profile: { data: profile, isLoading }, save } = useProfile(user?.id);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   useEffect(() => {
     setFullName(profile?.full_name ?? "");
     setPhone(profile?.phone ?? "");
   }, [profile]);
-
-  const save = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase.from("profiles")
-        .update({ full_name: fullName.trim() || null, phone: phone.trim() || null }).eq("id", user!.id);
-      if (error) throw error;
-      await supabase.auth.updateUser({ data: { full_name: fullName.trim() } });
-    },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["profile"] }); toast.success("Perfil salvo."); },
-    onError: (e: Error) => toast.error(`Não salvou: ${e.message}`),
-  });
 
   return (
     <Card>
@@ -67,7 +46,7 @@ function ProfileTab() {
         <CardDescription>{user?.email}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="grid max-w-md gap-3" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
+        <form className="grid max-w-md gap-3" onSubmit={(e) => { e.preventDefault(); save.mutate({ fullName, phone }); }}>
           <div className="space-y-1.5">
             <Label htmlFor="pf-name">Nome</Label>
             <Input id="pf-name" value={fullName} disabled={isLoading} onChange={(e) => setFullName(e.target.value)} />
@@ -93,14 +72,7 @@ function BusinessRow({ b }: { b: Business }) {
   const [color, setColor] = useState(b.color ?? COLORS[7]);
   const dirty = name.trim() !== b.name || kind !== b.kind || color !== (b.color ?? COLORS[7]);
 
-  const update = useMutation({
-    mutationFn: async (patch: Partial<Business>) => {
-      const { error } = await supabase.from("businesses").update(patch).eq("id", b.id);
-      if (error) throw error;
-    },
-    onSuccess: () => refresh(),
-    onError: (e: Error) => toast.error(e.message.includes("duplicate") ? "Já existe um negócio com esse nome." : e.message),
-  });
+  const update = useUpdateBusiness(b.id, refresh);
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-lg border p-2">
@@ -143,22 +115,12 @@ function BusinessesTab() {
   const [name, setName] = useState("");
   const [kind, setKind] = useState<BusinessKind>("agencia");
 
-  const create = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase.from("businesses").insert({
-        workspace_id: workspace!.id, name: name.trim(), kind,
-        color: COLORS[businesses.length % COLORS.length], position: businesses.length,
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => { setName(""); refresh(); toast.success("Negócio criado."); },
-    onError: (e: Error) => toast.error(e.message.includes("duplicate") ? "Já existe um negócio com esse nome." : e.message),
-  });
+  const create = useCreateBusiness(workspace?.id, () => { setName(""); refresh(); });
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return toast.error("Dê um nome ao negócio.");
-    create.mutate();
+    create.mutate({ name: name.trim(), kind, color: COLORS[businesses.length % COLORS.length], position: businesses.length });
   };
 
   return (

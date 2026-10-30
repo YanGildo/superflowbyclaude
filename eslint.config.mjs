@@ -36,11 +36,12 @@ export default defineConfig([
   js.configs.recommended,
   ...tseslint.configs.strict,
   {
-    // Regras do preset strict com violações na instalação (as demais seguem em "error").
+    // Regras do preset strict que tinham violações na instalação. Zeradas no burndown
+    // (prompt 02, 30/10/2026): baselines 20 / 2 / 1 -> 0.
     rules: {
-      "@typescript-eslint/no-non-null-assertion": "warn", // baseline: 20
-      "@typescript-eslint/no-empty-object-type": "warn", // baseline: 2 (components/ui, shadcn)
-      "@typescript-eslint/no-require-imports": "warn", // baseline: 1 (tailwind.config.ts)
+      "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/no-empty-object-type": "error",
+      "@typescript-eslint/no-require-imports": "error",
     },
   },
 
@@ -50,7 +51,7 @@ export default defineConfig([
     plugins: { "react-hooks": reactHooks, "react-refresh": reactRefresh },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }], // já era warn; contagem atual: 11
+      "react-refresh/only-export-components": ["error", { allowConstantExport: true }], // baseline 11 -> 0
     },
   },
 
@@ -58,7 +59,7 @@ export default defineConfig([
     // import-x resolve o alias @/* do tsconfig, então no-unresolved é preciso.
     // Fronteiras de arquitetura do Superflow:
     //   telas (pages) -> componentes -> hooks/lib -> integrations
-    plugins: { "import-x": importX, "import-x-debt": importX },
+    plugins: { "import-x": importX },
     settings: {
       "import-x/resolver-next": [createTypeScriptImportResolver()],
     },
@@ -73,16 +74,8 @@ export default defineConfig([
             { target: "./src/components/**/*", from: "./src/pages/**/*" },
             // Camada de dados e regras não dependem de telas.
             { target: ["./src/hooks/**/*", "./src/lib/**/*", "./src/integrations/**/*"], from: "./src/pages/**/*" },
-          ],
-        },
-      ],
-      // Dívida de fronteira já existente (warn). Corrija e promova a zona para o bloco acima.
-      // baseline: 4 (3 telas importam o cliente do banco + hooks/use-toast importa components/ui)
-      "import-x-debt/no-restricted-paths": [
-        "warn",
-        {
-          zones: [
             // Telas não falam direto com o cliente do banco: usam os hooks (src/hooks).
+            // (era dívida em warn, baseline 4 -> 0 no burndown de 30/10/2026)
             { target: "./src/pages/**/*", from: "./src/integrations/supabase/client.ts" },
             // Hooks e lib não dependem de componentes de UI.
             { target: ["./src/hooks/**/*", "./src/lib/**/*", "./src/integrations/**/*"], from: "./src/components/**/*" },
@@ -99,7 +92,7 @@ export default defineConfig([
       "no-var": "error",
       "prefer-const": "error",
       "@typescript-eslint/no-unused-vars": [
-        "warn", // baseline: 1 (antes estava "off")
+        "error", // baseline 1 -> 0
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       complexity: ["warn", 12], // baseline: 22
@@ -117,7 +110,7 @@ export default defineConfig([
         { logger: "um helper de log do projeto (ainda não existe)" },
       ],
       "quality/no-direct-data-access": [
-        "warn", // baseline: 5 (lib/auth.tsx, lib/workspace.tsx, pages/Configuracoes, Equipe, Lixeira)
+        "error", // baseline 5 -> 0 (acesso a dados movido para src/hooks e lib/*.ts)
         {
           modules: ["@/integrations/supabase/client"],
           bindings: ["supabase"],
@@ -142,7 +135,6 @@ export default defineConfig([
       "max-lines-per-function": "off",
       "max-nested-callbacks": "off",
       "import-x/no-restricted-paths": "off",
-      "import-x-debt/no-restricted-paths": "off",
     },
   },
   {

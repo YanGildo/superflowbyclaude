@@ -24,7 +24,8 @@ export function useFunnel(id: string | null) {
     enabled: Boolean(id),
     staleTime: Infinity, // o editor é a fonte da verdade enquanto está aberto
     queryFn: async () => {
-      const { data, error } = await supabase.from("funnels").select("*").eq("id", id!).maybeSingle();
+      if (!id) return null;
+      const { data, error } = await supabase.from("funnels").select("*").eq("id", id).maybeSingle();
       if (error) throw error;
       return data as Funnel | null;
     },

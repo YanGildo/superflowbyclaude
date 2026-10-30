@@ -9,4 +9,6 @@ import "@fontsource/poppins/600.css";
 import "@fontsource/poppins/700.css";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+const root = document.getElementById("root");
+if (!root) throw new Error("index.html sem o elemento #root");
+createRoot(root).render(<App />);

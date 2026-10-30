@@ -105,7 +105,7 @@ function Inspector({
           <p className="brand-eyebrow">Conexão</p>
           <div className="space-y-1.5">
             <Label htmlFor="edge-label">Texto na seta</Label>
-            <Input id="edge-label" placeholder="Ex.: 30% clicam" value={String(edge!.label ?? "")} onChange={(e) => onEdge(e.target.value)} />
+            <Input id="edge-label" placeholder="Ex.: 30% clicam" value={String(edge?.label ?? "")} onChange={(e) => onEdge(e.target.value)} />
           </div>
         </>
       )}
@@ -141,14 +141,16 @@ function Editor({ funnel, onBack }: { funnel: Funnel; onBack: () => void }) {
 
   const onConnect = useCallback((c: Connection) => setEdges((es) => addEdge({ ...c, type: "smoothstep" }, es)), [setEdges]);
 
+  /** Centro da área visível, com um pequeno deslocamento para blocos não se empilharem. */
+  const viewCenter = () => {
+    const r = wrapper.current?.getBoundingClientRect();
+    const c = screenToFlowPosition({ x: (r?.left ?? 0) + (r?.width ?? 600) / 2 - 90, y: (r?.top ?? 0) + (r?.height ?? 400) / 2 - 30 });
+    return { x: c.x + (nodes.length % 5) * 18, y: c.y + (nodes.length % 5) * 18 };
+  };
+
   const addAt = (kind: BlockKind, pos?: { x: number; y: number }) => {
-    let p = pos;
-    if (!p) {
-      const r = wrapper.current?.getBoundingClientRect();
-      p = screenToFlowPosition({ x: (r?.left ?? 0) + (r?.width ?? 600) / 2 - 90, y: (r?.top ?? 0) + (r?.height ?? 400) / 2 - 30 });
-      p = { x: p.x + (nodes.length % 5) * 18, y: p.y + (nodes.length % 5) * 18 };
-    }
-    setNodes((ns) => [...ns.map((n) => ({ ...n, selected: false })), { ...makeNode(kind, p!.x, p!.y), selected: true }]);
+    const p = pos ?? viewCenter();
+    setNodes((ns) => [...ns.map((n) => ({ ...n, selected: false })), { ...makeNode(kind, p.x, p.y), selected: true }]);
   };
 
   const onDrop = (e: DragEvent) => {

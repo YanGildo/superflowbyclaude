@@ -1,6 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RotateCcw, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,65 +7,14 @@ import {
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { PageHeader, EmptyState } from "@/components/common/PageHeader";
-import { supabase } from "@/integrations/supabase/client";
 import { useScope } from "@/hooks/useScope";
+import { useTrash } from "@/hooks/useTrash";
 
-/** Tabelas que têm lixeira (deleted_at) e a coluna usada como nome. */
-const SOURCES = [
-  { table: "tasks", label: "Tarefa", name: "title" },
-  { table: "task_lists", label: "Lista", name: "name" },
-  { table: "projects", label: "Projeto", name: "name" },
-  { table: "goals", label: "Meta", name: "title" },
-  { table: "funnels", label: "Funil", name: "name" },
-  { table: "contacts", label: "Contato", name: "name" },
-  { table: "proposals", label: "Proposta", name: "title" },
-  { table: "transactions", label: "Lançamento", name: "description" },
-] as const;
-
-interface TrashItem { table: string; label: string; id: string; name: string; deleted_at: string }
 const PURGE_DAYS = 30;
 
 export default function Lixeira() {
   const { wsId, ready } = useScope();
-  const qc = useQueryClient();
-
-  const { data = [], isLoading } = useQuery({
-    queryKey: ["trash", wsId],
-    enabled: ready,
-    queryFn: async () => {
-      const results = await Promise.all(SOURCES.map(async (s) => {
-        const { data: rows, error } = await supabase.from(s.table)
-          .select(`id, ${s.name}, deleted_at`).eq("workspace_id", wsId).not("deleted_at", "is", null);
-        if (error) throw error;
-        return ((rows ?? []) as unknown as Record<string, string>[]).map((r) => ({
-          table: s.table, label: s.label, id: r.id, name: r[s.name] ?? "(sem nome)", deleted_at: r.deleted_at,
-        }));
-      }));
-      return results.flat().sort((a, b) => b.deleted_at.localeCompare(a.deleted_at)) as TrashItem[];
-    },
-  });
-
-  const invalidate = () => qc.invalidateQueries();
-
-  const restore = useMutation({
-    mutationFn: async (i: TrashItem) => {
-      const { error } = await supabase.from(i.table).update({ deleted_at: null }).eq("id", i.id);
-      if (error) throw error;
-    },
-    onSuccess: () => { toast.success("Restaurado."); invalidate(); },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const destroy = useMutation({
-    mutationFn: async (items: TrashItem[]) => {
-      for (const i of items) {
-        const { error } = await supabase.from(i.table).delete().eq("id", i.id);
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => { toast("Excluído de vez."); invalidate(); },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  const { items: { data = [], isLoading }, restore, destroy } = useTrash(wsId, ready);
 
   const daysLeft = (iso: string) => Math.max(0, PURGE_DAYS - Math.floor((Date.now() - new Date(iso).getTime()) / 864e5));
 

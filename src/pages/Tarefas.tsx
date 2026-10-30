@@ -85,7 +85,7 @@ export default function Tarefas() {
   const count = (v: TaskView) => filterTasks(tasks, v).length;
 
   const title =
-    view.kind === "smart" ? SMART.find((s) => s.id === view.id)!.label
+    view.kind === "smart" ? (SMART.find((s) => s.id === view.id)?.label ?? "")
     : view.kind === "list" ? lists.find((l) => l.id === view.id)?.name ?? "Lista"
     : flows.find((f) => f.id === view.id)?.name ?? "Fluxo";
 

@@ -22,7 +22,7 @@ function NewFunnelDialog({ open, onOpenChange, onCreated }: { open: boolean; onO
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return setError("Dê um nome ao funil.");
-    const { nodes, edges } = TEMPLATES.find((t) => t.id === tpl)!.build();
+    const { nodes, edges } = (TEMPLATES.find((t) => t.id === tpl) ?? TEMPLATES[0]).build();
     const id = await create.mutateAsync({ name, nodes, edges });
     setName(""); setError(null); onOpenChange(false); onCreated(id);
   };

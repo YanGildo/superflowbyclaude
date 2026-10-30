@@ -1,4 +1,4 @@
-import type { Priority, Recurrence, TaskStatus } from "@/integrations/supabase/types";
+import type { MemberRole, Priority, Recurrence, TaskStatus } from "@/integrations/supabase/types";
 
 export const PRIORITY: Record<Priority, { label: string; className: string; dot: string }> = {
   baixa:   { label: "Baixa",   className: "bg-muted text-muted-foreground",          dot: "bg-slate-400" },
@@ -44,3 +44,13 @@ export function shortDate(iso: string | null | undefined): string {
   const [y, m, d] = iso.slice(0, 10).split("-");
   return y === String(new Date().getFullYear()) ? `${d}/${m}` : `${d}/${m}/${y}`;
 }
+
+export const ROLE_LABEL: Record<MemberRole, string> = {
+  owner: "Dono", admin: "Administrador", member: "Membro", viewer: "Só visualiza",
+};
+export const ROLE_HELP: Record<Exclude<MemberRole, "owner">, string> = {
+  admin: "Vê e edita tudo.",
+  member: "Vê e edita tudo.",
+  viewer: "Vê tudo, mas não altera nada.",
+};
+export const INVITE_ROLE_OPTIONS = (["member", "admin", "viewer"] as const).map((r) => ({ value: r, label: ROLE_LABEL[r] }));

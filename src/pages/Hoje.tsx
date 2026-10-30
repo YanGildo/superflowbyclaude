@@ -42,7 +42,7 @@ export default function Hoje() {
     const overdue = open.filter((t) => t.due_date && t.due_date < today);
     const todayList = open.filter((t) => !(t.due_date && t.due_date < today) && (t.my_day_date === today || t.due_date === today));
     const next = open.filter((t) => t.due_date && t.due_date > today && t.due_date <= in7 && t.my_day_date !== today)
-      .sort((a, b) => a.due_date!.localeCompare(b.due_date!));
+      .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""));
     const doneToday = tasks.filter((t) => t.status === "concluida" && t.completed_at && localISODate(new Date(t.completed_at)) === today);
     const suggestions = open.filter((t) => t.is_important && t.my_day_date !== today && !todayList.includes(t) && !overdue.includes(t)).slice(0, 5);
     return { overdue, todayList, next, doneToday, suggestions };

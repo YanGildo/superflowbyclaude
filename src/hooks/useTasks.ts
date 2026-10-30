@@ -58,7 +58,8 @@ export function useTaskSteps(taskId: string | null) {
     queryKey: ["task_steps", taskId],
     enabled: Boolean(taskId),
     queryFn: async () => {
-      const { data, error } = await supabase.from("task_steps").select("*").eq("task_id", taskId!).order("position");
+      if (!taskId) return [];
+      const { data, error } = await supabase.from("task_steps").select("*").eq("task_id", taskId).order("position");
       if (error) throw error;
       return (data ?? []) as TaskStep[];
     },
@@ -74,7 +75,7 @@ export type TaskView =
   | { kind: "flow"; id: string };
 
 export function isOverdue(t: Task, today = localISODate()) {
-  return t.status !== "concluida" && Boolean(t.due_date) && t.due_date! < today;
+  return t.status !== "concluida" && Boolean(t.due_date) && (t.due_date ?? "") < today;
 }
 
 export function isToday(t: Task, today = localISODate()) {
@@ -92,7 +93,7 @@ export function filterTasks(tasks: Task[], view: TaskView, opts?: { includeDone?
         case "meu-dia": return tasks.filter((t) => open(t) && (isToday(t, today) || isOverdue(t, today)));
         case "importantes": return tasks.filter((t) => open(t) && t.is_important);
         case "planejadas": return tasks.filter((t) => open(t) && t.due_date)
-          .sort((a, b) => a.due_date!.localeCompare(b.due_date!));
+          .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""));
         case "todas": return tasks.filter(open);
         case "concluidas": return tasks.filter((t) => !open(t))
           .sort((a, b) => (b.completed_at ?? "").localeCompare(a.completed_at ?? ""));
