@@ -26,6 +26,7 @@ import Lixeira from "@/pages/Lixeira";
 import Funis from "@/pages/Funis";
 import Comercial from "@/pages/Comercial";
 import Scripts from "@/pages/Scripts";
+import WhatsApp from "@/pages/WhatsApp";
 import VisaoGeral from "@/pages/financeiro/VisaoGeral";
 import Lancamentos from "@/pages/financeiro/Lancamentos";
 import PagarReceber from "@/pages/financeiro/PagarReceber";
@@ -80,6 +81,7 @@ const BUILT: Record<string, ReactNode> = {
   "/funis": <Funis />,
   "/comercial": <Comercial />,
   "/scripts": <Scripts />,
+  "/whatsapp": <WhatsApp />,
   "/financeiro": <VisaoGeral />,
   "/financeiro/lancamentos": <Lancamentos />,
   "/financeiro/contas": <PagarReceber />,
