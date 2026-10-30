@@ -53,3 +53,5 @@ export const ACCOUNT_TYPES: { value: FinAccount["type"]; label: string }[] = [
   { value: "dinheiro", label: "Dinheiro em espécie" },
   { value: "outro", label: "Outro" },
 ];
+
+export const METHODS = ["Pix", "Cartão de crédito", "Cartão de débito", "Boleto", "Dinheiro", "Transferência", "Gateway", "Outro"];
