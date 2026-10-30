@@ -282,6 +282,7 @@ export interface JourneyItem {
 export interface ScriptSegment {
   id: string; workspace_id: string; name: string; description: string | null; service_type: string | null;
   categories: string[]; is_default: boolean; archived_at: string | null; position: number;
+  variables: Record<string, string>;
 }
 
 export interface Script {

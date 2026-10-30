@@ -163,3 +163,17 @@ export async function fetchProposalItems(proposalId: string): Promise<ProposalIt
   if (error) throw error;
   return (data ?? []) as ProposalItem[];
 }
+
+/** Carrega vários scripts de uma vez (biblioteca pronta de um segmento). */
+export function useBulkInsertScripts() {
+  const qc = useQueryClient();
+  const scope = useScope();
+  return useMutation({
+    mutationFn: async (rows: Partial<Script>[]) => {
+      const { error } = await supabase.from("scripts").insert(rows.map((r) => ({ ...r, workspace_id: scope.wsId })));
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["crm", "scripts"] }),
+    onError: (e: Error) => toast.error(`Não carregou: ${e.message}`),
+  });
+}

@@ -25,6 +25,7 @@ import Equipe from "@/pages/Equipe";
 import Lixeira from "@/pages/Lixeira";
 import Funis from "@/pages/Funis";
 import Comercial from "@/pages/Comercial";
+import Scripts from "@/pages/Scripts";
 import VisaoGeral from "@/pages/financeiro/VisaoGeral";
 import Lancamentos from "@/pages/financeiro/Lancamentos";
 import PagarReceber from "@/pages/financeiro/PagarReceber";
@@ -78,6 +79,7 @@ const BUILT: Record<string, ReactNode> = {
   "/lixeira": <Lixeira />,
   "/funis": <Funis />,
   "/comercial": <Comercial />,
+  "/scripts": <Scripts />,
   "/financeiro": <VisaoGeral />,
   "/financeiro/lancamentos": <Lancamentos />,
   "/financeiro/contas": <PagarReceber />,
