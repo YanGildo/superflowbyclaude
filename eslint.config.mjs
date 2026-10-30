@@ -111,7 +111,7 @@ export default defineConfig([
         { max: 150, skipBlankLines: true, skipComments: true },
       ],
       "max-nested-callbacks": ["error", 3],
-      "quality/max-lines": ["warn", { max: 350 }], // baseline: 1 (src/components/ui/sidebar.tsx, 620 linhas)
+      "quality/max-lines": ["error", { max: 350 }], // baseline 1 -> 0 (sidebar.tsx dividido em 30/10/2026)
       "quality/no-direct-console": [
         "error",
         { logger: "um helper de log do projeto (ainda não existe)" },
