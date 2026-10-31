@@ -1,94 +1,17 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { CalendarDays, Loader2, PiggyBank, Plus, Trash2, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { CalendarDays, PiggyBank, Plus, Trash2, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageHeader, EmptyState } from "@/components/common/PageHeader";
-import { RefSelect, SimpleSelect } from "@/components/common/RefSelect";
-import { MoneyInput } from "@/components/finance/MoneyInput";
+import { GoalDialog, ReserveDialog } from "@/components/finance/goals/GoalDialogs";
 import { useFinGoals, useFinMutations, useReserves, useTransactions } from "@/hooks/useFinance";
-import type { FinGoal } from "@/integrations/supabase/types";
-import { brl, currentYM, localISODate, monthLabel, parseMoney } from "@/lib/format";
+import { brl, currentYM, monthLabel } from "@/lib/format";
+import { GOAL_KIND_LABEL } from "@/lib/finPanel";
 import { shortDate } from "@/lib/labels";
 
-const KIND_LABEL: Record<FinGoal["kind"], string> = {
-  reserva: "Reserva para um objetivo", emergencia: "Reserva de emergência", faturamento: "Meta de faturamento", independencia: "Independência financeira",
-};
-
-function GoalDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
-  const { save } = useFinMutations("fin_goals");
-  const [f, setF] = useState({ name: "", kind: "reserva" as FinGoal["kind"], target: "", deadline: "" });
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => { if (open) { setError(null); setF({ name: "", kind: "reserva", target: "", deadline: "" }); } }, [open]);
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!f.name.trim()) return setError("Dê um nome (ex.: Viagem, Reserva de emergência, Faturar 20 mil).");
-    const target = parseMoney(f.target);
-    if (!target || target <= 0) return setError("Informe o valor-alvo.");
-    await save.mutateAsync({ name: f.name.trim(), kind: f.kind, target, deadline: f.deadline || null, period: f.kind === "faturamento" ? "mensal" : "unico" });
-    onOpenChange(false);
-  };
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle className="font-heading">Nova meta financeira</DialogTitle>
-          <DialogDescription>Reservas você alimenta guardando dinheiro. Metas de faturamento somam as entradas do mês sozinhas.</DialogDescription></DialogHeader>
-        <form onSubmit={submit} className="space-y-3" noValidate>
-          <div className="space-y-1.5"><Label htmlFor="fg-kind">Tipo</Label>
-            <SimpleSelect id="fg-kind" value={f.kind} onChange={(v) => setF({ ...f, kind: v })}
-              options={(Object.keys(KIND_LABEL) as FinGoal["kind"][]).map((k) => ({ value: k, label: KIND_LABEL[k] }))} /></div>
-          <div className="space-y-1.5"><Label htmlFor="fg-name">Nome</Label><Input id="fg-name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} autoFocus /></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label htmlFor="fg-target">{f.kind === "faturamento" ? "Meta por mês" : "Valor-alvo"}</Label>
-              <MoneyInput id="fg-target" value={f.target} onChange={(e) => setF({ ...f, target: e.target.value })} /></div>
-            {f.kind !== "faturamento" && <div className="space-y-1.5"><Label htmlFor="fg-deadline">Até quando</Label>
-              <Input id="fg-deadline" type="date" value={f.deadline} onChange={(e) => setF({ ...f, deadline: e.target.value })} /></div>}
-          </div>
-          {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
-          <DialogFooter><Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={save.isPending}>{save.isPending && <Loader2 className="size-4 animate-spin" />}Criar meta</Button></DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function ReserveDialog({ open, onOpenChange, goals, goalId }: { open: boolean; onOpenChange: (o: boolean) => void; goals: FinGoal[]; goalId: string | null }) {
-  const { save } = useFinMutations("reserves");
-  const [f, setF] = useState({ goal: goalId, amount: "", date: localISODate(), name: "" });
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => { if (open) { setError(null); setF({ goal: goalId, amount: "", date: localISODate(), name: "" }); } }, [open, goalId]);
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
-    const amount = parseMoney(f.amount);
-    if (amount === null || amount === 0) return setError("Informe o valor. Use valor negativo para retirar.");
-    const goal = goals.find((g) => g.id === f.goal);
-    await save.mutateAsync({ goal_id: f.goal, amount, date: f.date, name: f.name.trim() || (goal ? `Guardado: ${goal.name}` : "Reserva") });
-    onOpenChange(false);
-  };
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader><DialogTitle className="font-heading">Guardar dinheiro</DialogTitle>
-          <DialogDescription>Registre quanto separou. Valor negativo = retirada.</DialogDescription></DialogHeader>
-        <form onSubmit={submit} className="space-y-3" noValidate>
-          <div className="space-y-1.5"><Label htmlFor="rs-goal">Para</Label>
-            <RefSelect id="rs-goal" value={f.goal} onChange={(v) => setF({ ...f, goal: v })} options={goals.filter((g) => g.kind !== "faturamento")} placeholder="Reserva livre" /></div>
-          <div className="space-y-1.5"><Label htmlFor="rs-amount">Valor</Label><MoneyInput id="rs-amount" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} autoFocus /></div>
-          <div className="space-y-1.5"><Label htmlFor="rs-date">Data</Label><Input id="rs-date" type="date" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label htmlFor="rs-name">Observação</Label><Input id="rs-name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
-          {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
-          <DialogFooter><Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={save.isPending}>{save.isPending && <Loader2 className="size-4 animate-spin" />}Guardar</Button></DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
+const KIND_LABEL = GOAL_KIND_LABEL;
 
 export default function Reservas() {
   const { data: goals = [], isLoading } = useFinGoals();
@@ -173,7 +96,7 @@ export default function Reservas() {
       )}
 
       <GoalDialog open={goalDlg} onOpenChange={setGoalDlg} />
-      <ReserveDialog open={resDlg.open} goalId={resDlg.goalId} goals={goals} onOpenChange={(o) => setResDlg((d) => ({ ...d, open: o }))} />
+      <ReserveDialog open={resDlg.open} goalId={resDlg.goalId} onOpenChange={(o) => setResDlg((d) => ({ ...d, open: o }))} />
     </div>
   );
 }

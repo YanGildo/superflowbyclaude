@@ -1,87 +1,118 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/common/PageHeader";
+import { Sparkles } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { SimpleSelect } from "@/components/common/RefSelect";
 import { MonthNav } from "@/components/finance/MonthNav";
-import { TransactionDialog } from "@/components/finance/TransactionDialog";
-import {
-  BusinessResults, CategoryBreakdown, Delta, KpiRow, TrendChart, UpcomingCard, type DueItem, type OverviewKpi,
-} from "@/components/finance/overview/OverviewCards";
-import {
-  useAccounts, useAllPaidTransactions, useCategories, usePayables, useReceivables, useTransactionsRange,
-} from "@/hooks/useFinance";
+import { BusinessResults, TrendChart, UpcomingCard, type DueItem } from "@/components/finance/overview/OverviewCards";
+import { FinGoalsSection } from "@/components/finance/goals/FinGoalsSection";
+import { PanelActions } from "@/components/finance/panel/PanelActions";
+import { AllocationCard, BillsFlowCard, RemainingCard } from "@/components/finance/panel/PanelCharts";
+import { ICONS } from "@/components/finance/panel/icons";
+import { PanelKpis, type PanelKpi } from "@/components/finance/panel/PanelKpis";
+import { useFinPanel } from "@/hooks/useFinPanel";
 import { useMonthParam } from "@/hooks/useMonthParam";
+import { useAuth } from "@/lib/auth";
+import { ORIGIN_OPTIONS, USE_OPTIONS, type OriginFilter, type UseFilter } from "@/lib/finPanel";
+import { brl, localISODate, monthLabel, shiftMonth } from "@/lib/format";
+import { businessResults, monthSeries } from "@/lib/overview";
 import { useWorkspace } from "@/lib/workspace";
-import { accountBalance } from "@/lib/finance";
-import { localISODate, shiftMonth } from "@/lib/format";
-import { businessResults, monthSeries, spendByCategory, type MonthPoint } from "@/lib/overview";
-import { sumAmount } from "@/lib/transactions";
 
-function overviewKpis(cur: MonthPoint, prev: MonthPoint, saldoContas: number, accountCount: number): OverviewKpi[] {
-  const saldoMes = cur.Entradas - cur.Saídas;
+type Panel = ReturnType<typeof useFinPanel>;
+const plural = (n: number, s: string) => `${n} ${s}${n === 1 ? "" : "s"}`;
+
+function kpis(p: Panel): PanelKpi[] {
+  const { flow, prevFlow, reserves, bills } = p;
+  const estimate = flow.restante - reserves.thisMonth;
   return [
-    { label: "Entradas", v: cur.Entradas, extra: <Delta now={cur.Entradas} before={prev.Entradas} />, tone: "text-success" },
-    { label: "Saídas", v: cur.Saídas, extra: <Delta now={cur.Saídas} before={prev.Saídas} inverse />, tone: "" },
-    { label: "Resultado do mês", v: saldoMes, extra: <span className="text-xs text-muted-foreground">{cur.Entradas ? `${Math.round((saldoMes / cur.Entradas) * 100)}% das entradas` : " "}</span>, tone: saldoMes < 0 ? "text-destructive" : "text-success" },
-    { label: "Saldo em contas", v: saldoContas, extra: <Link to="/financeiro/carteira" className="text-xs text-primary hover:underline">{accountCount ? `${accountCount} conta(s)` : "Cadastrar contas"}</Link>, tone: saldoContas < 0 ? "text-destructive" : "" },
+    { label: "Entradas", value: flow.entradas, prev: prevFlow.entradas, icon: ICONS.in, tone: "green", to: "/financeiro/lancamentos" },
+    { label: "Saídas", value: flow.saidas, prev: prevFlow.saidas, icon: ICONS.out, tone: "red", to: "/financeiro/lancamentos" },
+    { label: "Reservas", value: reserves.total, hint: `Guardado no mês: ${brl(reserves.thisMonth)}`, icon: ICONS.reserve, tone: "blue", to: "/financeiro/reservas" },
+    { label: "Uso débito / conta", value: flow.debito, prev: prevFlow.debito, icon: ICONS.debit, tone: "cyan" },
+    { label: "Uso crédito", value: flow.credito, prev: prevFlow.credito, icon: ICONS.credit, tone: "violet", to: "/financeiro/carteira" },
+    { label: "Restante", value: flow.restante, hint: "Entradas − saídas", prev: prevFlow.restante, icon: ICONS.left, tone: "green" },
+    { label: "Saldo estimado", value: estimate, hint: "Restante − guardado nas reservas este mês", icon: ICONS.estimate, tone: "violet" },
+    { label: `Contas no mês (${bills.month.n})`, value: bills.month.v, icon: ICONS.bills, tone: "red", to: "/financeiro/contas?tipo=pagar" },
+    { label: `Vencimentos 7 dias (${bills.next7.n})`, value: bills.next7.v, icon: ICONS.due, tone: "blue", to: "/financeiro/contas?tipo=pagar" },
+    { label: `Atrasadas (${bills.late.n})`, value: bills.late.v, icon: ICONS.late, tone: "red", to: "/financeiro/contas?tipo=pagar" },
+    { label: `Dívidas ativas (${bills.debts.n})`, value: bills.debts.v, hint: "Parcelas que faltam pagar", icon: ICONS.debt, tone: "amber", to: "/financeiro/carteira" },
+    { label: "Pró-labore no mês", value: p.proLabore, hint: "Retirado do negócio para o pessoal", icon: ICONS.pro, tone: "cyan" },
   ];
 }
 
-/** Contas a pagar e a receber dos próximos 7 dias (inclui atrasadas). */
-function useUpcoming() {
-  const { data: payables = [] } = usePayables();
-  const { data: receivables = [] } = useReceivables();
+function Hero({ ym, setYm, balance, accountCount }: { ym: string; setYm: (v: string) => void; balance: number; accountCount: number }) {
+  const { user } = useAuth();
+  const name = ((user?.user_metadata?.full_name as string | undefined) ?? "").split(" ")[0];
+  const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-semibold text-success"><Sparkles className="size-3.5" />Painel financeiro</span>
+        <h1 className="mt-2 font-heading text-2xl font-semibold">Bem-vindo{name ? `, ${name}` : ""}!</h1>
+        <p className="text-sm capitalize text-muted-foreground">{today}</p>
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        <MonthNav value={ym} onChange={setYm} />
+        <Link to="/financeiro/carteira" className="text-sm text-muted-foreground hover:text-foreground">
+          Saldo em contas: <b className={balance < 0 ? "text-destructive" : "text-foreground"}>{brl(balance)}</b> · {plural(accountCount, "conta")}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function Upcoming({ p }: { p: Panel }) {
+  const today = localISODate();
   const in7 = localISODate(new Date(Date.now() + 7 * 864e5));
-  const dueSoon: DueItem[] = payables.filter((p) => p.status !== "pago" && p.due_date <= in7).slice(0, 6)
-    .map((p) => ({ id: p.id, title: p.title, date: p.due_date, amount: Number(p.amount) }));
-  const toReceive: DueItem[] = receivables.filter((r) => r.status !== "recebido" && r.expected_date <= in7).slice(0, 6)
-    .map((r) => ({ id: r.id, title: r.title, date: r.expected_date, amount: Number(r.amount) }));
-  return { dueSoon, toReceive };
+  const dueSoon: DueItem[] = p.payables.filter((x) => x.status !== "pago" && x.due_date <= in7).slice(0, 6)
+    .map((x) => ({ id: x.id, title: x.title, date: x.due_date, amount: Number(x.amount) }));
+  const toReceive: DueItem[] = p.receivables.filter((x) => x.status !== "recebido" && x.expected_date <= in7).slice(0, 6)
+    .map((x) => ({ id: x.id, title: x.title, date: x.expected_date, amount: Number(x.amount) }));
+  return (
+    <>
+      <UpcomingCard title="A pagar (7 dias)" link="/financeiro/contas?tipo=pagar" empty="Nada vencendo." items={dueSoon} today={today} amountTone="text-muted-foreground" />
+      <UpcomingCard title="A receber (7 dias)" link="/financeiro/contas?tipo=receber" empty="Nada previsto." items={toReceive} today={today} amountTone="text-success" />
+    </>
+  );
 }
 
 export default function VisaoGeral() {
   const [ym, setYm] = useMonthParam();
-  const first = shiftMonth(ym, -5);
-  const { data: txs = [], isLoading } = useTransactionsRange(first, ym);
-  const { data: allPaid = [] } = useAllPaidTransactions();
-  const { data: accounts = [] } = useAccounts();
-  const { data: categories = [] } = useCategories();
+  const [use, setUse] = useState<UseFilter>("todos");
+  const [origin, setOrigin] = useState<OriginFilter>("todas");
+  const p = useFinPanel(ym, use, origin);
   const { businesses, businessFilter } = useWorkspace();
-  const { dueSoon, toReceive } = useUpcoming();
-  const [dlg, setDlg] = useState(false);
-
-  const months = useMemo(() => Array.from({ length: 6 }, (_, i) => shiftMonth(first, i)), [first]);
-  const series = useMemo(() => monthSeries(months, txs), [months, txs]);
-  const [prev, cur] = [series[4], series[5]];
-  const saldoContas = accounts.reduce((a, acc) => a + accountBalance(acc, allPaid), 0);
-
-  const monthTx = txs.filter((t) => t.date.startsWith(ym));
-  const byCategory = useMemo(() => spendByCategory(monthTx, categories), [monthTx, categories]);
-  const essential = sumAmount(monthTx.filter((t) => t.type === "saida" && t.essential));
-  const byBusiness = useMemo(() => businessResults(businesses, monthTx), [businesses, monthTx]);
-  const today = localISODate();
+  const series = useMemo(() => monthSeries(Array.from({ length: 6 }, (_, i) => shiftMonth(ym, i - 5)), p.txs), [ym, p.txs]);
+  const byBusiness = useMemo(() => businessResults(businesses, p.curAll), [businesses, p.curAll]);
 
   return (
-    <div>
-      <PageHeader eyebrow="Financeiro" title="Visão geral" description="Como está o dinheiro: mês atual, tendência e o que vence."
-        actions={<><MonthNav value={ym} onChange={setYm} /><Button onClick={() => setDlg(true)}><Plus className="size-4" />Lançamento</Button></>} />
+    <div className="space-y-5">
+      <Card className="space-y-4 bg-gradient-to-br from-success/10 via-card to-brand-cyan/10 p-5">
+        <Hero ym={ym} setYm={setYm} balance={p.balance} accountCount={p.accountCount} />
+        <PanelActions />
+        <div className="flex flex-wrap items-center gap-2 border-t pt-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filtrar:</span>
+          <div className="w-44"><SimpleSelect<UseFilter> value={use} onChange={setUse} options={USE_OPTIONS} /></div>
+          <div className="w-56"><SimpleSelect<OriginFilter> value={origin} onChange={setOrigin} options={ORIGIN_OPTIONS} /></div>
+          <span className="ml-auto text-xs text-muted-foreground">{monthLabel(ym)}</span>
+        </div>
+      </Card>
 
-      <KpiRow kpis={overviewKpis(cur, prev, saldoContas, accounts.length)} loading={isLoading} />
+      <PanelKpis items={kpis(p)} loading={p.loading} />
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <RemainingCard entradas={p.flow.entradas} saidas={p.flow.saidas} />
+        <BillsFlowCard data={p.billsFlow} />
+        <AllocationCard data={p.allocation} />
+      </div>
+
+      <FinGoalsSection ym={ym} monthIncome={p.flow.entradas} />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <TrendChart series={series} />
-        <CategoryBreakdown items={byCategory} totalOut={cur.Saídas} essential={essential} />
-
+        <div className="space-y-4"><Upcoming p={p} /></div>
         {businessFilter === "all" && byBusiness.length > 0 && <BusinessResults items={byBusiness} />}
-
-        <UpcomingCard title="A pagar (7 dias)" link="/financeiro/contas?tipo=pagar" empty="Nada vencendo."
-          items={dueSoon} today={today} amountTone="text-muted-foreground" />
-        <UpcomingCard title="A receber (7 dias)" link="/financeiro/contas?tipo=receber" empty="Nada previsto."
-          items={toReceive} today={today} amountTone="text-success" className="lg:col-span-2" />
       </div>
-
-      <TransactionDialog open={dlg} onOpenChange={setDlg} />
     </div>
   );
 }

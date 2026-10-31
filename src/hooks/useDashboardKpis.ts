@@ -57,6 +57,8 @@ export function useDashboardKpis() {
         if (businessFilter !== "all") r = r.eq("business_id", businessFilter);
         return r;
       };
+      // Na visão de todos os negócios, o pró-labore (saída na empresa + entrada no pessoal) não conta.
+      const money = (q: any) => (businessFilter === "all" ? scoped(q).or("source_type.is.null,source_type.neq.prolabore") : scoped(q)); // eslint-disable-line @typescript-eslint/no-explicit-any
       const wsOnly = (q: any) => q.eq("workspace_id", ws); // eslint-disable-line @typescript-eslint/no-explicit-any
 
       const [
@@ -66,9 +68,9 @@ export function useDashboardKpis() {
         count("tasks", (q) => scoped(q).is("deleted_at", null).neq("status", "concluida")
           .or(`my_day_date.eq.${today},due_date.eq.${today}`)),
         count("tasks", (q) => scoped(q).is("deleted_at", null).neq("status", "concluida").lt("due_date", today)),
-        sum("transactions", "amount", (q) => scoped(q).is("deleted_at", null).eq("type", "entrada").eq("status", "pago")
+        sum("transactions", "amount", (q) => money(q).is("deleted_at", null).eq("type", "entrada").eq("status", "pago")
           .gte("date", start).lt("date", next)),
-        sum("transactions", "amount", (q) => scoped(q).is("deleted_at", null).eq("type", "saida").eq("status", "pago")
+        sum("transactions", "amount", (q) => money(q).is("deleted_at", null).eq("type", "saida").eq("status", "pago")
           .gte("date", start).lt("date", next)),
         count("contacts", (q) => scoped(q).is("deleted_at", null).eq("status", "cliente_ativo")),
         sum("contacts", "monthly_value", (q) => scoped(q).is("deleted_at", null).eq("status", "cliente_ativo")),

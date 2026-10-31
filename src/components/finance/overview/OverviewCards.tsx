@@ -1,39 +1,12 @@
-import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { AlarmClock, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { AlarmClock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { Business } from "@/integrations/supabase/types";
 import { brl } from "@/lib/format";
 import { shortDate } from "@/lib/labels";
 import { compactNumber, type MonthPoint } from "@/lib/overview";
 import { cn } from "@/lib/utils";
-
-export function Delta({ now, before, inverse }: { now: number; before: number; inverse?: boolean }) {
-  if (!before) return null;
-  const pct = Math.round(((now - before) / before) * 100);
-  if (!pct) return <span className="text-xs text-muted-foreground">igual ao mês anterior</span>;
-  const up = pct > 0, good = inverse ? !up : up;
-  const Icon = up ? ArrowUpRight : ArrowDownRight;
-  return <span className={cn("inline-flex items-center gap-0.5 text-xs font-medium", good ? "text-success" : "text-destructive")}><Icon className="size-3.5" />{Math.abs(pct)}% vs mês anterior</span>;
-}
-
-export interface OverviewKpi { label: string; v: number; extra: ReactNode; tone: string }
-
-export function KpiRow({ kpis, loading }: { kpis: OverviewKpi[]; loading: boolean }) {
-  return (
-    <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {kpis.map((k) => (
-        <Card key={k.label}><CardContent className="space-y-1 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{k.label}</p>
-          {loading ? <Skeleton className="h-7 w-28" /> : <p className={cn("font-heading text-2xl font-semibold tabular-nums", k.tone)}>{brl(k.v)}</p>}
-          {k.extra}
-        </CardContent></Card>
-      ))}
-    </div>
-  );
-}
 
 export function TrendChart({ series }: { series: MonthPoint[] }) {
   return (
@@ -56,23 +29,6 @@ export function TrendChart({ series }: { series: MonthPoint[] }) {
         <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-sm bg-success" />Entradas</span>
         <span className="inline-flex items-center gap-1.5"><span className="size-2.5 rounded-sm bg-brand-blue" />Saídas</span>
       </div>
-    </Card>
-  );
-}
-
-export function CategoryBreakdown({ items, totalOut, essential }: { items: { name: string; v: number }[]; totalOut: number; essential: number }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2"><CardTitle className="text-base">Para onde foi o dinheiro</CardTitle></CardHeader>
-      <CardContent className="space-y-2.5">
-        {items.length === 0 ? <p className="text-sm text-muted-foreground">Sem saídas neste mês.</p> : items.map((c) => (
-          <div key={c.name} className="space-y-1">
-            <div className="flex justify-between text-sm"><span className="truncate">{c.name}</span><span className="tabular-nums text-muted-foreground">{brl(c.v)}</span></div>
-            <div className="h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${(c.v / items[0].v) * 100}%` }} /></div>
-          </div>
-        ))}
-        {totalOut > 0 && <p className="pt-1 text-xs text-muted-foreground">Gastos essenciais: {brl(essential)} ({Math.round((essential / totalOut) * 100)}% das saídas)</p>}
-      </CardContent>
     </Card>
   );
 }

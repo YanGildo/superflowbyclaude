@@ -1,5 +1,5 @@
 // Números da Visão geral do financeiro (sem React).
-import type { Business, FinCategory, Transaction } from "@/integrations/supabase/types";
+import type { Business, Transaction } from "@/integrations/supabase/types";
 import { ofType, sumAmount } from "@/lib/transactions";
 
 export const monthShort = (ym: string) => {
@@ -18,15 +18,6 @@ export function monthSeries(months: string[], txs: Transaction[]): MonthPoint[] 
     const inM = txs.filter((t) => t.date.startsWith(m));
     return { ym: m, mes: monthShort(m), Entradas: sumAmount(ofType(inM, "entrada")), Saídas: sumAmount(ofType(inM, "saida")) };
   });
-}
-
-/** As 6 categorias com mais saídas no mês. */
-export function spendByCategory(monthTx: Transaction[], categories: FinCategory[]) {
-  const m = new Map<string, number>();
-  ofType(monthTx, "saida").forEach((t) => m.set(t.category_id ?? "—", (m.get(t.category_id ?? "—") ?? 0) + Number(t.amount)));
-  return [...m.entries()]
-    .map(([id, v]) => ({ name: categories.find((c) => c.id === id)?.name ?? "Sem categoria", v }))
-    .sort((a, b) => b.v - a.v).slice(0, 6);
 }
 
 /** Entradas, saídas e resultado do mês por negócio (só os que tiveram movimento). */
