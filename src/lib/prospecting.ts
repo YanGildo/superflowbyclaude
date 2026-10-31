@@ -14,7 +14,11 @@ export interface ScoreWeights {
   nichoCompativel: number; cidadeAlvo: number; semInstagram: number; observacao: number;
 }
 
+export type ProspectProvider = "motor" | "apify";
+
 export interface ProspectSettings {
+  /** De onde vêm as buscas: motor próprio (Google Maps Scraper) ou Apify. */
+  provider: ProspectProvider; engineUrl: string; engineKey: string;
   limit: number; country: string; language: string; defaultStage: string; scriptSegment: string | null; campaign: string | null;
   targetCities: string[]; targetNiches: string[]; weights: ScoreWeights;
 }
@@ -25,6 +29,7 @@ export const WEIGHT_LABELS: Record<keyof ScoreWeights, string> = {
 };
 
 export const DEFAULT_SETTINGS: ProspectSettings = {
+  provider: "motor", engineUrl: "http://localhost:8090", engineKey: "",
   limit: 50, country: "Brasil", language: "pt-BR", defaultStage: "Novo lead", scriptSegment: null, campaign: null,
   targetCities: [], targetNiches: [],
   weights: { semSite: 20, temTelefone: 10, avaliacaoAlta: 10, muitasAvaliacoes: 10, nichoCompativel: 20, cidadeAlvo: 10, semInstagram: 10, observacao: 10 },
@@ -86,12 +91,33 @@ export function importedRow(r: Record<string, unknown>): Partial<Prospect> | nul
     address: pick("address", "endereco", "endereço"), maps_url: pick("maps_url", "url"), place_id: pick("place_id", "placeid") ?? `import-${name}-${pick("phone", "telefone") ?? ""}`,
     latitude: Number(pick("latitude", "lat")) || null, longitude: Number(pick("longitude", "lng", "lon")) || null,
     rating: Number(pick("rating", "avaliacao", "totalscore")) || null, reviews_count: Number(pick("reviews_count", "reviewscount", "avaliacoes")) || null,
+    source: "csv",
   };
 }
 
 /** CSV para baixar (Excel abre direto). */
 export function toCsv(rows: Prospect[]): string {
-  const cols: (keyof Prospect)[] = ["name", "category", "city", "state", "phone", "website", "instagram", "email", "rating", "reviews_count", "score", "status", "maps_url"];
-  const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  return [cols.join(";"), ...rows.map((r) => cols.map((c) => esc(r[c])).join(";"))].join("\n");
+  const cols: (keyof Prospect)[] = ["name", "category", "city", "state", "phone", "website", "email", "emails", "email_host", "instagram",
+    "facebook", "linkedin", "tiktok", "youtube", "rating", "reviews_count", "score", "intent_score", "status", "maps_url"];
+  const signals = (p: Prospect) => (p.tech ? techLabels(p.tech).join(", ") : "");
+  const esc = (v: unknown) => `"${String(Array.isArray(v) ? v.join(", ") : v ?? "").replace(/"/g, '""')}"`;
+  return [[...cols, "sinais"].join(";"), ...rows.map((r) => [...cols.map((c) => esc(r[c])), esc(signals(r))].join(";"))].join("\n");
+}
+
+/** Sinais de anúncio/site em português (para lista e CSV). */
+export const TECH_LABEL: Record<string, string> = {
+  fb_pixel: "Pixel Meta", google_ads_tag: "Google Ads", analytics: "Analytics", bing_ads: "Bing Ads",
+  linkedin_insight: "LinkedIn Ads", tiktok_pixel: "Pixel TikTok",
+};
+
+export function techLabels(t: NonNullable<Prospect["tech"]>): string[] {
+  return Object.entries(TECH_LABEL).filter(([k]) => t[k as keyof typeof t] === true).map(([, v]) => v);
+}
+
+/** Intenção (0–100): quanto a empresa já investe em marketing. */
+export function intentLevel(score: number | null): { label: string; tone: string } | null {
+  if (score == null) return null;
+  if (score >= 60) return { label: "Investe", tone: "bg-success/10 text-success" };
+  if (score >= 35) return { label: "Algum", tone: "bg-warning/15 text-warning" };
+  return { label: "Pouco", tone: "bg-muted text-muted-foreground" };
 }

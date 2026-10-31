@@ -10,6 +10,7 @@ import { useProspectActions, useProspectCampaigns, useProspects } from "@/hooks/
 import type { Prospect } from "@/integrations/supabase/types";
 import { importedRow, parseCsv, toCsv } from "@/lib/prospecting";
 import { cn } from "@/lib/utils";
+import { EnrichButton } from "./EnrichDialog";
 import { ProspectRow } from "./ProspectRow";
 
 const CHIPS: { id: string; label: string; test: (p: Prospect) => boolean }[] = [
@@ -24,6 +25,9 @@ const CHIPS: { id: string; label: string; test: (p: Prospect) => boolean }[] = [
   { id: "semresp", label: "Sem resposta", test: (p) => p.status === "Sem resposta" },
   { id: "lead", label: "Viraram lead", test: (p) => p.status === "Virou lead" },
   { id: "obs", label: "Com observações", test: (p) => Boolean(p.notes) },
+  { id: "email", label: "Com e-mail", test: (p) => Boolean(p.emails?.length || p.email) },
+  { id: "anuncia", label: "Já anuncia (pixel)", test: (p) => Boolean(p.tech?.fb_pixel || p.tech?.google_ads_tag) },
+  { id: "naoenr", label: "Não enriquecidos", test: (p) => !p.enriched_at },
 ];
 
 const text = (p: Prospect, q: string) => !q || [p.name, p.city, p.phone, p.website, p.category].some((v) => v?.toLowerCase().includes(q.toLowerCase()));
@@ -56,6 +60,7 @@ function Toolbar({ list, onImport }: { list: Prospect[]; onImport: (f: File) => 
       <Button size="sm" variant="outline" onClick={async () => toast.success(`Score recalculado em ${await rescore(list, true)} prospect(s).`)}><Calculator className="size-4" />Recalcular score</Button>
       <Button size="sm" variant="outline" onClick={() => download("prospects.csv", toCsv(list), "text/csv")}><Download className="size-4" />CSV</Button>
       <Button size="sm" variant="outline" onClick={() => download("prospects.json", JSON.stringify(list, null, 2), "application/json")}><Download className="size-4" />JSON</Button>
+      <EnrichButton list={list} />
       <Button size="sm" onClick={() => file.current?.click()}><Upload className="size-4" />Importar</Button>
       <input ref={file} type="file" accept=".csv,.json" className="hidden" aria-label="Arquivo para importar"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) onImport(f); e.target.value = ""; }} />
@@ -92,12 +97,12 @@ export function ListTab() {
       <p className="text-xs text-muted-foreground">{list.length} prospect(s)</p>
       {isLoading ? <Skeleton className="h-60 rounded-xl" /> : list.length === 0 ? (
         <EmptyState icon={Search} title={prospects.length ? "Ninguém com esses filtros" : "Nenhum prospect ainda"}
-          description="Faça uma busca na Apify ou importe um CSV/JSON (dá para importar o export da Apify direto)." />
+          description="Faça uma busca em Buscar leads ou importe um CSV/JSON (dá para importar o export da Apify direto)." />
       ) : (
         <div className="overflow-x-auto rounded-xl border bg-card">
-          <table className="w-full min-w-[980px]">
+          <table className="w-full min-w-[1280px]">
             <thead><tr className="border-b text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-              {["Empresa", "Cidade", "Telefone", "Site", "Avaliação", "Oportunidade", "Status", ""].map((h) => <th key={h} className="px-3 py-2 font-semibold">{h}</th>)}
+              {["Empresa", "Cidade", "Telefone", "Site", "E-mail / redes", "Avaliação", "Oportunidade", "Intenção", "Status", ""].map((h) => <th key={h} className="px-3 py-2 font-semibold">{h}</th>)}
             </tr></thead>
             <tbody>{list.map((p) => <ProspectRow key={p.id} p={p} campaigns={campaigns} onConvert={() => void convert(p)} />)}</tbody>
           </table>

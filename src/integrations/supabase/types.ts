@@ -308,12 +308,23 @@ export interface Prospect {
   facebook: string | null; maps_url: string | null; rating: number | null; reviews_count: number | null;
   status: string; temperature: string | null; priority: string; score: number | null; score_reasons: string[];
   notes: string | null; last_approach_at: string | null; converted_contact_id: string | null; created_at: string;
+  linkedin: string | null; tiktok: string | null; youtube: string | null; x_profile: string | null;
+  emails: string[]; email_host: string | null; tech: ProspectTech | null; intent_score: number | null;
+  opening_hours: Record<string, string[]> | null; price_range: string | null; source: string;
+  enriched_at: string | null; enrich_error: string | null;
+}
+
+/** Sinais do site do prospect (preenchidos pelo enriquecimento). */
+export interface ProspectTech {
+  fb_pixel: boolean; google_ads_tag: boolean; analytics: boolean; bing_ads: boolean; linkedin_insight: boolean;
+  tiktok_pixel: boolean; cms: string | null; mobile_friendly: boolean;
 }
 
 export interface ProspectSearch {
   id: string; workspace_id: string; name: string | null; is_saved: boolean; filters: Record<string, unknown>;
   status: string; location: string | null; requested_limit: number | null; result_count: number; new_count: number;
   duplicate_count: number; error_message: string | null; started_at: string | null; finished_at: string | null; created_at: string;
+  provider: string; job_ids: string[]; progress: { etapa?: string; feitos?: number; total?: number } | null;
 }
 
 export interface ProspectCampaign {

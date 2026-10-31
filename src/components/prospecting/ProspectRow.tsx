@@ -9,6 +9,7 @@ import type { Prospect, ProspectCampaign } from "@/integrations/supabase/types";
 import { waLink } from "@/lib/crm";
 import { PROSPECT_STATUS, STATUS_TONE, opportunity } from "@/lib/prospecting";
 import { cn } from "@/lib/utils";
+import { ContactCell, IntentCell } from "./ProspectSignals";
 
 const siteUrl = (s: string) => (s.startsWith("http") ? s : `https://${s}`);
 
@@ -58,8 +59,10 @@ export function ProspectRow({ p, campaigns, onConvert }: { p: Prospect; campaign
       <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">{[p.city, p.state].filter(Boolean).join("/") || "—"}</td>
       <td className="whitespace-nowrap px-3 py-2">{p.phone ?? "—"}</td>
       <td className="px-3 py-2">{p.website ? "Sim" : <span className="font-medium text-success">Não</span>}</td>
+      <td className="px-3 py-2"><ContactCell p={p} /></td>
       <td className="whitespace-nowrap px-3 py-2"><Rating p={p} /></td>
       <td className="px-3 py-2"><span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", opp.tone)}>{opp.label}</span> <span className="text-xs text-muted-foreground">{p.score ?? "—"}</span></td>
+      <td className="px-3 py-2"><IntentCell p={p} /></td>
       <td className="px-3 py-2">
         <Select value={p.status} onValueChange={(v) => patch.mutate({ id: p.id, values: { status: v, ...(v === "Abordado" ? { last_approach_at: new Date().toISOString() } : {}) } })}>
           <SelectTrigger className={cn("h-7 w-[130px] border-0 text-xs font-medium", STATUS_TONE[p.status])} aria-label={`Status de ${p.name}`}><SelectValue /></SelectTrigger>

@@ -1,0 +1,37 @@
+# Motor de prospecção do Superflow (Google Maps), baseado no gosom/google-maps-scraper
+# e no google-maps-scraper-kit (MIT). Roda no seu PC (Docker Desktop) ou num servidor.
+#
+#   1) copie .env.example para .env e troque a MOTOR_SENHA
+#   2) docker compose up -d
+#   3) no Superflow: Prospecção → Configurações → Motor de busca → endereço + senha → Testar
+#
+# O motor em si não tem senha. Quem protege é o "porteiro" (nginx) abaixo: exige a senha em toda
+# chamada e só aceita pedidos vindos do Superflow (CORS).
+
+services:
+  motor:
+    # Versão fixa e testada pelo kit (amd64 e arm64).
+    image: gosom/google-maps-scraper:v1.18.1
+    container_name: ${MOTOR_NOME:-superflow-motor}
+    restart: unless-stopped
+    # -c = buscas em paralelo dentro de um job. Diminua se o Google começar a bloquear.
+    command: ["-web", "-data-folder", "/gmapsdata", "-c", "${MOTOR_WORKERS:-4}"]
+    volumes:
+      - motor_dados:/gmapsdata
+
+  porteiro:
+    image: nginx:1.27-alpine
+    container_name: ${MOTOR_NOME:-superflow-motor}-porteiro
+    restart: unless-stopped
+    depends_on: [motor]
+    environment:
+      MOTOR_SENHA: ${MOTOR_SENHA:?Defina MOTOR_SENHA no arquivo .env}
+      MOTOR_ORIGENS: ${MOTOR_ORIGENS:-^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$$|^https://[a-z0-9-]+\.vercel\.app$$}
+    ports:
+      # No PC: só a própria máquina acessa (127.0.0.1). Num servidor: MOTOR_BIND=0.0.0.0 e HTTPS na frente.
+      - "${MOTOR_BIND:-127.0.0.1}:${MOTOR_PORTA:-8090}:8080"
+    volumes:
+      - ./porteiro.conf.template:/etc/nginx/templates/default.conf.template:ro
+
+volumes:
+  motor_dados:

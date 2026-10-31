@@ -5,7 +5,7 @@ Reconstrução do projeto Lovable (`superflowdash`) fora do Lovable.
 
 **Stack:** React 18 + Vite + TypeScript (modo estrito) + Tailwind + shadcn/ui + TanStack Query + Supabase.
 
-## Estado atual: Fases 0 a 3 (Prospecção pendente)
+## Estado atual: Fases 0 a 5 (Telegram escondido até a segunda etapa)
 
 Pronto e testado:
 - Login, cadastro, esqueci a senha e redefinir senha (Supabase Auth)
@@ -118,7 +118,7 @@ docs/                      documentação do projeto antigo, arquitetura e backu
 | 0 | Base: login, layout, menu, negócios, dashboard ✅ |
 | 1 | Produtividade: tarefas, hoje, projetos, metas, funis, equipe, lixeira ✅ |
 | 2 | Financeiro: lançamentos, pagar/receber, dívidas, cartões, reservas ✅ |
-| 3 | Comercial: pipeline, clientes, propostas, jornada, conversões, contatos, scripts, WhatsApp simulado, Dashboard da Agência, Prospecção (Apify) ✅ |
+| 3 | Comercial: pipeline, clientes, propostas, jornada, conversões, contatos, scripts, WhatsApp simulado, Dashboard da Agência, Prospecção com motor próprio (Google Maps Scraper, pasta `motor-prospeccao/`) ou Apify + enriquecimento (e-mails, redes, pixels, intenção) ✅ |
 | 4 | Marketing: plano do mês, campanhas, conteúdo, vídeos, entregas, calendário, ideias, Dashboard de Campanhas ✅ |
 | 5 | Financeiro avançado: painel com 12 indicadores, gráficos 3D, metas, pró-labore ✅ · Funis estilo Funnelytics · Integrações (vitrine) |
 | 6 | Telegram (painel): robôs, leads, conversas, dashboard de vendas |

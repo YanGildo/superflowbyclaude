@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { CampaignsTab } from "@/components/prospecting/CampaignsTab";
 import { ListTab } from "@/components/prospecting/ListTab";
 import { MapTab } from "@/components/prospecting/MapTab";
+import { RunPanel } from "@/components/prospecting/RunPanel";
 import { SearchTab } from "@/components/prospecting/SearchTab";
 import { SettingsTab } from "@/components/prospecting/SettingsTab";
 import { useProspectActions, useProspects } from "@/hooks/useProspects";
@@ -32,7 +33,7 @@ export default function Prospeccao() {
   useAutoScore();
   return (
     <div>
-      <PageHeader eyebrow="CRM Agência" title="Prospecção" description="Extrator de leads do Google Maps (Apify), mapa, lista com score e conversão em lead." />
+      <PageHeader eyebrow="CRM Agência" title="Prospecção" description="Leads do Google Maps (motor próprio ou Apify), e-mails, redes e sinais de anúncio, mapa, score e conversão em lead." />
       <div className="mb-5 flex gap-1 overflow-x-auto rounded-lg border bg-card p-1" role="tablist" aria-label="Seções da prospecção">
         {TABS.map((t) => (
           <button key={t.id} role="tab" aria-selected={tab.id === t.id} onClick={() => setParams((p) => { p.set("aba", t.id); return p; }, { replace: true })}
@@ -42,6 +43,7 @@ export default function Prospeccao() {
           </button>
         ))}
       </div>
+      <div className="mb-4 empty:hidden"><RunPanel /></div>
       {tab.el}
     </div>
   );

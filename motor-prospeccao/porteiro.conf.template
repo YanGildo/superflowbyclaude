@@ -1,0 +1,42 @@
+# Porteiro do motor: senha (X-API-Key) + CORS só para o Superflow.
+# Este arquivo passa pelo envsubst do nginx: só ${MOTOR_SENHA} e ${MOTOR_ORIGENS} são trocados.
+
+map $http_origin $origem_ok {
+    default 0;
+    "~${MOTOR_ORIGENS}" 1;
+}
+
+server {
+    listen 8080;
+    resolver 127.0.0.11 valid=10s;
+    set $motor http://motor:8080;
+
+    # Respostas sempre com CORS para a origem liberada (inclusive erros), para o Superflow ler a mensagem.
+    set $cors "";
+    if ($origem_ok) { set $cors $http_origin; }
+    add_header Access-Control-Allow-Origin $cors always;
+    add_header Vary Origin always;
+
+    location / {
+        # Pré-checagem do navegador (CORS + acesso à rede local do Chrome).
+        if ($request_method = OPTIONS) {
+            add_header Access-Control-Allow-Origin $cors always;
+            add_header Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "Content-Type, X-API-Key" always;
+            add_header Access-Control-Allow-Private-Network "true" always;
+            add_header Access-Control-Max-Age 600 always;
+            return 204;
+        }
+        # Pedido de navegador vindo de outro site: recusa.
+        if ($http_origin != "") { set $checar_origem "s"; }
+        if ($origem_ok = 0) { set $checar_origem "${checar_origem}n"; }
+        if ($checar_origem = "sn") { return 403 '{"error":"origem não liberada no MOTOR_ORIGENS"}'; }
+        # Senha obrigatória.
+        if ($http_x_api_key != "${MOTOR_SENHA}") { return 401 '{"error":"senha do motor incorreta"}'; }
+
+        proxy_pass $motor;
+        proxy_set_header Host localhost;
+        proxy_set_header Origin "";
+        proxy_read_timeout 120s;
+    }
+}

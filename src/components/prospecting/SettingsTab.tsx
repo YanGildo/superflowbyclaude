@@ -8,6 +8,7 @@ import { RefSelect } from "@/components/common/RefSelect";
 import { useScriptSegments, useStages } from "@/hooks/useCrm";
 import { useProspectActions, useProspectSettings } from "@/hooks/useProspects";
 import { WEIGHT_LABELS, type ProspectSettings, type ScoreWeights } from "@/lib/prospecting";
+import { EngineCard } from "./EngineCard";
 
 const list = (s: string) => s.split(",").map((x) => x.trim()).filter(Boolean);
 
@@ -16,7 +17,7 @@ function ApifyCard() {
   const r = test.data;
   return (
     <Card>
-      <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><ShieldCheck className="size-4" />Integração Apify</CardTitle></CardHeader>
+      <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><ShieldCheck className="size-4" />Apify</CardTitle></CardHeader>
       <CardContent className="space-y-3 text-sm">
         {r?.ok && <p className="flex items-center gap-2 rounded-lg border border-success/40 bg-success/10 p-3 text-success"><CheckCircle2 className="size-4" />Apify conectada · conta {String(r.account)} · plano {String(r.plan)} · actor {String(r.actor)}</p>}
         {r && !r.ok && <p className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive"><XCircle className="mt-0.5 size-4 shrink-0" />{r.error}</p>}
@@ -73,13 +74,14 @@ export function SettingsTab() {
   const set = (p: Partial<ProspectSettings>) => setS((c) => ({ ...c, ...p }));
   return (
     <div className="space-y-4">
+      <EngineCard s={s} set={set} />
       <DefaultsCard s={s} set={set} />
       <WeightsCard s={s} set={set} />
       <div className="flex flex-wrap items-center gap-3">
         <Button onClick={() => save.mutate(s)} disabled={save.isPending}>Salvar configurações</Button>
         <p className="text-xs text-muted-foreground">Depois de mudar os pesos, use "Recalcular score" na lista de prospects.</p>
       </div>
-      <ApifyCard />
+      {s.provider === "apify" && <ApifyCard />}
     </div>
   );
 }
