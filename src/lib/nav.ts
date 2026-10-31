@@ -6,6 +6,7 @@ import {
   BarChart3, Bot, GitBranch, Tag, Landmark, Repeat, Crown, Link2,
   Settings, Trash2, UsersRound, type LucideIcon,
 } from "lucide-react";
+import { FEATURES } from "@/lib/features";
 
 export interface NavItem {
   path: string;
@@ -22,7 +23,7 @@ export interface NavSection {
   items: NavItem[];
 }
 
-export const NAV: NavSection[] = [
+const SECTIONS: NavSection[] = [
   {
     id: "geral",
     label: "Geral",
@@ -92,6 +93,9 @@ export const NAV: NavSection[] = [
     ],
   },
 ];
+
+/** Seções visíveis (módulos desligados em FEATURES somem do menu e das rotas). */
+export const NAV = SECTIONS.filter((s) => s.id !== "telegram" || FEATURES.telegram);
 
 export const ALL_NAV_ITEMS = NAV.flatMap((s) => s.items);
 

@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { useDashboardKpis, type DashboardKpis } from "@/hooks/useDashboardKpis";
 import { brl, greeting } from "@/lib/format";
+import { FEATURES } from "@/lib/features";
 import { cn } from "@/lib/utils";
 
 interface Kpi {
@@ -66,11 +67,21 @@ const ZERO: DashboardKpis = {
 
 const alertTone = (v: number): Kpi["tone"] => (v ? "bad" : "default");
 
-/** Os quatro blocos de números do painel. Sem dados ainda, tudo aparece zerado. */
+/** Bloco de vendas do Telegram (só aparece com o módulo ligado). */
+function telegramSection(k: DashboardKpis): { title: string; kpis: Kpi[] } {
+  const ticket = k.tgVendasHoje > 0 ? k.tgFaturamentoHoje / k.tgVendasHoje : 0;
+  return { title: "Vendas Telegram · hoje", kpis: [
+      { label: "Starts", value: String(k.tgStartsHoje), icon: Zap },
+      { label: "Vendas aprovadas", value: String(k.tgVendasHoje), icon: ShoppingCart },
+      { label: "Faturamento", value: brl(k.tgFaturamentoHoje), icon: DollarSign, tone: "good" },
+      { label: "Ticket médio", value: brl(ticket), icon: TrendingUp },
+    ] };
+}
+
+/** Os blocos de números do painel. Sem dados ainda, tudo aparece zerado. */
 function buildSections(k: DashboardKpis): { title: string; kpis: Kpi[] }[] {
   const saldo = k.entradasMes - k.saidasMes;
-  const ticket = k.tgVendasHoje > 0 ? k.tgFaturamentoHoje / k.tgVendasHoje : 0;
-  return [
+  const sections: { title: string; kpis: Kpi[] }[] = [
     { title: "Hoje", kpis: [
       { label: "Tarefas de hoje", value: String(k.tarefasHoje), icon: ListTodo },
       { label: "Tarefas atrasadas", value: String(k.tarefasAtrasadas), icon: AlarmClock, tone: alertTone(k.tarefasAtrasadas) },
@@ -87,13 +98,8 @@ function buildSections(k: DashboardKpis): { title: string; kpis: Kpi[] }[] {
       { label: "Clientes ativos", value: String(k.clientesAtivos), icon: Users },
       { label: "Propostas em aberto", value: String(k.propostasAbertas), icon: FileText },
     ] },
-    { title: "Vendas Telegram · hoje", kpis: [
-      { label: "Starts", value: String(k.tgStartsHoje), icon: Zap },
-      { label: "Vendas aprovadas", value: String(k.tgVendasHoje), icon: ShoppingCart },
-      { label: "Faturamento", value: brl(k.tgFaturamentoHoje), icon: DollarSign, tone: "good" },
-      { label: "Ticket médio", value: brl(ticket), icon: TrendingUp },
-    ] },
   ];
+  return FEATURES.telegram ? [...sections, telegramSection(k)] : sections;
 }
 
 const PILL = "rounded-full border px-3 py-1";

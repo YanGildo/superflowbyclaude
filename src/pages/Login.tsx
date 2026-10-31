@@ -43,7 +43,7 @@ function BrandAside() {
           <span className="block text-white/70">Tudo em um lugar só.</span>
         </h1>
         <ul className="space-y-3 text-sm text-white/80">
-          {["Produtividade do dia a dia", "CRM e propostas da agência", "Financeiro pessoal e das empresas", "Vendas no Telegram"].map((t) => (
+          {["Produtividade do dia a dia", "CRM e propostas da agência", "Financeiro pessoal e das empresas", "Marketing e campanhas"].map((t) => (
             <li key={t} className="flex items-center gap-2.5">
               <CheckCircle2 className="size-4 text-brand-cyan" /> {t}
             </li>
