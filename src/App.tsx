@@ -28,6 +28,7 @@ import Comercial from "@/pages/Comercial";
 import Scripts from "@/pages/Scripts";
 import WhatsApp from "@/pages/WhatsApp";
 import Agencia from "@/pages/Agencia";
+import Prospeccao from "@/pages/Prospeccao";
 import VisaoGeral from "@/pages/financeiro/VisaoGeral";
 import Lancamentos from "@/pages/financeiro/Lancamentos";
 import PagarReceber from "@/pages/financeiro/PagarReceber";
@@ -84,6 +85,7 @@ const BUILT: Record<string, ReactNode> = {
   "/scripts": <Scripts />,
   "/whatsapp": <WhatsApp />,
   "/agencia": <Agencia />,
+  "/prospeccao": <Prospeccao />,
   "/financeiro": <VisaoGeral />,
   "/financeiro/lancamentos": <Lancamentos />,
   "/financeiro/contas": <PagarReceber />,

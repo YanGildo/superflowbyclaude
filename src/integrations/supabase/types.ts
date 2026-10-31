@@ -297,3 +297,26 @@ export interface ChatThread {
 }
 
 export interface ChatMessage { id: string; workspace_id: string; thread_id: string; direction: "in" | "out"; body: string; at: string }
+
+/* ------------------------------ Prospecção ------------------------------ */
+
+export interface Prospect {
+  id: string; workspace_id: string; search_id: string | null; campaign_id: string | null; place_id: string | null;
+  name: string; category: string | null; niche: string | null; address: string | null; neighborhood: string | null;
+  city: string | null; state: string | null; country: string | null; latitude: number | null; longitude: number | null;
+  phone: string | null; whatsapp: string | null; email: string | null; website: string | null; instagram: string | null;
+  facebook: string | null; maps_url: string | null; rating: number | null; reviews_count: number | null;
+  status: string; temperature: string | null; priority: string; score: number | null; score_reasons: string[];
+  notes: string | null; last_approach_at: string | null; converted_contact_id: string | null; created_at: string;
+}
+
+export interface ProspectSearch {
+  id: string; workspace_id: string; name: string | null; is_saved: boolean; filters: Record<string, unknown>;
+  status: string; location: string | null; requested_limit: number | null; result_count: number; new_count: number;
+  duplicate_count: number; error_message: string | null; started_at: string | null; finished_at: string | null; created_at: string;
+}
+
+export interface ProspectCampaign {
+  id: string; workspace_id: string; name: string; niche: string | null; location: string | null;
+  objective: string | null; status: string; created_at: string;
+}

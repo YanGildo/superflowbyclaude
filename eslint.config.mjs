@@ -164,5 +164,7 @@ export default defineConfig([
     "**/*.tsbuildinfo",
     "package-lock.json",
     "src/generated/**",
+    // Edge Functions rodam no Deno (runtime do Supabase), fora do app web.
+    "supabase/functions/**",
   ]),
 ]);
