@@ -320,3 +320,39 @@ export interface ProspectCampaign {
   id: string; workspace_id: string; name: string; niche: string | null; location: string | null;
   objective: string | null; status: string; created_at: string;
 }
+
+/* ------------------------------ Marketing ------------------------------ */
+
+export type ContentStage = "ideia" | "roteiro" | "gravacao" | "edicao" | "revisao" | "aprovado" | "publicado" | "pausado";
+
+export interface ContentItem {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string | null; campaign_id: string | null;
+  project_id: string | null; title: string; kind: string; channel: string | null; objective: string | null;
+  stage: ContentStage; priority: Priority; responsible_id: string | null; script: string | null; caption: string | null;
+  recording_at: string | null; due_date: string | null; publish_at: string | null; file_url: string | null;
+  notes: string | null; position: number; deleted_at: string | null; created_at: string; updated_at: string;
+}
+
+export type CampaignStatus = "planejada" | "ativa" | "pausada" | "encerrada";
+
+export interface Campaign {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string | null; name: string; platform: string;
+  objective: string | null; status: CampaignStatus; daily_budget: number | null; total_budget: number | null;
+  spend: number; impressions: number; clicks: number; leads: number; sales: number; revenue: number;
+  start_date: string | null; end_date: string | null; landing_page: string | null; tracking_param: string | null;
+  region: string | null; notes: string | null; deleted_at: string | null; created_at: string; updated_at: string;
+}
+
+export type DeliveryStatus = "pendente" | "em_producao" | "em_revisao" | "enviado_cliente" | "aprovado" | "reprovado" | "publicado";
+
+export interface Delivery {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string | null; proposal_id: string | null;
+  title: string; type: string | null; due_date: string | null; status: DeliveryStatus; responsible_id: string | null;
+  links: string | null; client_comments: string | null; notes: string | null; deleted_at: string | null;
+  created_at: string; updated_at: string;
+}
+
+export interface MarketingPlan {
+  id: string; workspace_id: string; business_id: string | null; month: string; goal: string | null; audience: string | null;
+  offer: string | null; channels: string[]; notes: string | null; updated_at: string;
+}

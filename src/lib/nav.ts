@@ -50,9 +50,9 @@ export const NAV: NavSection[] = [
     id: "marketing",
     label: "Marketing",
     items: [
-      { path: "/marketing", label: "Marketing", icon: Megaphone, phase: 4, description: "Plano do mês, campanhas, conteúdos, vídeos, calendário e ideias." },
-      { path: "/marketing/campanhas-dashboard", label: "Dashboard de Campanhas", icon: BarChart3, phase: 4, description: "Investimento e resultado das campanhas (Meta/Google)." },
-      { path: "/marketing/entregas", label: "Entregas", icon: PackageCheck, phase: 4, description: "Entregas para clientes com prazos e aprovação." },
+      { path: "/marketing", label: "Marketing", icon: Megaphone, phase: 0, description: "Plano do mês, campanhas, conteúdos, vídeos, calendário e ideias." },
+      { path: "/marketing/campanhas-dashboard", label: "Dashboard de Campanhas", icon: BarChart3, phase: 0, description: "Investimento e resultado das campanhas (Meta/Google)." },
+      { path: "/marketing/entregas", label: "Entregas", icon: PackageCheck, phase: 0, description: "Entregas para clientes com prazos e aprovação." },
     ],
   },
   {

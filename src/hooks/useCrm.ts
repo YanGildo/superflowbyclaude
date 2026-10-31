@@ -13,16 +13,17 @@ const HAS_BUSINESS: Record<string, boolean> = {
   contacts: true, pipelines: false, pipeline_stages: false, deals: true, activities: true, services: false,
   proposals: true, proposal_items: false, journey_items: true, scripts: false, script_segments: false,
   chat_threads: true, chat_messages: false, campaigns: true,
+  content_items: true, deliveries: true, marketing_plans: true,
 };
 
 /** Tabelas com lixeira (deleted_at) em vez de exclusão definitiva. */
-const SOFT_DELETE = new Set(["contacts", "deals", "proposals"]);
+const SOFT_DELETE = new Set(["contacts", "deals", "proposals", "campaigns", "content_items", "deliveries"]);
 
 export type CrmTable = keyof typeof HAS_BUSINESS;
 
 type Builder = (q: any) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-function useCrmList<T>(table: CrmTable, extraKey: unknown[], build: Builder, enabled = true) {
+export function useCrmList<T>(table: CrmTable, extraKey: unknown[], build: Builder, enabled = true) {
   const scope = useScope();
   return useQuery({
     queryKey: ["crm", table, scope.wsId, scope.businessFilter, ...extraKey],
@@ -70,7 +71,7 @@ export const useScripts = () =>
 
 /** Campanhas só para escolher em listas (o módulo de Marketing usa a tabela completa). */
 export const useCampaignOptions = () =>
-  useCrmList<{ id: string; name: string }>("campaigns", ["options"], (q) => q.order("created_at", { ascending: false }));
+  useCrmList<{ id: string; name: string }>("campaigns", ["options"], (q) => q.is("deleted_at", null).order("created_at", { ascending: false }));
 
 export const useChatThreads = () =>
   useCrmList<ChatThread>("chat_threads", [], (q) => q.order("last_message_at", { ascending: false }));

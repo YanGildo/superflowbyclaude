@@ -118,10 +118,11 @@ docs/                      documentação do projeto antigo, arquitetura e backu
 | 0 | Base: login, layout, menu, negócios, dashboard ✅ |
 | 1 | Produtividade: tarefas, hoje, projetos, metas, funis, equipe, lixeira ✅ |
 | 2 | Financeiro: lançamentos, pagar/receber, dívidas, cartões, reservas ✅ |
-| 3 | Comercial: pipeline, clientes, propostas, jornada, conversões, contatos, scripts, WhatsApp simulado, Dashboard da Agência ✅ · Prospecção (Apify) pendente |
-| 4 | Marketing: planejamento, produção, campanhas, entregas |
-| 5 | Telegram (painel): robôs, leads, conversas, dashboard de vendas |
-| 6 | Telegram (vendas): fluxos, ofertas, gateways, remarketing, VIP, links |
-| 7 | Migração dos dados do Lovable |
+| 3 | Comercial: pipeline, clientes, propostas, jornada, conversões, contatos, scripts, WhatsApp simulado, Dashboard da Agência, Prospecção (Apify) ✅ |
+| 4 | Marketing: plano do mês, campanhas, conteúdo, vídeos, entregas, calendário, ideias, Dashboard de Campanhas ✅ |
+| 5 | Funis estilo Funnelytics · Financeiro avançado · Integrações (vitrine) |
+| 6 | Telegram (painel): robôs, leads, conversas, dashboard de vendas |
+| 7 | Telegram (vendas): fluxos, ofertas, gateways, remarketing, VIP, links |
+| 8 | Migração dos dados do Lovable · IA via conector (MCP) |
 
 Detalhes em `docs/02_ARQUITETURA_SUPERFLOW_V2.md`.

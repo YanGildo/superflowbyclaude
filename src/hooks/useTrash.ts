@@ -12,6 +12,9 @@ const SOURCES = [
   { table: "funnels", label: "Funil", name: "name" },
   { table: "contacts", label: "Contato", name: "name" },
   { table: "proposals", label: "Proposta", name: "title" },
+  { table: "campaigns", label: "Campanha", name: "name" },
+  { table: "content_items", label: "Conteúdo", name: "title" },
+  { table: "deliveries", label: "Entrega", name: "title" },
   { table: "transactions", label: "Lançamento", name: "description" },
 ] as const;
 
