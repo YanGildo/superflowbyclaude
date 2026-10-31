@@ -1,18 +1,10 @@
-import { LogOut } from "lucide-react";
-import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton,
-  SidebarMenuItem, SidebarRail,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import { SidebarNav } from "./SidebarNav";
-import { useAuth } from "@/lib/auth";
+import { SidebarUser } from "./SidebarUser";
 
 export function AppSidebar() {
-  const { user, signOut } = useAuth();
-  const name = (user?.user_metadata?.full_name as string | undefined) ?? user?.email ?? "";
-  const initials = name.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?";
-
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
@@ -31,20 +23,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Sair" onClick={() => void signOut()} className="h-auto py-2">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-blue text-[11px] font-semibold text-white">
-                {initials}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-xs font-medium text-white">{name}</span>
-                <span className="block text-[11px] text-sidebar-foreground/60">Sair</span>
-              </span>
-              <LogOut className="size-4 opacity-60" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <SidebarUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

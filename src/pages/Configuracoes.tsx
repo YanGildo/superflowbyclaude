@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Archive, Loader2, Plus, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -151,14 +152,18 @@ function BusinessesTab() {
   );
 }
 
+const TAB_IDS = ["negocios", "categorias", "perfil", "aparencia"];
+
 export default function Configuracoes() {
+  const [params, setParams] = useSearchParams();
+  const tab = TAB_IDS.includes(params.get("aba") ?? "") ? (params.get("aba") as string) : "negocios";
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Configurações</h1>
         <p className="text-sm text-muted-foreground">Negócios, categorias financeiras, perfil e aparência.</p>
       </div>
-      <Tabs defaultValue="negocios">
+      <Tabs value={tab} onValueChange={(v) => setParams((p) => { p.set("aba", v); return p; }, { replace: true })}>
         <TabsList>
           <TabsTrigger value="negocios">Negócios</TabsTrigger>
           <TabsTrigger value="categorias">Categorias</TabsTrigger>

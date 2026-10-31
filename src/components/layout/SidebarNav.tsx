@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar/use-sidebar";
 import { NAV, type NavItem, type NavSection } from "@/lib/nav";
-import { isNavActive, navOpenPref, sectionOf } from "@/lib/navState";
+import { isNavActive, navClosedPref, sectionOf } from "@/lib/navState";
 import { cn } from "@/lib/utils";
 
 const ACTIVE_CLASS =
@@ -35,7 +35,7 @@ function SectionItems({ section, pathname }: { section: NavSection; pathname: st
   );
 }
 
-/** Cabeçalho do grupo: clica para abrir (e fechar os outros). */
+/** Cabeçalho do grupo: clica para recolher ou abrir só este grupo. */
 function SectionHeader({ section, open, hasActive, onToggle }: {
   section: NavSection; open: boolean; hasActive: boolean; onToggle: () => void;
 }) {
@@ -50,27 +50,27 @@ function SectionHeader({ section, open, hasActive, onToggle }: {
   );
 }
 
-/** Abre o grupo da rota atual; os demais ficam recolhidos (um aberto por vez). */
-function useOpenSection(pathname: string) {
+/** Cada grupo abre e fecha de forma independente; todos começam abertos. O grupo da tela atual sempre abre. */
+function useClosedSections(pathname: string) {
   const current = sectionOf(pathname)?.id ?? null;
-  const [openId, setOpenId] = useState<string | null>(() => current ?? navOpenPref.read());
+  const [closed, setClosed] = useState<string[]>(navClosedPref.read);
 
   useEffect(() => {
-    if (current) setOpenId(current);
+    if (current) setClosed((c) => (c.includes(current) ? c.filter((x) => x !== current) : c));
   }, [current]);
 
-  const toggle = (id: string) => {
-    const next = openId === id ? null : id;
-    setOpenId(next);
-    navOpenPref.save(next);
-  };
-  return { openId, toggle, current };
+  const toggle = (id: string) => setClosed((c) => {
+    const next = c.includes(id) ? c.filter((x) => x !== id) : [...c, id];
+    navClosedPref.save(next);
+    return next;
+  });
+  return { isOpen: (id: string) => !closed.includes(id), toggle, current };
 }
 
 export function SidebarNav() {
   const { pathname } = useLocation();
   const { state, isMobile } = useSidebar();
-  const { openId, toggle, current } = useOpenSection(pathname);
+  const { isOpen, toggle, current } = useClosedSections(pathname);
 
   // Menu recolhido (só ícones): mostra todos os itens, sem cabeçalhos.
   if (state === "collapsed" && !isMobile) {
@@ -86,7 +86,7 @@ export function SidebarNav() {
   return (
     <>
       {NAV.map((section) => {
-        const open = openId === section.id;
+        const open = isOpen(section.id);
         return (
           <SidebarGroup key={section.id} className="px-2 py-0.5">
             <SectionHeader section={section} open={open} hasActive={current === section.id} onToggle={() => toggle(section.id)} />
