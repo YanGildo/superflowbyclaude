@@ -10,6 +10,7 @@ import { PanelActions } from "@/components/finance/panel/PanelActions";
 import { AllocationCard, BillsFlowCard, RemainingCard } from "@/components/finance/panel/PanelCharts";
 import { ICONS } from "@/components/finance/panel/icons";
 import { PanelKpis, type PanelKpi } from "@/components/finance/panel/PanelKpis";
+import { NetWorthCard } from "@/components/finance/networth/NetWorthCard";
 import { useFinPanel } from "@/hooks/useFinPanel";
 import { useMonthParam } from "@/hooks/useMonthParam";
 import { useAuth } from "@/lib/auth";
@@ -99,6 +100,7 @@ export default function VisaoGeral() {
       </Card>
 
       <PanelKpis items={kpis(p)} loading={p.loading} />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><NetWorthCard /></div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <RemainingCard entradas={p.flow.entradas} saidas={p.flow.saidas} />

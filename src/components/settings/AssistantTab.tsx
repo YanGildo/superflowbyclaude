@@ -49,7 +49,7 @@ function ScanCard({ s, set }: { s: AssistantSettings; set: Set }) {
         </div>
         <p className="text-xs text-muted-foreground">Horário de Brasília. Em cada varredura o sistema prepara os rascunhos novos e guarda o resumo. Três por dia funciona melhor que tempo real: evita interrupção.</p>
         <div className="space-y-1.5"><Label htmlFor="as-days" className="text-xs">Proposta parada depois de quantos dias sem resposta?</Label>
-          <Input id="as-days" type="number" min={1} max={60} value={s.diasProposta} onChange={(e) => set({ diasProposta: Math.max(1, Number(e.target.value) || 3) })} className="h-9 w-24" /></div>
+          <Input id="as-days" type="number" min={1} max={60} value={s.diasProposta} onChange={(e) => set({ diasProposta: Math.max(1, Number(e.target.value) || 7) })} className="h-9 w-24" /></div>
       </CardContent>
     </Card>
   );

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type {
-  CreditCard, Debt, FinAccount, FinCategory, FinGoal, Payable, Receivable, Reserve, Transaction,
+  CreditCard, Debt, FinAccount, FinAsset, FinCategory, FinGoal, NetWorthSnapshot, Payable, Receivable, Reserve, Transaction,
 } from "@/integrations/supabase/types";
 import { useScope } from "@/hooks/useScope";
 import { ymRange } from "@/lib/format";
@@ -11,6 +11,7 @@ import { ymRange } from "@/lib/format";
 const HAS_BUSINESS: Record<string, boolean> = {
   fin_accounts: true, credit_cards: true, fin_categories: false, transactions: true,
   payables: true, receivables: true, debts: true, fin_goals: true, reserves: false,
+  fin_assets: false, net_worth_snapshots: false,
 };
 
 type Builder = (q: any) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -69,6 +70,12 @@ export const useDebts = () => useFinList<Debt>("debts", [], (q) => q.order("crea
 
 export const useFinGoals = () => useFinList<FinGoal>("fin_goals", [], (q) => q.order("created_at"));
 
+export const useAssets = () =>
+  useFinList<FinAsset>("fin_assets", [], (q) => q.is("archived_at", null).order("value", { ascending: false }));
+
+export const useNetWorthHistory = () =>
+  useFinList<NetWorthSnapshot>("net_worth_snapshots", [], (q) => q.order("month").limit(240));
+
 export const useReserves = () => useFinList<Reserve>("reserves", [], (q) => q.order("date", { ascending: false }));
 
 /* ------------------------------ Gravações ------------------------------ */
@@ -76,6 +83,7 @@ export const useReserves = () => useFinList<Reserve>("reserves", [], (q) => q.or
 const LABEL: Record<string, string> = {
   fin_accounts: "Conta", credit_cards: "Cartão", fin_categories: "Categoria", transactions: "Lançamento",
   payables: "Conta a pagar", receivables: "Conta a receber", debts: "Dívida", fin_goals: "Meta", reserves: "Reserva",
+  fin_assets: "Bem", net_worth_snapshots: "Registro",
 };
 
 /** Salvar (cria se não tiver id), remover e atualizar campos de qualquer tabela do financeiro. */
@@ -118,7 +126,7 @@ export function useFinMutations(table: keyof typeof LABEL) {
     mutationFn: async (id: string) => {
       const now = new Date().toISOString();
       const q = table === "transactions" ? supabase.from(table).update({ deleted_at: now })
-        : table === "fin_accounts" || table === "credit_cards" ? supabase.from(table).update({ archived_at: now })
+        : table === "fin_accounts" || table === "credit_cards" || table === "fin_assets" ? supabase.from(table).update({ archived_at: now })
         : supabase.from(table).delete();
       const { error } = await q.eq("id", id);
       if (error) throw error;

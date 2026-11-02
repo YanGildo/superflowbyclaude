@@ -34,7 +34,7 @@ export const DEFAULT_TEMPLATES = {
 };
 
 export const DEFAULT_ASSISTANT: AssistantSettings = {
-  ativo: true, nome: "Flow", forma: "esfera", horarios: ["07", "13", "18"], diasProposta: 3,
+  ativo: true, nome: "Flow", forma: "esfera", horarios: ["07", "13", "18"], diasProposta: 7,
   fontes: Object.fromEntries(SOURCE_KEYS.map((k) => [k, true])) as Record<SourceKey, boolean>,
   modelos: { followup: "", proposta: "" },
 };

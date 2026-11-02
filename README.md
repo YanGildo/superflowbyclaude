@@ -117,12 +117,13 @@ docs/                      documentação do projeto antigo, arquitetura e backu
 |---|---|
 | 0 | Base: login, layout, menu, negócios, dashboard ✅ |
 | 1 | Produtividade: tarefas, Central do dia (lista única, resumo, rascunhos com aprovação, varreduras 3×/dia, agenda, mascote), projetos, metas, funis, equipe, lixeira ✅ |
-| 2 | Financeiro: lançamentos, pagar/receber, dívidas, cartões, reservas ✅ |
-| 3 | Comercial: pipeline, clientes, propostas, jornada, conversões, contatos, scripts, WhatsApp simulado, Dashboard da Agência, Prospecção com motor próprio (Google Maps Scraper, pasta `motor-prospeccao/`) ou Apify + enriquecimento (e-mails, redes, pixels, intenção) ✅ |
+| 2 | Financeiro: lançamentos, pagar/receber, dívidas, cartões, reservas, fluxo de caixa em calendário (saldo projetado dia a dia), patrimônio líquido (bens + histórico mensal) ✅ |
+| 3 | Comercial: pipeline, clientes, propostas (alerta de proposta parada há 7+ dias, cobrança pronta na Central), jornada, conversões, contatos, scripts, WhatsApp simulado, Dashboard da Agência, Prospecção com motor próprio (Google Maps Scraper, pasta `motor-prospeccao/`) ou Apify + enriquecimento (e-mails, redes, pixels, intenção) ✅ |
 | 4 | Marketing: plano do mês, campanhas, conteúdo, vídeos, entregas, calendário, ideias, Dashboard de Campanhas ✅ |
 | 5 | Tela de Integrações com guia de pendências ✅ · Financeiro avançado: painel com 12 indicadores, gráficos 3D, metas, pró-labore ✅ · Funis estilo Funnelytics · Integrações (vitrine) |
 | 6 | Telegram (painel): robôs, leads, conversas, dashboard de vendas |
 | 7 | Telegram (vendas): fluxos, ofertas, gateways, remarketing, VIP, links |
 | 8 | Migração dos dados do Lovable · IA via conector (MCP) |
+| Depois | Relacionamento com clientes (frequência de contato, "Falar agora", "Falei hoje") — pendente por decisão |
 
 Detalhes em `docs/02_ARQUITETURA_SUPERFLOW_V2.md`.

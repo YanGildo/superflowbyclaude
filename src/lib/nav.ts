@@ -4,7 +4,7 @@ import {
   Megaphone, PackageCheck, Plug,
   Wallet, ArrowLeftRight, Receipt, CreditCard, PiggyBank,
   BarChart3, Bot, GitBranch, Tag, Landmark, Repeat, Crown, Link2,
-  Settings, Trash2, UsersRound, type LucideIcon,
+  Settings, Trash2, UsersRound, CalendarRange, type LucideIcon,
 } from "lucide-react";
 import { FEATURES } from "@/lib/features";
 
@@ -62,8 +62,9 @@ const SECTIONS: NavSection[] = [
     items: [
       { path: "/financeiro", label: "Visão geral", icon: Wallet, phase: 0, description: "Entradas, saídas e saldo por negócio." },
       { path: "/financeiro/lancamentos", label: "Lançamentos", icon: ArrowLeftRight, phase: 0, description: "Todas as entradas e saídas." },
+      { path: "/financeiro/fluxo-de-caixa", label: "Fluxo de caixa", icon: CalendarRange, phase: 0, description: "Calendário do mês com o saldo projetado dia a dia." },
       { path: "/financeiro/contas", label: "Pagar e receber", icon: Receipt, phase: 0, description: "Contas a pagar, a receber e recorrências." },
-      { path: "/financeiro/carteira", label: "Dívidas e cartões", icon: CreditCard, phase: 0, description: "Dívidas parceladas, cartões e contas bancárias." },
+      { path: "/financeiro/carteira", label: "Carteira e patrimônio", icon: CreditCard, phase: 0, description: "Contas, cartões, dívidas e patrimônio líquido." },
       { path: "/financeiro/reservas", label: "Reservas e metas", icon: PiggyBank, phase: 0, description: "Reservas e metas financeiras." },
     ],
   },

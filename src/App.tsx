@@ -36,6 +36,7 @@ import Integracoes from "@/pages/Integracoes";
 import VisaoGeral from "@/pages/financeiro/VisaoGeral";
 import Lancamentos from "@/pages/financeiro/Lancamentos";
 import PagarReceber from "@/pages/financeiro/PagarReceber";
+import FluxoCaixa from "@/pages/financeiro/FluxoCaixa";
 import Carteira from "@/pages/financeiro/Carteira";
 import Reservas from "@/pages/financeiro/Reservas";
 
@@ -97,6 +98,7 @@ const BUILT: Record<string, ReactNode> = {
   "/financeiro": <VisaoGeral />,
   "/financeiro/lancamentos": <Lancamentos />,
   "/financeiro/contas": <PagarReceber />,
+  "/financeiro/fluxo-de-caixa": <FluxoCaixa />,
   "/financeiro/carteira": <Carteira />,
   "/financeiro/reservas": <Reservas />,
 };

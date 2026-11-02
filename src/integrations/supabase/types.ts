@@ -383,3 +383,16 @@ export interface AssistantDraft {
 }
 
 export interface AssistantDigest { id: string; workspace_id: string; slot: string; counts: Record<string, number>; created_at: string }
+
+/* ------------------------------ Patrimônio ------------------------------ */
+
+export type AssetKind = "investimento" | "imovel" | "veiculo" | "outro";
+
+export interface FinAsset {
+  id: string; workspace_id: string; business_id: string | null; name: string; kind: AssetKind; value: number;
+  value_date: string; notes: string | null; archived_at: string | null; created_at: string; updated_at: string;
+}
+
+export interface NetWorthSnapshot {
+  id: string; workspace_id: string; month: string; accounts: number; goods: number; debts: number; net: number; updated_at: string;
+}

@@ -1,6 +1,6 @@
 // Rótulos e regras do comercial (sem React).
 import type {
-  Activity, ContactStatus, JourneyMoment, PipelineStage, ProposalItem, ProposalStatus, Temperature,
+  Activity, ContactStatus, JourneyMoment, PipelineStage, Proposal, ProposalItem, ProposalStatus, Temperature,
 } from "@/integrations/supabase/types";
 
 export const CONTACT_STATUS: Record<ContactStatus, { label: string; tone: string }> = {
@@ -76,3 +76,9 @@ export function waLink(phone: string | null | undefined, text?: string): string 
 
 /** Atividade é do mês (yyyy-mm)? */
 export const inMonth = (a: Pick<Activity, "at">, ym: string) => a.at.slice(0, 7) === ym;
+
+/** Dias desde o envio de uma proposta em aberto sem resposta (null se não está esperando resposta). */
+export function proposalWaitingDays(p: Pick<Proposal, "status" | "sent_at" | "created_at">, now = Date.now()): number | null {
+  if (p.status !== "enviada" && p.status !== "em_negociacao") return null;
+  return Math.floor((now - new Date(p.sent_at ?? p.created_at).getTime()) / 864e5);
+}

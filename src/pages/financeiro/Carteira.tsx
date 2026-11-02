@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
-import { CreditCard as CardIcon, Landmark, Plus, Wallet } from "lucide-react";
+import { CreditCard as CardIcon, Landmark, PiggyBank, Plus, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader, EmptyState } from "@/components/common/PageHeader";
@@ -8,16 +8,18 @@ import { AccountDialog } from "@/components/finance/wallet/AccountDialog";
 import { CardDialog } from "@/components/finance/wallet/CardDialog";
 import { DebtDialog } from "@/components/finance/wallet/DebtDialog";
 import { AccountsGrid, CardsGrid, DebtsGrid } from "@/components/finance/wallet/WalletTabs";
+import { NetWorthTab } from "@/components/finance/networth/NetWorthTab";
 import { useAccounts, useAllPaidTransactions, useCards, useDebts, useFinMutations, usePayables } from "@/hooks/useFinance";
 import type { CreditCard, FinAccount } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
 
-type Tab = "contas" | "cartoes" | "dividas";
+type Tab = "contas" | "cartoes" | "dividas" | "patrimonio";
 
 const TABS: { v: Tab; label: string; icon: typeof Wallet; add: string }[] = [
   { v: "contas", label: "Contas", icon: Landmark, add: "Nova conta" },
   { v: "cartoes", label: "Cartões", icon: CardIcon, add: "Novo cartão" },
   { v: "dividas", label: "Dívidas", icon: Wallet, add: "Nova dívida" },
+  { v: "patrimonio", label: "Patrimônio", icon: PiggyBank, add: "" },
 ];
 
 /** Carregando → esqueleto; lista vazia → estado vazio; senão o conteúdo. */
@@ -48,10 +50,27 @@ function useWalletData() {
   return { accounts, cards, debts, payables, txs };
 }
 
+const TITLE = { title: "Carteira e patrimônio", description: "Contas bancárias, cartões, dívidas parceladas e patrimônio líquido." };
+
+/** Aba Patrimônio: tem os próprios botões (Novo bem, Registrar agora). */
+function NetWorthPage({ setTab }: { setTab: (t: Tab) => void }) {
+  return (
+    <div>
+      <PageHeader eyebrow="Financeiro" {...TITLE} />
+      <TabBar tab="patrimonio" setTab={setTab} />
+      <NetWorthTab />
+    </div>
+  );
+}
+
 export default function Carteira() {
   const [params, setParams] = useSearchParams();
   const tab = (params.get("aba") as Tab) || "contas";
   const setTab = (t: Tab) => setParams((p) => { p.set("aba", t); return p; }, { replace: true });
+  return tab === "patrimonio" ? <NetWorthPage setTab={setTab} /> : <WalletPage tab={tab} setTab={setTab} />;
+}
+
+function WalletPage({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
   const { accounts, cards, debts, payables, txs } = useWalletData();
   const accM = useFinMutations("fin_accounts");
   const cardM = useFinMutations("credit_cards");
@@ -64,13 +83,14 @@ export default function Carteira() {
     contas: () => setAccDlg({ open: true, acc: null }),
     cartoes: () => setCardDlg({ open: true, card: null }),
     dividas: () => setDebtDlg(true),
+    patrimonio: () => setTab("patrimonio"),
   };
   const current = TABS.find((t) => t.v === tab) ?? TABS[2];
   const addButton = (label: string) => <Button onClick={add[current.v]}><Plus className="size-4" />{label}</Button>;
 
   return (
     <div>
-      <PageHeader eyebrow="Financeiro" title="Dívidas e cartões" description="Contas bancárias, cartões de crédito e dívidas parceladas."
+      <PageHeader eyebrow="Financeiro" {...TITLE}
         actions={addButton(current.add)} />
 
       <TabBar tab={tab} setTab={setTab} />

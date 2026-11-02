@@ -2,7 +2,8 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { IntegrationCard } from "@/components/integrations/IntegrationCard";
 import { PendingChecklist } from "@/components/integrations/PendingChecklist";
 import { useIntegrations } from "@/hooks/useIntegrations";
-import type { IntegrationStatus } from "@/lib/integrations";
+import { PLANNED, type IntegrationStatus } from "@/lib/integrations";
+import { Card } from "@/components/ui/card";
 
 const GROUPS: { title: string; hint: string; statuses: IntegrationStatus[] }[] = [
   { title: "Funcionando", hint: "Já ligado e em uso.", statuses: ["ativo"] },
@@ -28,6 +29,18 @@ export default function Integracoes() {
           </section>
         );
       })}
+      <section className="space-y-2" aria-label="Planejado para depois">
+        <div><h2 className="font-heading text-lg font-semibold">Planejado para depois</h2><p className="text-xs text-muted-foreground">Funções já desenhadas que ficaram pendentes por decisão sua.</p></div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {PLANNED.map((p) => (
+            <Card key={p.id} className="space-y-1 border-dashed p-4">
+              <div className="flex items-start justify-between gap-2"><p className="font-heading font-semibold">{p.title}</p><span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">Pendente</span></div>
+              <p className="text-sm text-muted-foreground">{p.what}</p>
+              <p className="text-xs text-muted-foreground"><b>Onde:</b> {p.where}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

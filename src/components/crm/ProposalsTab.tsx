@@ -1,30 +1,67 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Check, Copy, FileText, MoreHorizontal, Plus, Send, X } from "lucide-react";
+import { AlarmClock, Check, Copy, FileText, MessageSquareReply, MoreHorizontal, Plus, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/common/PageHeader";
 import { Summary } from "@/components/finance/Summary";
 import { fetchProposalItems, useContacts, useCrmMutations, useProposals } from "@/hooks/useCrm";
+import { useAssistantSettings, useDraftActions } from "@/hooks/useCentral";
 import { useProposalActions } from "@/hooks/useProposalActions";
 import type { Contact, Proposal, ProposalStatus } from "@/integrations/supabase/types";
-import { PROPOSAL_STATUS } from "@/lib/crm";
+import { PROPOSAL_STATUS, proposalWaitingDays } from "@/lib/crm";
 import { brl, currentYM } from "@/lib/format";
 import { proposalText } from "@/lib/proposalForm";
 import { cn } from "@/lib/utils";
 import { ProposalDialog } from "./ProposalDialog";
 
 const OPEN: ProposalStatus[] = ["rascunho", "enviada", "em_negociacao"];
-const FILTERS = [
+const BASE_FILTERS = [
   { id: "abertas", label: "Em aberto", match: (p: Proposal) => OPEN.includes(p.status) },
   { id: "aprovadas", label: "Aprovadas", match: (p: Proposal) => p.status === "aprovada" },
   { id: "encerradas", label: "Recusadas / expiradas", match: (p: Proposal) => p.status === "recusada" || p.status === "expirada" },
   { id: "todas", label: "Todas", match: () => true },
 ];
 
-function ProposalRow({ p, contact, onEdit }: { p: Proposal; contact?: Contact; onEdit: () => void }) {
+/** Filtros com o "Paradas" (sem resposta há X dias, o mesmo prazo da Central do dia). */
+function filtersFor(days: number) {
+  const stale = { id: "paradas", label: `Paradas (${days}+ dias)`, match: (p: Proposal) => (proposalWaitingDays(p) ?? -1) >= days };
+  return [BASE_FILTERS[0], stale, ...BASE_FILTERS.slice(1)];
+}
+
+/** Selo "Sem resposta há X dias" + atalho para preparar a cobrança na Central do dia. */
+function StaleBadge({ p, days }: { p: Proposal; days: number }) {
+  const waiting = proposalWaitingDays(p);
+  if (waiting == null || waiting < days) return null;
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 px-2 py-0.5 text-[11px] font-semibold text-warning">
+      <AlarmClock className="size-3" />Sem resposta há {waiting} dias
+    </span>
+  );
+}
+
+function useChaseProposal() {
+  const navigate = useNavigate();
+  const { scan } = useDraftActions();
+  return () => scan.mutate(undefined, { onSuccess: () => navigate("/hoje") });
+}
+
+function QuickActions({ p, open }: { p: Proposal; open: boolean }) {
   const act = useProposalActions();
+  return (
+    <>
+      {p.status === "rascunho" && <Button size="sm" variant="outline" onClick={() => act.send(p)}><Send className="size-4" />Enviar</Button>}
+      {open && p.status !== "rascunho" && <Button size="sm" onClick={() => act.approve(p)}><Check className="size-4" />Aprovar</Button>}
+    </>
+  );
+}
+
+function ProposalRow({ p, contact, onEdit, staleDays }: { p: Proposal; contact?: Contact; onEdit: () => void; staleDays: number }) {
+  const act = useProposalActions();
+  const chase = useChaseProposal();
+  const stale = (proposalWaitingDays(p) ?? -1) >= staleDays;
   const { remove } = useCrmMutations("proposals");
   const st = PROPOSAL_STATUS[p.status];
   const copy = async () => {
@@ -43,9 +80,10 @@ function ProposalRow({ p, contact, onEdit }: { p: Proposal; contact?: Contact; o
         {Number(p.monthly_value) > 0 && <p className="font-heading font-semibold">{brl(Number(p.monthly_value))}<span className="text-xs font-normal text-muted-foreground">/mês</span></p>}
         {Number(p.setup_fee) > 0 && <p className="text-xs text-muted-foreground">+ {brl(Number(p.setup_fee))} único</p>}
       </div>
+      <StaleBadge p={p} days={staleDays} />
       <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", st.tone)}>{st.label}</span>
-      {p.status === "rascunho" && <Button size="sm" variant="outline" onClick={() => act.send(p)}><Send className="size-4" />Enviar</Button>}
-      {open && p.status !== "rascunho" && <Button size="sm" onClick={() => act.approve(p)}><Check className="size-4" />Aprovar</Button>}
+      {stale && <Button size="sm" variant="outline" onClick={chase}><MessageSquareReply className="size-4" />Preparar cobrança</Button>}
+      <QuickActions p={p} open={open} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild><Button size="icon" variant="ghost" className="size-8" aria-label={`Mais ações para ${p.title}`}><MoreHorizontal className="size-4" /></Button></DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -63,6 +101,8 @@ function ProposalRow({ p, contact, onEdit }: { p: Proposal; contact?: Contact; o
 export function ProposalsTab() {
   const { data: proposals = [], isLoading } = useProposals();
   const { data: contacts = [] } = useContacts();
+  const { settings } = useAssistantSettings();
+  const FILTERS = filtersFor(settings.diasProposta);
   const [filter, setFilter] = useState("abertas");
   const [dialog, setDialog] = useState<{ open: boolean; p?: Proposal | null }>({ open: false });
   const byId = useMemo(() => new Map(contacts.map((c) => [c.id, c])), [contacts]);
@@ -100,7 +140,7 @@ export function ProposalsTab() {
         <EmptyState icon={FileText} title="Nenhuma proposta aqui" description="Monte a proposta com os serviços do catálogo. Aprovada, vira cliente e mensalidade automaticamente."
           action={<Button onClick={() => setDialog({ open: true, p: null })}><Plus className="size-4" />Nova proposta</Button>} />
       ) : (
-        <div className="space-y-1.5">{list.map((p) => <ProposalRow key={p.id} p={p} contact={byId.get(p.contact_id)} onEdit={() => setDialog({ open: true, p })} />)}</div>
+        <div className="space-y-1.5">{list.map((p) => <ProposalRow key={p.id} p={p} contact={byId.get(p.contact_id)} staleDays={settings.diasProposta} onEdit={() => setDialog({ open: true, p })} />)}</div>
       )}
       <ProposalDialog open={dialog.open} proposal={dialog.p} onOpenChange={(o) => setDialog((d) => ({ ...d, open: o }))} />
     </div>

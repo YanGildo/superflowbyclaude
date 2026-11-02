@@ -80,6 +80,12 @@ export const INTEGRATIONS: Integration[] = [
     where: [{ label: "Dashboard de Campanhas", to: "/marketing/campanhas-dashboard" }],
   },
   {
+    id: "openfinance", name: "Open Finance (bancos e investimentos)", status: "em_breve",
+    what: "Puxar saldos das contas e valores dos investimentos sozinho, sem digitar.",
+    today: "Saldos vêm dos lançamentos; bens e investimentos têm o valor atualizado à mão em Carteira → Patrimônio.",
+    where: [{ label: "Fluxo de caixa", to: "/financeiro/fluxo-de-caixa" }, { label: "Patrimônio", to: "/financeiro/carteira?aba=patrimonio" }],
+  },
+  {
     id: "notify", name: "Avisos fora do Superflow (e-mail / celular)", status: "em_breve",
     what: "Receber o resumo do dia e os alertas mesmo com o Superflow fechado.",
     today: "O mascote no topo do menu avisa quando tem coisa esperando.",
@@ -134,5 +140,14 @@ export const PENDING: PendingItem[] = [
   {
     id: "dominio", title: "Domínio próprio", why: "Ex.: app.rgmarketing.com.br no lugar do endereço da Vercel.", optional: true,
     steps: ["Vercel → projeto → Settings → Domains → adicionar", "No registro do domínio, criar o CNAME que a Vercel mostrar", "Repetir o passo \"Avisar o Supabase do endereço novo\" com o domínio"],
+  },
+];
+
+/** Funções já planejadas que ficaram para depois (por decisão sua). */
+export const PLANNED: { id: string; title: string; what: string; where: string }[] = [
+  {
+    id: "relacionamento", title: "Relacionamento com clientes",
+    what: "Frequência ideal de contato por cliente, lista \"Falar agora\" com quem está atrasado, botão \"Falei hoje\" e último contato calculado sozinho. Entra também na Central do dia.",
+    where: "Comercial (aba Relacionamento) + Central do dia",
   },
 ];
