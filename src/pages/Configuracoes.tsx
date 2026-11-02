@@ -18,6 +18,7 @@ import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { CategoriesManager } from "@/components/finance/CategoriesManager";
 import { AppearanceTab } from "@/components/settings/AppearanceTab";
+import { AssistantTab } from "@/components/settings/AssistantTab";
 
 const KINDS: { value: BusinessKind; label: string }[] = [
   { value: "pessoal", label: "Pessoal" },
@@ -152,7 +153,7 @@ function BusinessesTab() {
   );
 }
 
-const TAB_IDS = ["negocios", "categorias", "perfil", "aparencia"];
+const TAB_IDS = ["negocios", "categorias", "assistente", "perfil", "aparencia"];
 
 export default function Configuracoes() {
   const [params, setParams] = useSearchParams();
@@ -161,17 +162,19 @@ export default function Configuracoes() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Configurações</h1>
-        <p className="text-sm text-muted-foreground">Negócios, categorias financeiras, perfil e aparência.</p>
+        <p className="text-sm text-muted-foreground">Negócios, categorias financeiras, assistente da Central do dia, perfil e aparência.</p>
       </div>
       <Tabs value={tab} onValueChange={(v) => setParams((p) => { p.set("aba", v); return p; }, { replace: true })}>
         <TabsList>
           <TabsTrigger value="negocios">Negócios</TabsTrigger>
           <TabsTrigger value="categorias">Categorias</TabsTrigger>
+          <TabsTrigger value="assistente">Assistente</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
           <TabsTrigger value="aparencia">Aparência</TabsTrigger>
         </TabsList>
         <TabsContent value="negocios" className="mt-4"><BusinessesTab /></TabsContent>
         <TabsContent value="categorias" className="mt-4"><CategoriesManager /></TabsContent>
+        <TabsContent value="assistente" className="mt-4"><AssistantTab /></TabsContent>
         <TabsContent value="perfil" className="mt-4"><ProfileTab /></TabsContent>
         <TabsContent value="aparencia" className="mt-4"><AppearanceTab /></TabsContent>
       </Tabs>

@@ -367,3 +367,19 @@ export interface MarketingPlan {
   id: string; workspace_id: string; business_id: string | null; month: string; goal: string | null; audience: string | null;
   offer: string | null; channels: string[]; notes: string | null; updated_at: string;
 }
+
+/* ------------------------------ Central do dia ------------------------------ */
+
+export interface Appointment {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string | null; title: string;
+  starts_at: string; ends_at: string | null; location: string | null; link: string | null; notes: string | null;
+  source: string; external_id: string | null; created_at: string; updated_at: string;
+}
+
+export interface AssistantDraft {
+  id: string; workspace_id: string; business_id: string | null; contact_id: string | null;
+  source_type: "followup" | "proposta"; source_id: string; channel: string; title: string; body: string;
+  status: "pendente" | "aprovado" | "descartado"; decided_at: string | null; created_at: string;
+}
+
+export interface AssistantDigest { id: string; workspace_id: string; slot: string; counts: Record<string, number>; created_at: string }

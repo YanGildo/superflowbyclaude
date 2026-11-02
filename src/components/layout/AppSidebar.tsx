@@ -3,6 +3,7 @@ import { BrandMark } from "@/components/brand/BrandMark";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import { SidebarNav } from "./SidebarNav";
 import { SidebarUser } from "./SidebarUser";
+import { SidebarMascot } from "@/components/central/SidebarMascot";
 
 export function AppSidebar() {
   return (
@@ -14,6 +15,7 @@ export function AppSidebar() {
             <p className="truncate font-heading text-sm font-semibold leading-tight text-white">Superflow</p>
             <p className="truncate text-[11px] text-sidebar-foreground/70">Operação completa</p>
           </div>
+          <SidebarMascot />
         </div>
         <WorkspaceSwitcher />
       </SidebarHeader>

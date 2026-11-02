@@ -29,7 +29,7 @@ const SECTIONS: NavSection[] = [
     label: "Geral",
     items: [
       { path: "/", label: "Dashboard", icon: LayoutDashboard, phase: 0, description: "Visão geral de todos os negócios." },
-      { path: "/hoje", label: "Hoje", icon: Sun, phase: 0, description: "Tarefas do dia, agenda e pendências." },
+      { path: "/hoje", label: "Hoje · Central do dia", icon: Sun, phase: 0, description: "Tudo que precisa de você numa lista só, rascunhos para aprovar, agenda e tarefas do dia." },
       { path: "/tarefas", label: "Tarefas", icon: ListTodo, phase: 0, description: "Listas, kanban e fluxos de produção num sistema só." },
       { path: "/projetos", label: "Projetos", icon: FolderKanban, phase: 0, description: "Iniciativas, entregas e próximas ações." },
       { path: "/metas", label: "Metas", icon: Target, phase: 0, description: "Objetivos com etapas que viram tarefas." },
@@ -86,7 +86,7 @@ const SECTIONS: NavSection[] = [
     id: "sistema",
     label: "Sistema",
     items: [
-      { path: "/integracoes", label: "Integrações", icon: Plug, phase: 7, description: "Google, Microsoft, WhatsApp API, Telegram e outras conexões." },
+      { path: "/integracoes", label: "Integrações", icon: Plug, phase: 0, description: "O que está ligado, o que falta você configurar e o que vem depois." },
       { path: "/configuracoes", label: "Configurações", icon: Settings, phase: 0, description: "Perfil, negócios, aparência e preferências." },
       { path: "/equipe", label: "Equipe", icon: UsersRound, phase: 0, description: "Convidar outra pessoa e definir o acesso." },
       { path: "/lixeira", label: "Lixeira", icon: Trash2, phase: 0, description: "Itens excluídos nos últimos 30 dias." },

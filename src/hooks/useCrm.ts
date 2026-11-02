@@ -14,6 +14,7 @@ const HAS_BUSINESS: Record<string, boolean> = {
   proposals: true, proposal_items: false, journey_items: true, scripts: false, script_segments: false,
   chat_threads: true, chat_messages: false, campaigns: true,
   content_items: true, deliveries: true, marketing_plans: true,
+  appointments: true, assistant_drafts: true, assistant_digests: false,
 };
 
 /** Tabelas com lixeira (deleted_at) em vez de exclusão definitiva. */
