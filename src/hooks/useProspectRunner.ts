@@ -22,7 +22,10 @@ export interface RunState {
 
 const IDLE: RunState = { kind: null, phase: "idle", title: "", step: "", done: 0, total: 0, log: [], result: null };
 let state: RunState = IDLE;
+/** "Parar" na fase do motor encerra a busca e guarda o que já achou; na fase dos sites, para o enriquecimento. */
 let cancelFlag = false;
+let stopEnrich = false;
+let stage: "motor" | "sites" = "motor";
 const listeners = new Set<() => void>();
 
 function set(patch: Partial<RunState>) {
@@ -34,7 +37,11 @@ const log = (line: string) => set({ log: [...state.log.slice(-40), `${new Date()
 export function useRunState(): RunState {
   return useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => state);
 }
-export const cancelRun = () => { cancelFlag = true; log("Cancelando…"); };
+export function cancelRun() {
+  if (stage === "sites") { stopEnrich = true; log("Parando o enriquecimento (o que já foi visitado fica salvo)…"); return; }
+  cancelFlag = true;
+  log("Parando: baixando o que o motor já achou e salvando…");
+}
 export const clearRun = () => { if (state.phase !== "running") set(IDLE); };
 export const isRunning = () => state.phase === "running";
 
@@ -103,7 +110,11 @@ async function runSpot(cfg: EngineConfig, body: Record<string, unknown>, onJob: 
     const id = await createJob(cfg, body);
     onJob(id);
     const out: JobOutcome = await waitJob(cfg, id, Number(body.max_time), { canceled: () => cancelFlag, tick: (st) => set({ step: `${state.step.split(" · ")[0]} · ${st === "pending" ? "na fila" : "buscando"}` }) });
-    if (out === "canceled") { await deleteJob(cfg, id); return ""; }
+    if (out === "canceled") {
+      const partial = await downloadJob(cfg, id);
+      await deleteJob(cfg, id);
+      return partial;
+    }
     if (out !== "failed") {
       if (out === "timeout") log("Tempo máximo atingido: guardando o que o motor já achou.");
       return downloadJob(cfg, id);
@@ -143,8 +154,9 @@ type EnrichSummary = { processed: number; withEmail: number };
 async function enrichBatches(ids: string[], options: EnrichChoice): Promise<EnrichSummary> {
   const sum = { processed: 0, withEmail: 0 };
   set({ total: ids.length, done: 0, step: "Visitando os sites (e-mails, redes, pixels)…" });
+  stage = "sites";
   for (const part of chunks(ids, 25)) {
-    if (cancelFlag) break;
+    if (stopEnrich) break;
     const { data, error } = await supabase.functions.invoke("enrich-prospects", { body: { ids: part, options } });
     const r = data as { ok?: boolean; error?: string; processed?: number; withEmail?: number } | null;
     if (error || !r?.ok) {
@@ -166,13 +178,16 @@ const wantsEnrich = (o: EnrichChoice) => o.emails || o.socials || o.tech || o.ve
 function start(kind: RunState["kind"], title: string) {
   if (isRunning()) throw new Error("Já tem uma busca rodando. Espere terminar ou cancele.");
   cancelFlag = false;
+  stopEnrich = false;
+  stage = "motor";
   set({ ...IDLE, kind, phase: "running", title });
 }
 
 function finish(qc: QueryClient, result: RunState["result"], err?: unknown) {
   qc.invalidateQueries({ queryKey: ["prospect"] });
   if (err) { log(err instanceof Error ? err.message : String(err)); set({ phase: "error", step: "Parou com erro." }); return; }
-  set({ phase: cancelFlag ? "canceled" : "done", step: cancelFlag ? "Cancelada." : "Concluída.", result });
+  const stopped = cancelFlag || stopEnrich;
+  set({ phase: "done", step: stopped ? "Parada antes do fim — o que foi achado está salvo na lista." : "Concluída.", result });
 }
 
 /** Processa linhas já baixadas: limpa, filtra, grava e (se pedido) enriquece. */
@@ -182,11 +197,11 @@ async function store(ctx: Ctx, s: EngineSearch, searchId: string, rows: Partial<
   const { ids, duplicates } = await saveFresh(ctx.ws, unique);
   log(`${unique.length} empresas depois dos filtros: ${ids.length} novas, ${duplicates} já estavam na lista.`);
   await updateSearch(searchId, {
-    status: cancelFlag ? "failed" : "done", result_count: unique.length, new_count: ids.length, duplicate_count: duplicates,
-    finished_at: new Date().toISOString(), progress: { etapa: "fim" }, error_message: cancelFlag ? "Cancelada" : null,
+    status: "done", result_count: unique.length, new_count: ids.length, duplicate_count: duplicates,
+    finished_at: new Date().toISOString(), progress: { etapa: "fim" }, error_message: cancelFlag ? "Parada antes do fim" : null,
   });
   ctx.qc.invalidateQueries({ queryKey: ["prospect"] });
-  const enr = !cancelFlag && ids.length && wantsEnrich(s.enrich) ? await enrichBatches(ids, s.enrich) : { processed: 0, withEmail: 0 };
+  const enr = ids.length && wantsEnrich(s.enrich) ? await enrichBatches(ids, s.enrich) : { processed: 0, withEmail: 0 };
   return { found: unique.length, fresh: ids.length, duplicates, withEmail: enr.withEmail, enriched: enr.processed };
 }
 

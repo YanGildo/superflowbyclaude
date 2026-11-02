@@ -33,7 +33,7 @@ export function RunPanel() {
             <p className="text-sm text-muted-foreground" role="status">{s.step}</p>
           </div>
           {s.phase === "running"
-            ? <Button size="sm" variant="outline" onClick={cancelRun}><Square className="size-3.5" />Cancelar</Button>
+            ? <Button size="sm" variant="outline" onClick={cancelRun} title="Encerra agora e salva tudo que já foi encontrado"><Square className="size-3.5" />Parar e salvar</Button>
             : <Button size="icon" variant="ghost" aria-label="Fechar andamento" onClick={clearRun}><X className="size-4" /></Button>}
         </div>
         {s.phase === "running" && s.total > 0 && <div className="space-y-1"><Progress value={pct} className="h-2" /><p className="text-xs text-muted-foreground">{s.done} de {s.total}</p></div>}

@@ -12,7 +12,7 @@ import { useEngine } from "@/hooks/useEngine";
 import { useProspectCampaigns } from "@/hooks/useProspects";
 import { useRunState } from "@/hooks/useProspectRunner";
 import {
-  DEFAULT_ENRICH, GRID_OPTIONS, LANG_OPTIONS, NO_FILTERS, isLargeSearch, jobCount, splitList, type EngineSearch, type EnrichChoice,
+  DEFAULT_ENRICH, GRID_OPTIONS, LANG_OPTIONS, NO_FILTERS, estimateMinutes, isLargeSearch, jobCount, splitList, type EngineSearch, type EnrichChoice,
 } from "@/lib/mapsEngine";
 import { EnrichSwitches } from "./EnrichSwitches";
 
@@ -98,6 +98,7 @@ export function EngineSearchForm() {
     e.preventDefault();
     if (!s.keywords.length) return toast.error("Informe pelo menos um nicho (ex.: dentista).");
     if (!s.cities.length) return toast.error("Informe pelo menos uma cidade (ex.: Campinas, SP).");
+    if (jobCount(s) > 30 && !window.confirm(`Isso vai rodar ${jobCount(s)} buscas (~${estimateMinutes(s)} min) e pode fazer o Google limitar seu IP. Continuar?`)) return;
     try { localStorage.setItem(SAVED, JSON.stringify(f)); } catch { /* sem storage */ }
     void engine.search(s);
   };
@@ -115,11 +116,11 @@ export function EngineSearchForm() {
             <Textarea className="mt-2" rows={2} aria-label="Proxies" value={f.proxies} onChange={(e) => set("proxies", e.target.value)}
               placeholder="http://usuario:senha@host:porta (um por linha). Só para buscas grandes ou repetidas." />
           </details>
-          {isLargeSearch(s) && <p className="flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs"><AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" />Busca grande sem proxy: o Google pode limitar seu IP por alguns minutos ou horas (sua conta Google não é afetada).</p>}
+          {isLargeSearch(s) && <p className="flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs"><AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" />Busca grande sem proxy ({jobCount(s)} buscas, ~{estimateMinutes(s)} min): o Google pode limitar seu IP por alguns minutos ou horas (sua conta Google não é afetada). Grade só vale para nichos com muitas empresas (restaurante, academia); para nichos pequenos, deixe desligada.</p>}
           <div className="flex flex-wrap items-center gap-2">
             <Button type="submit" disabled={run.phase === "running"}><Search className="size-4" />Buscar leads</Button>
             <Button type="button" variant="ghost" onClick={() => setF(EMPTY)}><Eraser className="size-4" />Limpar</Button>
-            <span className="text-xs text-muted-foreground">{jobCount(s)} busca(s) no motor · {engine.cfg.url || "motor não configurado"}</span>
+            <span className="text-xs text-muted-foreground">{jobCount(s)} busca(s) no motor · ~{estimateMinutes(s)} min · {engine.cfg.url || "motor não configurado"}</span>
           </div>
         </form>
       </CardContent>

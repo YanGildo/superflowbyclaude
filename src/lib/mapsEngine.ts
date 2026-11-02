@@ -26,6 +26,12 @@ export const splitList = (s: string, sep: RegExp = /[,\n]/) => [...new Set(s.spl
 /** Quantos jobs a busca vai criar (cidades × quadrados). */
 export const jobCount = (s: Pick<EngineSearch, "cities" | "grid">) => Math.max(1, s.cities.length) * Math.max(1, s.grid) ** 2;
 
+/** Tempo aproximado: cada busca no motor leva ~1 a 2 min (profundidade 5). */
+export function estimateMinutes(s: Pick<EngineSearch, "cities" | "grid" | "depth">) {
+  const per = Math.max(1, s.depth / 5) * 1.5;
+  return Math.round(jobCount(s) * per);
+}
+
 /** Aviso do próprio kit: busca grande sem proxy pode fazer o Google limitar seu IP por um tempo. */
 export const isLargeSearch = (s: EngineSearch) =>
   !s.proxies.length && (s.depth >= 15 || s.keywords.length >= 10 || s.grid >= 2 || s.cities.length >= 3);
