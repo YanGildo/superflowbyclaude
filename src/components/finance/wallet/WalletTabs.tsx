@@ -1,9 +1,8 @@
-import { Archive, Pencil, Trash2 } from "lucide-react";
+import { Archive, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import type { CreditCard, Debt, FinAccount, Payable, Transaction } from "@/integrations/supabase/types";
+import type { CreditCard, FinAccount, Transaction } from "@/integrations/supabase/types";
 import { ACCOUNT_TYPES, WALLET_COLORS, accountBalance, cardInvoice } from "@/lib/finance";
 import { brl } from "@/lib/format";
 import { shortDate } from "@/lib/labels";
@@ -95,52 +94,6 @@ export function CardsGrid({ cards, txs, onEdit, onArchive }: {
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {cards.map((c) => <CreditCardTile key={c.id} c={c} txs={txs} onEdit={() => onEdit(c)} onArchive={() => onArchive(c)} />)}
-    </div>
-  );
-}
-
-/* ------------------------------ Dívidas ------------------------------ */
-
-/** Situação de uma dívida a partir das parcelas geradas em Pagar e receber. */
-function debtStatus(d: Debt, payables: Payable[]) {
-  const parts = payables.filter((p) => p.debt_id === d.id);
-  const paid = parts.filter((p) => p.status === "pago");
-  const paidValue = paid.reduce((a, p) => a + Number(p.amount), 0);
-  const next = parts.filter((p) => p.status !== "pago").sort((a, b) => a.due_date.localeCompare(b.due_date))[0];
-  const pct = d.installments_total ? Math.round((paid.length / d.installments_total) * 100) : 0;
-  return { paidCount: paid.length, paidValue, next, pct, quitada: paid.length >= d.installments_total };
-}
-
-function DebtCard({ d, payables, onRemove }: { d: Debt; payables: Payable[]; onRemove: () => void }) {
-  const s = debtStatus(d, payables);
-  return (
-    <Card className="group">
-      <CardContent className="space-y-3 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div><p className="font-heading font-semibold">{d.name}</p><p className="text-xs text-muted-foreground">{d.creditor ?? "Sem credor"}{d.interest_rate ? ` · ${d.interest_rate}% a.m.` : ""}</p></div>
-          <div className="flex items-center gap-1">
-            {s.quitada && <Badge className="bg-success text-success-foreground">Quitada</Badge>}
-            <Button size="icon" variant="ghost" className="size-8 text-muted-foreground opacity-0 hover:text-destructive group-hover:opacity-100"
-              aria-label={`Excluir ${d.name}`} onClick={onRemove}><Trash2 className="size-4" /></Button>
-          </div>
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-xs"><span className="text-muted-foreground">{s.paidCount}/{d.installments_total} parcelas pagas</span><span className="font-medium">{s.pct}%</span></div>
-          <Progress value={s.pct} className="h-2" />
-        </div>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div><p className="text-xs text-muted-foreground">Falta pagar</p><p className="font-semibold tabular-nums">{brl(Math.max(0, Number(d.total_amount) - s.paidValue))}</p></div>
-          <div><p className="text-xs text-muted-foreground">Próxima parcela</p><p className="font-semibold tabular-nums">{s.next ? `${brl(Number(s.next.amount))} · ${shortDate(s.next.due_date)}` : "—"}</p></div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function DebtsGrid({ debts, payables, onRemove }: { debts: Debt[]; payables: Payable[]; onRemove: (d: Debt) => void }) {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {debts.map((d) => <DebtCard key={d.id} d={d} payables={payables} onRemove={() => onRemove(d)} />)}
     </div>
   );
 }

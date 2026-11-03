@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { ArrowLeftRight, ArrowUpCircle, Plus, Search } from "lucide-react";
+import { ArrowLeftRight, ArrowUpCircle, FileUp, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader, EmptyState } from "@/components/common/PageHeader";
+import { ImportDialog } from "@/components/finance/import/ImportDialog";
 import { RefSelect } from "@/components/common/RefSelect";
 import { MonthNav } from "@/components/finance/MonthNav";
 import { Summary } from "@/components/finance/Summary";
@@ -62,6 +63,7 @@ export default function Lancamentos() {
   const { patch, remove } = useFinMutations("transactions");
   const [filter, setFilter] = useState<TxFilter>({ type: "todos", cat: null, q: "" });
   const [dialog, setDialog] = useState<DialogState>({ open: false });
+  const [importing, setImporting] = useState(false);
 
   const filtered = useMemo(() => txs.filter((t) => matchesTx(t, filter)), [txs, filter]);
   const byDate = useMemo(() => groupByDate(filtered), [filtered]);
@@ -101,6 +103,7 @@ export default function Lancamentos() {
       <PageHeader eyebrow="Financeiro" title="Lançamentos" description="Todas as entradas, saídas e transferências."
         actions={<>
           <MonthNav value={ym} onChange={setYm} />
+          <Button variant="outline" onClick={() => setImporting(true)}><FileUp className="size-4" />Importar extrato</Button>
           <Button variant="outline" onClick={newTx("entrada")}><ArrowUpCircle className="size-4 text-success" />Entrada</Button>
           <Button onClick={newTx("saida")}><Plus className="size-4" />Saída</Button>
         </>} />
@@ -118,6 +121,7 @@ export default function Lancamentos() {
 
       <TransactionDialog open={dialog.open} tx={dialog.tx} defaultType={dialog.type}
         onOpenChange={(o) => setDialog((d) => ({ ...d, open: o }))} />
+      <ImportDialog open={importing} onOpenChange={setImporting} />
     </div>
   );
 }

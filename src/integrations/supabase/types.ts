@@ -162,6 +162,8 @@ export type BillRecurrence = "none" | "weekly" | "monthly" | "yearly";
 export interface FinAccount {
   id: string; workspace_id: string; business_id: string | null; name: string; type: AccountType;
   bank: string | null; initial_balance: number; color: string | null; archived_at: string | null; created_at: string;
+  /** Número da conta no banco (reconhece transferências entre as suas contas na importação de extrato). */
+  number: string | null;
 }
 
 export interface CreditCard {
@@ -181,6 +183,8 @@ export interface Transaction {
   to_account_id: string | null; method: string | null; status: "pago" | "pendente"; essential: boolean;
   use_type: UseType; project_id: string | null; contact_id: string | null; source_type: string | null;
   source_id: string | null; notes: string | null; deleted_at: string | null; created_at: string;
+  /** Impressão digital da linha do extrato importado (null = lançado à mão). */
+  import_key: string | null;
 }
 
 export interface Payable {
@@ -189,6 +193,13 @@ export interface Payable {
   status: "pendente" | "pago" | "atrasado" | "cancelado" | "parcial"; method: string | null;
   recurrence: BillRecurrence; debt_id: string | null; card_id: string | null; account_id: string | null;
   installment_number: number | null; notes: string | null; created_at: string;
+  /** Quanto já foi pago em pagamentos parciais (amortizações). */
+  paid_amount: number;
+}
+
+export interface PayablePayment {
+  id: string; workspace_id: string; payable_id: string; amount: number; date: string;
+  account_id: string | null; notes: string | null; created_at: string;
 }
 
 export interface Receivable {

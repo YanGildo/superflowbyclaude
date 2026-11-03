@@ -7,8 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader, EmptyState } from "@/components/common/PageHeader";
 import { BillDialog } from "@/components/finance/BillDialog";
 import { BillRow, type BillRowActions } from "@/components/finance/BillRow";
+import { PartialPayDialog } from "@/components/finance/PartialPayDialog";
 import { Summary } from "@/components/finance/Summary";
 import { useCategories, useFinMutations, usePayables, useReceivables } from "@/hooks/useFinance";
+import { usePayPart } from "@/hooks/usePartialPayments";
 import type { Payable, Receivable } from "@/integrations/supabase/types";
 import type { BillKind } from "@/lib/billForm";
 import { BILL_PAGE_TEXT, BILL_STATUS, splitOpen, sumBills, toBill, type Bill } from "@/lib/bills";
@@ -71,7 +73,7 @@ function DoneBills({ done, row }: { done: Bill[]; row: RowProps }) {
   return <div className="space-y-1.5">{done.slice(0, 100).map((b) => <BillRow key={b.id} b={b} category={row.catName(b.category_id)} {...row} />)}</div>;
 }
 
-function useBillActions(kind: BillKind, edit: (b: Bill) => void): BillRowActions {
+function useBillActions(kind: BillKind, edit: (b: Bill) => void, payPart: (b: Bill) => void): BillRowActions {
   const payM = useFinMutations("payables");
   const recM = useFinMutations("receivables");
   const m = kind === "pagar" ? payM : recM;
@@ -84,6 +86,7 @@ function useBillActions(kind: BillKind, edit: (b: Bill) => void): BillRowActions
     reopen: (b) => m.patch.mutate({ id: b.id, values: BILL_STATUS[kind].reopen }),
     cancel: (b) => m.patch.mutate({ id: b.id, values: { status: "cancelado" } }),
     remove: (b) => m.remove.mutate(b.id),
+    payPart: kind === "pagar" ? payPart : undefined,
   };
 }
 
@@ -123,7 +126,9 @@ export default function PagarReceber() {
   ];
 
   const addNew = () => setDialog({ open: true, bill: null });
-  const act = useBillActions(kind, (b) => setDialog({ open: true, bill: b.raw }));
+  const [part, setPart] = useState<Bill | null>(null);
+  const payPartM = usePayPart();
+  const act = useBillActions(kind, (b) => setDialog({ open: true, bill: b.raw }), setPart);
   const row: RowProps = { kind, today, act, catName: (id) => categories.find((c) => c.id === id)?.name };
 
   return (
@@ -144,6 +149,8 @@ export default function PagarReceber() {
         ? <div className="space-y-2">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-14 rounded-lg" />)}</div>
         : show === "abertas" ? <OpenBills groups={groups} onAdd={addNew} row={row} /> : <DoneBills done={done} row={row} />}
 
+      <PartialPayDialog open={Boolean(part)} onOpenChange={(o) => { if (!o) setPart(null); }} title={part?.title ?? ""} owed={part?.amount ?? 0}
+        busy={payPartM.isPending} onConfirm={(p) => part && payPartM.mutate({ payableId: part.id, ...p }, { onSuccess: () => setPart(null) })} />
       <BillDialog open={dialog.open} kind={kind} bill={dialog.bill} onOpenChange={(o) => setDialog((d) => ({ ...d, open: o }))} />
     </div>
   );

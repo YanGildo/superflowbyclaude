@@ -82,8 +82,8 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: "openfinance", name: "Open Finance (bancos e investimentos)", status: "em_breve",
     what: "Puxar saldos das contas e valores dos investimentos sozinho, sem digitar.",
-    today: "Saldos vêm dos lançamentos; bens e investimentos têm o valor atualizado à mão em Carteira → Patrimônio.",
-    where: [{ label: "Fluxo de caixa", to: "/financeiro/fluxo-de-caixa" }, { label: "Patrimônio", to: "/financeiro/carteira?aba=patrimonio" }],
+    today: "Importar extrato (PDF do Nubank, CSV ou OFX de qualquer banco) em Lançamentos: só acrescenta o que é novo. Bens e investimentos têm o valor atualizado à mão em Carteira → Patrimônio.",
+    where: [{ label: "Lançamentos → Importar extrato", to: "/financeiro/lancamentos" }, { label: "Fluxo de caixa", to: "/financeiro/fluxo-de-caixa" }, { label: "Patrimônio", to: "/financeiro/carteira?aba=patrimonio" }],
   },
   {
     id: "notify", name: "Avisos fora do Superflow (e-mail / celular)", status: "em_breve",

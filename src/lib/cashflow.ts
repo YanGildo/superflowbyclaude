@@ -2,6 +2,7 @@
 // (com as repetições projetadas) e da fatura atual dos cartões. Sem React.
 import type { BillRecurrence, CreditCard, Payable, Receivable } from "@/integrations/supabase/types";
 import { localISODate } from "@/lib/format";
+import { openAmount } from "@/lib/finance";
 
 export interface CashEvent {
   key: string; date: string; kind: "entrada" | "saida"; title: string; amount: number;
@@ -64,7 +65,7 @@ export interface CashInput {
 /** Todos os eventos de hoje até a data limite. Atrasados entram hoje (ainda precisam ser pagos/recebidos). */
 export function cashEvents(i: CashInput, until: string, today = localISODate()): CashEvent[] {
   const bills: Bill[] = [
-    ...i.payables.filter((p) => OPEN_PAY.has(p.status)).map((p) => ({ id: p.id, title: p.title, amount: Number(p.amount), date: p.due_date, recurrence: p.recurrence, kind: "pagar" as const, accountId: p.account_id })),
+    ...i.payables.filter((p) => OPEN_PAY.has(p.status)).map((p) => ({ id: p.id, title: p.title, amount: openAmount(p), date: p.due_date, recurrence: p.recurrence, kind: "pagar" as const, accountId: p.account_id })),
     ...i.receivables.filter((r) => OPEN_REC.has(r.status)).map((r) => ({ id: r.id, title: r.title, amount: Number(r.amount), date: r.expected_date, recurrence: r.recurrence, kind: "receber" as const, accountId: r.account_id })),
   ];
   const cards = i.invoices.filter((x) => x.total > 0).flatMap((x): CashEvent[] => {

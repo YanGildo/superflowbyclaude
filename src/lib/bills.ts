@@ -1,16 +1,19 @@
 // Contas a pagar/receber vistas como uma lista única (tela Pagar e receber).
 import type { Payable, Receivable } from "@/integrations/supabase/types";
 import type { BillKind } from "@/lib/billForm";
+import { openAmount } from "@/lib/finance";
 import { shortDate } from "@/lib/labels";
 
 export interface Bill {
   id: string; title: string; amount: number; date: string; done: boolean; recurrence: Payable["recurrence"];
   category_id: string | null; installment?: string; raw: Payable | Receivable;
+  /** Já pago em parcelas (só contas a pagar). */
+  paid: number;
 }
 
 export const toBill = (b: Payable | Receivable): Bill => "due_date" in b
-  ? { id: b.id, title: b.title, amount: Number(b.amount), date: b.due_date, done: b.status === "pago", recurrence: b.recurrence, category_id: b.category_id, raw: b }
-  : { id: b.id, title: b.title, amount: Number(b.amount), date: b.expected_date, done: b.status === "recebido", recurrence: b.recurrence, category_id: b.category_id, raw: b };
+  ? { id: b.id, title: b.title, amount: b.status === "pago" ? Number(b.amount) : openAmount(b), date: b.due_date, done: b.status === "pago", recurrence: b.recurrence, category_id: b.category_id, raw: b, paid: b.status === "pago" ? 0 : Number(b.paid_amount ?? 0) }
+  : { id: b.id, title: b.title, amount: Number(b.amount), date: b.expected_date, done: b.status === "recebido", recurrence: b.recurrence, category_id: b.category_id, raw: b, paid: 0 };
 
 export const sumBills = (l: Bill[]) => l.reduce((a, b) => a + b.amount, 0);
 

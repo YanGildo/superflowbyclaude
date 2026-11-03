@@ -5,6 +5,7 @@ import type {
 } from "@/integrations/supabase/types";
 import type { AssistantSettings, SourceKey } from "@/lib/assistant";
 import { brl, localISODate } from "@/lib/format";
+import { openAmount } from "@/lib/finance";
 import { shortDate } from "@/lib/labels";
 
 export type ItemSource = SourceKey | "rascunho";
@@ -52,7 +53,7 @@ const OPEN_PAY = new Set(["pendente", "atrasado", "parcial"]);
 const money: Rule = ({ payables, receivables }, { today }) => {
   const limit = addDays(today, 3);
   const pay = payables.filter((p) => OPEN_PAY.has(p.status) && p.due_date <= limit).map((p): CentralItem => ({
-    id: `p-${p.id}`, source: "financeiro", title: `Pagar: ${p.title}`, detail: brl(Number(p.amount)), due: p.due_date,
+    id: `p-${p.id}`, source: "financeiro", title: `Pagar: ${p.title}`, detail: brl(openAmount(p)), due: p.due_date,
     late: p.due_date < today, businessId: p.business_id, href: "/financeiro/contas?tipo=pagar",
   }));
   const rec = receivables.filter((r) => r.status !== "recebido" && r.status !== "cancelado" && r.expected_date <= limit).map((r): CentralItem => ({

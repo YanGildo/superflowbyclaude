@@ -1,6 +1,7 @@
 // Patrimônio líquido: ativos (contas + bens) menos dívidas (parcelas em aberto + fatura atual dos cartões).
 // Reservas não somam de novo: o dinheiro reservado já está dentro de alguma conta.
 import type { AssetKind, Debt, FinAsset, NetWorthSnapshot, Payable } from "@/integrations/supabase/types";
+import { openAmount } from "@/lib/finance";
 import { CHART_COLORS, type Slice } from "@/lib/finPanel";
 import { monthShort } from "@/lib/overview";
 
@@ -22,7 +23,7 @@ export function computeNetWorth(i: {
   const active = new Set(i.debts.filter((d) => d.status !== "quitada" && d.status !== "cancelada").map((d) => d.id));
   const accounts = round(i.accountBalances.reduce((a, b) => a + b, 0));
   const goods = round(i.assets.reduce((a, x) => a + Number(x.value), 0));
-  const installments = round(i.payables.filter((p) => OPEN.has(p.status) && p.debt_id && active.has(p.debt_id)).reduce((a, p) => a + Number(p.amount), 0));
+  const installments = round(i.payables.filter((p) => OPEN.has(p.status) && p.debt_id && active.has(p.debt_id)).reduce((a, p) => a + openAmount(p), 0));
   const cards = round(i.cardInvoices.reduce((a, b) => a + b, 0));
   const assetsTotal = round(Math.max(0, accounts) + goods);
   const debtsTotal = round(installments + cards + Math.max(0, -accounts));

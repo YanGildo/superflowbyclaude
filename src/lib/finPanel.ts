@@ -2,6 +2,7 @@
 import type {
   Debt, FinCategory, FinGoal, Payable, Receivable, Reserve, Transaction, UseType,
 } from "@/integrations/supabase/types";
+import { openAmount } from "@/lib/finance";
 import { localISODate, shiftMonth } from "@/lib/format";
 import { monthShort } from "@/lib/overview";
 import { ofType, sumAmount } from "@/lib/transactions";
@@ -58,14 +59,14 @@ const OPEN_PAY = new Set(["pendente", "atrasado", "parcial"]);
 export function billStats(payables: Payable[], debts: Debt[], ym: string, today = localISODate()) {
   const in7 = localISODate(new Date(new Date(`${today}T12:00:00`).getTime() + 7 * 864e5));
   const open = payables.filter((p) => OPEN_PAY.has(p.status));
-  const pick = (l: Payable[]) => ({ n: l.length, v: l.reduce((a, p) => a + Number(p.amount), 0) });
+  const pick = (l: Payable[]) => ({ n: l.length, v: l.reduce((a, p) => a + openAmount(p), 0) });
   const activeDebts = debts.filter((d) => d.status === "ativa" || d.status === "atrasada" || d.status === "renegociada");
   const debtIds = new Set(activeDebts.map((d) => d.id));
   return {
     month: pick(payables.filter((p) => inMonth(p.due_date, ym))),
     next7: pick(open.filter((p) => p.due_date >= today && p.due_date <= in7)),
     late: pick(open.filter((p) => p.due_date < today)),
-    debts: { n: activeDebts.length, v: open.filter((p) => p.debt_id && debtIds.has(p.debt_id)).reduce((a, p) => a + Number(p.amount), 0) },
+    debts: { n: activeDebts.length, v: open.filter((p) => p.debt_id && debtIds.has(p.debt_id)).reduce((a, p) => a + openAmount(p), 0) },
   };
 }
 

@@ -16,20 +16,20 @@ import { ColorPick } from "./ColorPick";
 export function AccountDialog({ open, onOpenChange, acc }: { open: boolean; onOpenChange: (o: boolean) => void; acc?: FinAccount | null }) {
   const { businesses } = useWorkspace();
   const { save } = useFinMutations("fin_accounts");
-  const [f, setF] = useState({ name: "", type: "corrente" as FinAccount["type"], bank: "", initial: "", color: WALLET_COLORS[0], business_id: null as string | null });
+  const [f, setF] = useState({ name: "", type: "corrente" as FinAccount["type"], bank: "", initial: "", color: WALLET_COLORS[0], business_id: null as string | null, number: "" });
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     if (!open) return;
     setError(null);
-    setF(acc ? { name: acc.name, type: acc.type, bank: acc.bank ?? "", initial: moneyInput(acc.initial_balance), color: acc.color ?? WALLET_COLORS[0], business_id: acc.business_id }
-      : { name: "", type: "corrente", bank: "", initial: "", color: WALLET_COLORS[0], business_id: null });
+    setF(acc ? { name: acc.name, type: acc.type, bank: acc.bank ?? "", initial: moneyInput(acc.initial_balance), color: acc.color ?? WALLET_COLORS[0], business_id: acc.business_id, number: acc.number ?? "" }
+      : { name: "", type: "corrente", bank: "", initial: "", color: WALLET_COLORS[0], business_id: null, number: "" });
   }, [open, acc]);
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!f.name.trim()) return setError("Dê um nome à conta (ex.: Nubank PJ).");
     const initial = f.initial.trim() ? parseMoney(f.initial) : 0;
     if (initial === null) return setError("Saldo inicial inválido.");
-    await save.mutateAsync({ id: acc?.id, name: f.name.trim(), type: f.type, bank: f.bank || null, initial_balance: initial, color: f.color, business_id: f.business_id });
+    await save.mutateAsync({ id: acc?.id, name: f.name.trim(), type: f.type, bank: f.bank || null, initial_balance: initial, color: f.color, business_id: f.business_id, number: f.number.trim() || null });
     onOpenChange(false);
   };
   return (
@@ -42,6 +42,11 @@ export function AccountDialog({ open, onOpenChange, acc }: { open: boolean; onOp
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label htmlFor="acc-type">Tipo</Label><SimpleSelect id="acc-type" value={f.type} onChange={(v) => setF({ ...f, type: v })} options={ACCOUNT_TYPES} /></div>
             <div className="space-y-1.5"><Label htmlFor="acc-bank">Banco / instituição</Label><Input id="acc-bank" value={f.bank} onChange={(e) => setF({ ...f, bank: e.target.value })} /></div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="acc-number">Número da conta (opcional)</Label>
+            <Input id="acc-number" value={f.number} onChange={(e) => setF({ ...f, number: e.target.value })} placeholder="Ex.: 57032386-0" />
+            <p className="text-xs text-muted-foreground">Ajuda a importação de extrato a reconhecer transferências entre as suas contas.</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="acc-initial">Saldo inicial</Label>

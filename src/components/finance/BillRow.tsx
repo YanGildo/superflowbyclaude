@@ -14,6 +14,8 @@ export interface BillRowActions {
   reopen: (b: Bill) => void;
   cancel: (b: Bill) => void;
   remove: (b: Bill) => void;
+  /** Pagar só uma parte (contas a pagar). */
+  payPart?: (b: Bill) => void;
 }
 
 function BillMeta({ b, today, category }: { b: Bill; today: string; category?: string }) {
@@ -25,6 +27,7 @@ function BillMeta({ b, today, category }: { b: Bill; today: string; category?: s
       {category && <span>{category}</span>}
       {b.recurrence !== "none" && <span className="inline-flex items-center gap-1"><Repeat className="size-3" />{BILL_RECURRENCE[b.recurrence]}</span>}
       {p.installment_number && <span>Parcela {p.installment_number}</span>}
+      {b.paid > 0 && <span className="font-medium text-warning">Já pago {brl(b.paid)} de {brl(Number(p.amount))}</span>}
     </div>
   );
 }
@@ -38,6 +41,7 @@ function BillMenu({ b, act }: { b: Bill; act: BillRowActions }) {
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => act.edit(b)}>Editar</DropdownMenuItem>
         {b.done && <DropdownMenuItem onClick={() => act.reopen(b)}>Reabrir</DropdownMenuItem>}
+        {!b.done && act.payPart && <DropdownMenuItem onClick={() => act.payPart?.(b)}>Pagar uma parte</DropdownMenuItem>}
         {!b.done && <DropdownMenuItem onClick={() => act.cancel(b)}>Cancelar (não vai acontecer)</DropdownMenuItem>}
         <DropdownMenuItem className="text-destructive" onClick={() => act.remove(b)}>Excluir</DropdownMenuItem>
       </DropdownMenuContent>

@@ -2,6 +2,10 @@ import type { CreditCard, FinAccount, Transaction } from "@/integrations/supabas
 import { localISODate } from "@/lib/format";
 
 /** Saldo atual de uma conta = saldo inicial + entradas − saídas ± transferências (só lançamentos pagos). */
+/** Quanto ainda falta pagar de uma conta a pagar (desconta os pagamentos parciais). */
+export const openAmount = (p: { amount: number; paid_amount?: number | null }) =>
+  Math.max(0, Math.round((Number(p.amount) - Number(p.paid_amount ?? 0)) * 100) / 100);
+
 export function accountBalance(acc: FinAccount, txs: Transaction[]) {
   let b = Number(acc.initial_balance);
   for (const t of txs) {
