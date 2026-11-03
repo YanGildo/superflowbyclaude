@@ -49,19 +49,21 @@ const RULES: { cat: string; dir: "in" | "out" | "any"; re: RegExp }[] = [
   { cat: "Estornos e reembolsos", dir: "in", re: /^estorno|^reembolso/ },
   { cat: "Vendas", dir: "in", re: /telepagamentos|epague|nexus marketplace|marketplace seguro|santa marial|pagar me|wise brasil|hotmart|kiwify|eduzz|monetizze|stripe|pushinpay/ },
   { cat: "Tráfego pago", dir: "out", re: /facebook|bytedance|tiktok|google ads|meta platforms/ },
-  { cat: "Transporte", dir: "out", re: /\buber\b|uberrides|99 tecnologia|^99$|\bposto\b|autoposto|combust|lava jato|estaciona|auto ban|bus servicos|centro automotivo/ },
+  { cat: "Transporte", dir: "out", re: /\buber\b|uberrides|\b99 tecnologia|via nupay 99|\bposto\b|autoposto|combust|lava jato|estaciona|auto ban|bus servicos|centro automotivo/ },
   { cat: "Saúde", dir: "out", re: /farmacia|drogaria|drogal|droga|total pass|growth supplements/ },
   { cat: "Moradia", dir: "out", re: /\btim s a\b|desktop s a|trazgaz|\bgas\b|sabesp|cpfl|enel|\bvivo\b|\bclaro\b/ },
   { cat: "Lazer", dir: "out", re: /cinema|ingresso|airbnb|hostel|moteis|zig tecnologia|arzopa eventos/ },
   { cat: "Ferramentas / SaaS", dir: "out", re: /openai|anthropic|claude|canva|lovable|notion|supabase|vercel|apify|google workspace|chatgpt/ },
-  { cat: "Alimentação", dir: "out", re: /restaurante|lanchonete|lanches|burger|bobs|esfiha|pastel|padaria|sushi|\bbar\b|boteco|choperia|supermerc|mercad|assai|atacad|peixaria|espetinho|sorvete|99 food|ifood|zamp|covabra|pague men|poupe|petisco|culinaria|bebidas|adega|conveniencia|fazenda|lider paulinia|acougue|hortifruti|pizza|cafe/ },
+  { cat: "Alimentação", dir: "out", re: /restaurante|lanchonete|lanches|burger|bobs|esfiha|pastel|padaria|sushi|\bbar\b|boteco|choperia|supermerc|mercad|assai|atacad|peixaria|espetinho|sorvete|\b99 food|ifood|zamp|covabra|pague men|poupe|petisco|culinaria|bebidas|adega|conveniencia|fazenda|lider paulinia|acougue|hortifruti|pizza|cafe/ },
 ];
 
 function suggestCategory(r: StatementRow, o: ImportOptions, type: "entrada" | "saida"): ImportLine["category"] {
   const learned = o.rules[nameKey(r)];
   if (learned && o.categories.some((c) => c.id === learned)) return { id: learned, name: null };
-  const text = norm(`${r.kind} ${shortName(r)}`);
-  const hit = RULES.find((x) => (x.dir === "any" || x.dir === r.dir) && x.re.test(text));
+  const raw = `${r.kind} ${shortName(r)}`;
+  // Com e sem números (ex.: "99 Tecnologia" precisa dos números; "Loja 10" não).
+  const texts = [norm(raw), raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()];
+  const hit = RULES.find((x) => (x.dir === "any" || x.dir === r.dir) && texts.some((t) => x.re.test(t)));
   if (!hit) return { id: null, name: null };
   const found = o.categories.find((c) => c.name === hit.cat && (c.kind === type || c.kind === "ambos"));
   return found ? { id: found.id, name: null } : { id: null, name: hit.cat };

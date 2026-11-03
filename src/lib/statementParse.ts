@@ -98,6 +98,8 @@ interface State {
   last: StatementRow | null;
   /** Dentro do rodapé + cabeçalho de uma quebra de página (pula até a linha do período). */
   pageBreak: boolean;
+  /** Textos do cabeçalho (titular, número da conta): se repetem em cada página e não são de nenhum movimento. */
+  header: Set<string>;
 }
 
 function onAmount(s: State, cell: string) {
@@ -137,6 +139,7 @@ function onPage(s: State, cell: string): boolean {
 
 /** Texto que não é tipo nem valor: nome de quem recebeu/enviou ou linha extra (documento, banco, conta). */
 function onText(s: State, cell: string) {
+  if (!s.pending && s.header.has(cell)) return;
   if (s.pending) s.pending.name = s.pending.name ? `${s.pending.name} ${cell}` : cell;
   else if (s.last && s.last.detail.length < 240) s.last.detail = `${s.last.detail} ${cell}`.trim();
 }
@@ -152,9 +155,10 @@ function step(s: State, cell: string) {
 function parseNubankText(text: string): ParsedStatement {
   const cs = cells(text);
   const summary = summaryOf(cs);
-  const s: State = { date: null, dir: "out", pending: null, skipAmount: false, started: !cs.includes("Movimentações"), rows: [], last: null, pageBreak: false };
-  for (const c of cs) step(s, c);
   const head = cs.slice(0, Math.max(0, cs.indexOf("Movimentações")));
+  const header = new Set(head.filter((c) => !isNoise(c) && !AMOUNT_RE.test(c) && !SIGNED_RE.test(c) && !/^(Saldo|Total|Rendimento)/.test(c)));
+  const s: State = { date: null, dir: "out", pending: null, skipAmount: false, started: !cs.includes("Movimentações"), rows: [], last: null, pageBreak: false, header };
+  for (const c of cs) step(s, c);
   return { format: "nubank-texto", rows: s.rows, summary, holder: holderOf(cs), accountNumber: head.find((c) => /^\d{5,}-\d$/.test(c)) ?? null };
 }
 

@@ -114,12 +114,12 @@ export interface PendingItem {
 /** O que depende de você para o Superflow ficar 100% online. */
 export const PENDING: PendingItem[] = [
   {
-    id: "vercel", title: "Publicar o Superflow na Vercel", why: "Para abrir o sistema de qualquer lugar, com um endereço próprio.",
+    id: "vercel", title: "Publicar o Superflow na Vercel", why: "Para abrir o sistema de qualquer lugar. Endereço: superflowbyclaude-awwe.vercel.app (cada envio ao GitHub atualiza sozinho).",
     steps: ["vercel.com → entrar com o GitHub → importar superflowbyclaude", "Environment Variables: VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (as mesmas do .env.local)", "Deploy"],
   },
   {
     id: "auth-url", title: "Avisar o Supabase do endereço novo", why: "Sem isso, e-mails de redefinir senha e convites apontam para o lugar errado.",
-    steps: ["Supabase → Authentication → URL Configuration", "Site URL = endereço da Vercel", "Redirect URLs = endereço da Vercel + /**"],
+    steps: ["Supabase → Authentication → URL Configuration", "Site URL = https://superflowbyclaude-awwe.vercel.app", "Redirect URLs = https://superflowbyclaude-awwe.vercel.app/**"],
   },
   {
     id: "signup", title: "Fechar o cadastro aberto", why: "Hoje qualquer pessoa com o link cria uma conta (não vê seus dados, mas usa o sistema).",
