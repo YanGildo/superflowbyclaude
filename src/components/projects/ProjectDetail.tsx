@@ -1,5 +1,6 @@
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AccessButton } from "@/components/team/AccessDialog";
 import { Badge } from "@/components/ui/badge";
 import { SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { QuickAddTask } from "@/components/tasks/QuickAddTask";
@@ -54,7 +55,10 @@ export function ProjectDetail({ project, tasks, goals, onOpenTask, onDelete, onE
         <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={onDelete}>
           <Trash2 className="size-4" />Excluir
         </Button>
-        <Button variant="outline" onClick={onEdit}><Pencil className="size-4" />Editar</Button>
+        <div className="flex gap-2">
+          <AccessButton type="projects" id={project.id} title={project.name} className="h-10" />
+          <Button variant="outline" onClick={onEdit}><Pencil className="size-4" />Editar</Button>
+        </div>
       </div>
     </>
   );

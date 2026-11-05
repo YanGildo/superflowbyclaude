@@ -49,8 +49,8 @@ export const ROLE_LABEL: Record<MemberRole, string> = {
   owner: "Dono", admin: "Administrador", member: "Membro", viewer: "Só visualiza",
 };
 export const ROLE_HELP: Record<Exclude<MemberRole, "owner">, string> = {
-  admin: "Vê e edita tudo.",
-  member: "Vê e edita tudo.",
-  viewer: "Vê tudo, mas não altera nada.",
+  admin: "Vê e edita tudo da equipe, convida pessoas e define permissões.",
+  member: "Só acessa os módulos e itens que você liberar.",
+  viewer: "Só olha os módulos liberados, sem alterar nada.",
 };
-export const INVITE_ROLE_OPTIONS = (["member", "admin", "viewer"] as const).map((r) => ({ value: r, label: ROLE_LABEL[r] }));
+export const INVITE_ROLE_OPTIONS = (["member", "admin"] as const).map((r) => ({ value: r, label: ROLE_LABEL[r] }));

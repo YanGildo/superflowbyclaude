@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar/use-sidebar";
 import { NAV, type NavItem, type NavSection } from "@/lib/nav";
+import { useWorkspace } from "@/lib/workspace";
 import { isNavActive, navClosedPref, sectionOf } from "@/lib/navState";
 import { cn } from "@/lib/utils";
 
@@ -67,8 +68,15 @@ function useClosedSections(pathname: string) {
   return { isOpen: (id: string) => !closed.includes(id), toggle, current };
 }
 
+/** Só as telas que a pessoa pode abrir neste espaço (em equipe, conforme as permissões). */
+function useVisibleNav(): NavSection[] {
+  const { canOpen } = useWorkspace();
+  return NAV.map((s) => ({ ...s, items: s.items.filter((i) => canOpen(i.path)) })).filter((s) => s.items.length > 0);
+}
+
 export function SidebarNav() {
   const { pathname } = useLocation();
+  const nav = useVisibleNav();
   const { state, isMobile } = useSidebar();
   const { isOpen, toggle, current } = useClosedSections(pathname);
 
@@ -77,7 +85,7 @@ export function SidebarNav() {
     return (
       <SidebarGroup className="py-1">
         <SidebarGroupContent>
-          {NAV.map((s) => <SectionItems key={s.id} section={s} pathname={pathname} />)}
+          {nav.map((s) => <SectionItems key={s.id} section={s} pathname={pathname} />)}
         </SidebarGroupContent>
       </SidebarGroup>
     );
@@ -85,7 +93,7 @@ export function SidebarNav() {
 
   return (
     <>
-      {NAV.map((section) => {
+      {nav.map((section) => {
         const open = isOpen(section.id);
         return (
           <SidebarGroup key={section.id} className="px-2 py-0.5">

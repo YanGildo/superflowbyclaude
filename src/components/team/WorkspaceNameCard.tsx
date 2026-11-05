@@ -14,12 +14,12 @@ export function WorkspaceNameCard({ ws, current, onSaved }: { ws: string; curren
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Nome do workspace</CardTitle>
-        <CardDescription>Aparece para quem você convidar.</CardDescription>
+        <CardTitle className="text-base">Nome da equipe</CardTitle>
+        <CardDescription>Aparece para todo mundo da equipe e no convite.</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (name.trim()) rename.mutate(name); }}>
-          <Input value={name} onChange={(e) => setName(e.target.value)} aria-label="Nome do workspace" className="max-w-sm" />
+          <Input value={name} onChange={(e) => setName(e.target.value)} aria-label="Nome da equipe" className="max-w-sm" />
           <Button type="submit" variant="secondary" disabled={!name.trim() || name.trim() === current || rename.isPending}>
             <Save className="size-4" />Salvar
           </Button>

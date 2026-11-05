@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/brand/BrandMark";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/lib/auth";
+import { pendingInvite } from "@/lib/invite";
 
 type Mode = "entrar" | "criar" | "esqueci";
 
@@ -100,13 +101,15 @@ function LoginFields({ mode, v, set }: { mode: Mode; v: Fields; set: (k: keyof F
 
 export default function Login() {
   const { user, signIn, signUp, resetPassword } = useAuth();
-  const [mode, setMode] = useState<Mode>("entrar");
+  const [params] = useSearchParams();
+  const [mode, setMode] = useState<Mode>(params.get("modo") === "criar" ? "criar" : "entrar");
+  const invite = pendingInvite.read();
   const [v, setV] = useState<Fields>({ email: "", password: "", fullName: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to={invite ? `/convite/${invite}` : "/"} replace />;
 
   const text = MODE_TEXT[mode];
   const set = (k: keyof Fields, value: string) => setV((p) => ({ ...p, [k]: value }));
@@ -144,7 +147,7 @@ export default function Login() {
         <CardHeader className="items-center text-center">
           <BrandMark className="mb-2 size-11 lg:hidden" />
           <CardTitle className="font-heading text-2xl">{text.title}</CardTitle>
-          <CardDescription>{text.description}</CardDescription>
+          <CardDescription>{invite && mode !== "esqueci" ? "Depois de entrar, você aceita o convite da equipe." : text.description}</CardDescription>
         </CardHeader>
         <CardContent>
           {mode !== "esqueci" && (

@@ -12,6 +12,7 @@ Pronto e testado:
 - Menu unificado com todos os módulos (os que ainda não foram construídos mostram a fase em que entram)
 - Seletor de **Negócio** no topo (Todos / Pessoal / RG Marketing / ...), lembrado entre visitas
 - Dashboard com números reais do banco: tarefas, financeiro do mês, comercial e vendas do Telegram
+- Equipes com convite por link, permissões por módulo e por item, histórico e tempo real
 - Configurações: cadastro de negócios (criar, renomear, cor, tipo, arquivar) e perfil
 - Banco completo de todas as fases (56 tabelas, segurança por usuário, automações)
 
@@ -60,20 +61,16 @@ VITE_SUPABASE_ANON_KEY=eyJ...   (chave "anon public", nunca a service_role)
 Vercel ou Cloudflare Pages: importe o repositório, comando `npm run build`, pasta `dist`, e cadastre as duas variáveis acima.
 Configure também o redirecionamento de SPA (todas as rotas → `index.html`).
 
-## Dar acesso a outra pessoa
-O banco já suporta (`workspace_members`, papéis owner/admin/member/viewer). A tela **Equipe** (convite) entra na Fase 1.
-Até lá, dá para adicionar manualmente pelo SQL Editor, depois que a pessoa criar a conta dela:
-
-```sql
--- a pessoa cria conta normalmente; isso cria um workspace próprio para ela.
--- para colocá-la no SEU workspace:
-insert into public.workspace_members (workspace_id, user_id, role)
-select w.id, u.id, 'member'
-from public.workspaces w, auth.users u
-where w.owner_id = (select id from auth.users where email = 'SEU-EMAIL')
-  and u.email = 'EMAIL-DA-PESSOA';
-```
-> Use `'viewer'` se ela só puder ver.
+## Equipes e permissões
+- Toda conta tem o próprio espaço **Meu Superflow**, privado (só o dono é membro).
+- **Equipes** são espaços à parte (`workspaces.kind = 'equipe'`). Cria em **Equipe → Nova equipe** ou no seletor do topo.
+- Convite por **link** (uso único, 14 dias) ou **e-mail**, já com o papel e as permissões. Quem é convidado continua com a conta e o espaço privado dele.
+- Permissão por módulo em `workspace_members.permissions` (`none|view|edit|manage`); dono e admin = tudo. Padrão = nenhum.
+- Permissão por item (`resource_grants` + `restricted_resources`) em tarefas, projetos, scripts, prospects e planos: botão **Acesso** em cada item. Tarefas de projeto seguem o projeto.
+- **Mover** um item do espaço privado para a equipe leva o próprio registro (RPC `move_to_workspace`).
+- Tudo aplicado no banco: RLS usa `member_level()`, `resource_level()` e `task_level()`; RPCs `create_team`, `create_invite`, `accept_invite`, `set_member_access`, `remove_member`, `set_resource_grant`, `set_resource_restricted`, `member_access`.
+- Histórico em `activity_log` (gatilhos nas tabelas compartilhadas, só em equipes). Tempo real pelo Supabase Realtime + recarga a cada 30 s.
+- **Tabela nova?** Use `public.member_level(workspace_id, '<modulo>')` nas políticas (não `is_member`), senão todo membro de equipe enxerga.
 
 ## Qualidade de código (ESLint)
 

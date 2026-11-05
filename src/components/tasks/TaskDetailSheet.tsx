@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { AccessButton } from "@/components/team/AccessDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Business, Goal, Task, TaskStep } from "@/integrations/supabase/types";
 import { useFlows, useStepMutations, useTaskLists, useTaskMutations, useTaskSteps } from "@/hooks/useTasks";
@@ -107,6 +108,7 @@ function SheetTop({ task, patch, onToggleDone }: { task: Task; patch: Patch; onT
           className={cn(task.is_important && "border-warning/50 text-warning")}>
           <Star className={cn("size-4", task.is_important && "fill-current")} />Importante
         </Button>
+        <AccessButton type="tasks" id={task.id} title={task.title} />
       </div>
     </SheetHeader>
   );

@@ -11,6 +11,8 @@ import { useWorkspace } from "@/lib/workspace";
 import { WorkspaceProvider } from "@/lib/WorkspaceProvider";
 import { ALL_NAV_ITEMS } from "@/lib/nav";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { ModuleGuard } from "@/components/layout/ModuleGuard";
+import Convite from "@/pages/Convite";
 import Login from "@/pages/Login";
 import RedefinirSenha from "@/pages/RedefinirSenha";
 import Setup from "@/pages/Setup";
@@ -116,9 +118,10 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/redefinir-senha" element={<RedefinirSenha />} />
+              <Route path="/convite/:token" element={<Convite />} />
               <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
                 {ALL_NAV_ITEMS.map((item) => (
-                  <Route key={item.path} path={item.path} element={BUILT[item.path] ?? <EmBreve />} />
+                  <Route key={item.path} path={item.path} element={<ModuleGuard path={item.path}>{BUILT[item.path] ?? <EmBreve />}</ModuleGuard>} />
                 ))}
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />

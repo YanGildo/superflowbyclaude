@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { toast } from "sonner";
 import { Copy, Eye, MoreHorizontal, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AccessDialog } from "@/components/team/AccessDialog";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
@@ -25,12 +27,16 @@ function useScriptOps(s: Script, values: Record<string, string>) {
 }
 
 function ScriptMenu({ s, segments, act, ops }: { s: Script; segments: ScriptSegment[]; act: ScriptActions; ops: ReturnType<typeof useScriptOps> }) {
+  const [access, setAccess] = useState(false);
   return (
+    <>
+    <AccessDialog type="scripts" id={s.id} title={s.title} open={access} onOpenChange={setAccess} />
     <DropdownMenu>
       <DropdownMenuTrigger asChild><Button size="icon" variant="ghost" className="size-8" aria-label={`Mais ações para ${s.title}`}><MoreHorizontal className="size-4" /></Button></DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => act.edit(s)}>Editar</DropdownMenuItem>
         <DropdownMenuItem onClick={ops.duplicate}>Duplicar</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setAccess(true)}>Acesso e equipe…</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Mover para</DropdownMenuLabel>
         {segments.filter((g) => g.id !== s.segment_id).map((g) => <DropdownMenuItem key={g.id} onClick={() => ops.move(g.id)}>{g.name}</DropdownMenuItem>)}
@@ -38,6 +44,7 @@ function ScriptMenu({ s, segments, act, ops }: { s: Script; segments: ScriptSegm
         <DropdownMenuItem className="text-destructive" onClick={ops.remove}>Excluir</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    </>
   );
 }
 

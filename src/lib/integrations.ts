@@ -28,6 +28,11 @@ export const INTEGRATIONS: Integration[] = [
     where: [{ label: "Todo o sistema", to: "/" }],
   },
   {
+    id: "equipes", name: "Equipes e permissões", status: "ativo",
+    what: "Espaços de equipe separados do seu Superflow privado, convite por link ou e-mail, permissão por módulo (nenhum/ver/editar/gerenciar) e por item, histórico e atualização em tempo real. Tudo garantido no banco.",
+    where: [{ label: "Equipe", to: "/equipe" }, { label: "Botão Acesso em projetos, planos, tarefas e scripts", to: "/projetos" }],
+  },
+  {
     id: "motor", name: "Motor de prospecção (Google Maps Scraper)", status: "configurar",
     what: "Busca empresas no Google Maps sem Apify e sem chave de API. Roda no seu PC com o Docker aberto.",
     where: [{ label: "Prospecção → Buscar leads", to: "/prospeccao?aba=buscar" }, { label: "Configurações do motor", to: "/prospeccao?aba=config" }],
@@ -122,8 +127,8 @@ export const PENDING: PendingItem[] = [
     steps: ["Supabase → Authentication → URL Configuration", "Site URL = https://superflowbyclaude.vercel.app", "Redirect URLs = https://superflowbyclaude.vercel.app/**"],
   },
   {
-    id: "signup", title: "Fechar o cadastro aberto", why: "Hoje qualquer pessoa com o link cria uma conta (não vê seus dados, mas usa o sistema).",
-    steps: ["Depois de criar sua conta online: Supabase → Authentication → Sign In / Providers", "Desligar \"Allow new users to sign up\"", "Para convidar alguém: Authentication → Users → Invite"],
+    id: "signup", title: "Cadastro aberto (decidir)", why: "Quem recebe o link de convite precisa criar a conta, então o cadastro fica ligado. Quem se cadastra sem convite só ganha um espaço vazio e não vê nada seu.", optional: true,
+    steps: ["Se quiser travar: Supabase → Authentication → Sign In / Providers → desligar \"Allow new users to sign up\"", "Com o cadastro travado, convide pelo Supabase (Authentication → Users → Invite) e depois mande o link da equipe"],
   },
   {
     id: "motor", title: "Ligar o motor de prospecção", why: "Para buscar leads no Google Maps de graça.", auto: "motor",

@@ -2,9 +2,16 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import {
-  WorkspaceContext, fetchBusinesses, fetchWorkspaces, pickWorkspace, prefs,
+  WorkspaceContext, accessHelpers, fetchAccess, fetchBusinesses, fetchWorkspaces, pickWorkspace, prefs,
   type BusinessFilter, type WorkspaceState,
 } from "@/lib/workspace";
+
+function useAccessQuery(wsId: string | undefined, userId: string | undefined) {
+  return useQuery({ queryKey: ["my-access", wsId, userId], enabled: Boolean(wsId), queryFn: () => fetchAccess(wsId) });
+}
+
+const firstError = (...errs: (Error | null)[]) => errs.find(Boolean)?.message ?? null;
+const isLoading = (ws: boolean, hasWs: boolean, rest: boolean) => ws || (hasWs && rest);
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -36,6 +43,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const businesses = useMemo(() => bizQuery.data ?? [], [bizQuery.data]);
 
+  const accessQuery = useAccessQuery(workspace?.id, user?.id);
+  const access = accessQuery.data || null;
+
   // Se o negócio salvo foi arquivado/excluído, volta para "Todos".
   useEffect(() => {
     if (businessFilter !== "all" && bizQuery.isSuccess && !businesses.some((b) => b.id === businessFilter)) {
@@ -48,22 +58,26 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     prefs.saveFilter(id);
   };
 
-  const error = (wsQuery.error ?? bizQuery.error) as Error | null;
+  const error = firstError(wsQuery.error, bizQuery.error, accessQuery.error);
+  const loading = isLoading(wsQuery.isLoading, Boolean(workspace), bizQuery.isLoading || accessQuery.isLoading);
 
   const value: WorkspaceState = {
     workspace,
     workspaces,
     setWorkspaceId,
     isOwner: Boolean(workspace && user && workspace.owner_id === user.id),
+    access,
+    ...accessHelpers(access),
     businesses,
-    loading: wsQuery.isLoading || (Boolean(workspace) && bizQuery.isLoading),
-    error: error ? error.message : null,
+    loading,
+    error,
     businessFilter,
     setBusinessFilter,
     currentBusiness: businesses.find((b) => b.id === businessFilter) ?? null,
     refresh: () => {
       qc.invalidateQueries({ queryKey: ["workspace"] });
       qc.invalidateQueries({ queryKey: ["businesses"] });
+      qc.invalidateQueries({ queryKey: ["my-access"] });
     },
   };
 

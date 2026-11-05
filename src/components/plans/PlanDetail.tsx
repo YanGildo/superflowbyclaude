@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, ExternalLink, Pencil, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { AccessButton } from "@/components/team/AccessDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -37,9 +38,10 @@ function Header({ plan, steps, onBack, onEdit, onDoc }: { plan: ActionPlan; step
     <Card className="brand-hero mb-4 border-0"><CardContent className="space-y-3 p-5 text-white">
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" variant="ghost" className="-ml-2 text-white/80 hover:bg-white/10 hover:text-white" onClick={onBack}><ArrowLeft className="size-4" />Planos</Button>
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex flex-wrap gap-2">
           <Button size="sm" variant="secondary" onClick={onDoc}><BookOpen className="size-4" />Ver plano completo</Button>
           <Button size="sm" variant="ghost" className="text-white hover:bg-white/10 hover:text-white" onClick={onEdit}><Pencil className="size-4" />Editar plano</Button>
+          <AccessButton type="action_plans" id={plan.id} title={plan.title} className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white" />
         </div>
       </div>
       <h1 className="font-heading text-2xl font-semibold">{plan.title}</h1>

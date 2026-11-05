@@ -13,6 +13,8 @@ export interface Workspace {
   name: string;
   owner_id: string;
   settings: Record<string, unknown>;
+  /** "pessoal" = só seu; "equipe" = espaço compartilhado. */
+  kind: "pessoal" | "equipe";
 }
 
 export interface Business {
