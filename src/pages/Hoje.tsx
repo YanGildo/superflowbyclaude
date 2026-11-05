@@ -7,6 +7,7 @@ import { AgendaCard } from "@/components/central/AgendaCard";
 import { DraftsList } from "@/components/central/DraftsList";
 import { HandledList } from "@/components/central/HandledList";
 import { NeedsList } from "@/components/central/NeedsList";
+import { PlanNextCard } from "@/components/central/PlanNextCard";
 import { SummaryCard } from "@/components/central/SummaryCard";
 import { TodayTasks } from "@/components/central/TodayTasks";
 import { useCentral, useDraftActions } from "@/hooks/useCentral";
@@ -33,6 +34,7 @@ export default function Hoje() {
             <HandledList items={c.handled} />
           </div>
           <div className="space-y-6">
+            <PlanNextCard />
             <AgendaCard list={c.appointments} />
           </div>
         </div>

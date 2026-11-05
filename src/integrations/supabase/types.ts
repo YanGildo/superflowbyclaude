@@ -407,3 +407,27 @@ export interface FinAsset {
 export interface NetWorthSnapshot {
   id: string; workspace_id: string; month: string; accounts: number; goods: number; debts: number; net: number; updated_at: string;
 }
+
+/* ------------------------------ Planos de ação ------------------------------ */
+
+export type ActionPlanStatus = "ativo" | "pausado" | "concluido";
+export type ActionAssetKind = "script" | "prompt" | "nota" | "link";
+
+export interface ActionPlan {
+  id: string; workspace_id: string; business_id: string | null; title: string; goal: string | null; summary: string | null;
+  document: string | null; doc_url: string | null; status: ActionPlanStatus; created_at: string; updated_at: string;
+}
+
+export interface ActionPlanStep {
+  id: string; workspace_id: string; plan_id: string; phase: string; position: number; title: string; details: string | null;
+  link_path: string | null; link_label: string | null; repeat: boolean; due_date: string | null; done_at: string | null; created_at: string;
+}
+
+export interface ActionPlanAsset {
+  id: string; workspace_id: string; plan_id: string; step_id: string | null; kind: ActionAssetKind; title: string;
+  body: string | null; url: string | null; position: number; created_at: string;
+}
+
+export interface ActionPlanCheckin {
+  id: string; workspace_id: string; plan_id: string; week_start: string; values: Record<string, number | null>; notes: string | null; created_at: string;
+}

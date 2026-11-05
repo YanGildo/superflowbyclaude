@@ -116,7 +116,7 @@ docs/                      documentação do projeto antigo, arquitetura e backu
 | Fase | Entrega |
 |---|---|
 | 0 | Base: login, layout, menu, negócios, dashboard ✅ |
-| 1 | Produtividade: tarefas, Central do dia (lista única, resumo, rascunhos com aprovação, varreduras 3×/dia, agenda, mascote), projetos, metas, funis, equipe, lixeira ✅ |
+| 1 | Produtividade: planos de ação (etapas, scripts/prompts para copiar, documento completo e números da semana), tarefas, Central do dia (lista única, resumo, rascunhos com aprovação, varreduras 3×/dia, agenda, mascote), projetos, metas, funis, equipe, lixeira ✅ |
 | 2 | Financeiro: lançamentos, pagar/receber, dívidas, cartões, reservas, fluxo de caixa em calendário (saldo projetado dia a dia), patrimônio líquido (bens + histórico mensal), importação de extrato (PDF Nubank / CSV / OFX, sem duplicar), amortização de dívidas e pagamento parcial ✅ |
 | 3 | Comercial: pipeline, clientes, propostas (alerta de proposta parada há 7+ dias, cobrança pronta na Central), jornada, conversões, contatos, scripts, WhatsApp simulado, Dashboard da Agência, Prospecção com motor próprio (Google Maps Scraper, pasta `motor-prospeccao/`) ou Apify + enriquecimento (e-mails, redes, pixels, intenção) ✅ |
 | 4 | Marketing: plano do mês, campanhas, conteúdo, vídeos, entregas, calendário, ideias, Dashboard de Campanhas ✅ |

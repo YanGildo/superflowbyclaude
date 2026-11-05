@@ -4,7 +4,7 @@ import {
   Megaphone, PackageCheck, Plug,
   Wallet, ArrowLeftRight, Receipt, CreditCard, PiggyBank,
   BarChart3, Bot, GitBranch, Tag, Landmark, Repeat, Crown, Link2,
-  Settings, Trash2, UsersRound, CalendarRange, type LucideIcon,
+  Settings, Trash2, UsersRound, CalendarRange, Rocket, type LucideIcon,
 } from "lucide-react";
 import { FEATURES } from "@/lib/features";
 
@@ -30,6 +30,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { path: "/", label: "Dashboard", icon: LayoutDashboard, phase: 0, description: "Visão geral de todos os negócios." },
       { path: "/hoje", label: "Hoje · Central do dia", icon: Sun, phase: 0, description: "Tudo que precisa de você numa lista só, rascunhos para aprovar, agenda e tarefas do dia." },
+      { path: "/planos", label: "Planos de ação", icon: Rocket, phase: 0, description: "Planos em etapas com scripts, prompts e números, ligando as outras abas." },
       { path: "/tarefas", label: "Tarefas", icon: ListTodo, phase: 0, description: "Listas, kanban e fluxos de produção num sistema só." },
       { path: "/projetos", label: "Projetos", icon: FolderKanban, phase: 0, description: "Iniciativas, entregas e próximas ações." },
       { path: "/metas", label: "Metas", icon: Target, phase: 0, description: "Objetivos com etapas que viram tarefas." },
