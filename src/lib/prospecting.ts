@@ -1,10 +1,11 @@
 // Prospecção: status, configurações padrão e score (0–100) de cada empresa encontrada.
+import { toast } from "sonner";
 import type { Prospect } from "@/integrations/supabase/types";
 
-export const PROSPECT_STATUS = ["Novo", "Para abordar", "Abordado", "Respondeu", "Sem resposta", "Virou lead", "Descartado"] as const;
+export const PROSPECT_STATUS = ["Novo", "Em análise", "Qualificado", "Para abordar", "Abordado", "Respondeu", "Sem resposta", "Virou lead", "Descartado"] as const;
 
 export const STATUS_TONE: Record<string, string> = {
-  Novo: "bg-muted text-muted-foreground", "Para abordar": "bg-primary/10 text-primary", Abordado: "bg-info/10 text-info",
+  Novo: "bg-muted text-muted-foreground", "Em análise": "bg-info/10 text-info", Qualificado: "bg-primary/10 text-primary", "Para abordar": "bg-primary/10 text-primary", Abordado: "bg-info/10 text-info",
   Respondeu: "bg-warning/15 text-warning", "Sem resposta": "bg-muted text-muted-foreground",
   "Virou lead": "bg-success/10 text-success", Descartado: "bg-destructive/10 text-destructive",
 };
@@ -120,4 +121,51 @@ export function intentLevel(score: number | null): { label: string; tone: string
   if (score >= 60) return { label: "Investe", tone: "bg-success/10 text-success" };
   if (score >= 35) return { label: "Algum", tone: "bg-warning/15 text-warning" };
   return { label: "Pouco", tone: "bg-muted text-muted-foreground" };
+}
+
+/** Temperatura e prioridade do prospect (independentes do status). */
+export const PROSPECT_TEMPS = [
+  { value: "frio", label: "Frio", tone: "bg-info/10 text-info" },
+  { value: "morno", label: "Morno", tone: "bg-warning/15 text-warning" },
+  { value: "quente", label: "Quente", tone: "bg-destructive/10 text-destructive" },
+] as const;
+export const PROSPECT_PRIORITIES = [
+  { value: "baixa", label: "Baixa" }, { value: "normal", label: "Normal" }, { value: "alta", label: "Alta" }, { value: "urgente", label: "Urgente" },
+] as const;
+export const tempOf = (v: string | null) => PROSPECT_TEMPS.find((t) => t.value === v) ?? null;
+export const priorityLabel = (v: string | null) => PROSPECT_PRIORITIES.find((t) => t.value === v)?.label ?? "Normal";
+
+export type ProspectEvent = { at: string; kind: string; note?: string | null };
+
+/** Histórico do prospect com um registro novo no topo. */
+export function withEvent(p: Prospect, kind: string, note?: string | null): ProspectEvent[] {
+  return [{ at: new Date().toISOString(), kind, note: note ?? null }, ...(p.approach_history ?? [])].slice(0, 100);
+}
+
+/** Valores das variáveis de script que o prospect já tem ([empresa], [cidade]...). */
+export function prospectVars(p: Prospect): Record<string, string> {
+  const v: Record<string, string | null> = {
+    empresa: p.name, cidade: p.city, nicho: p.niche ?? p.category, site: p.website, telefone: p.phone ?? p.whatsapp,
+    estado: p.state, bairro: p.neighborhood, instagram: p.instagram,
+  };
+  return Object.fromEntries(Object.entries(v).filter(([, x]) => x)) as Record<string, string>;
+}
+
+export const siteUrl = (s: string) => (s.startsWith("http") ? s : `https://${s}`);
+
+/** Colunas que dá para mostrar na lista (Empresa e Ações são fixas). */
+export const PROSPECT_COLUMNS = [
+  { id: "cidade", label: "Cidade" }, { id: "estado", label: "Estado" }, { id: "nicho", label: "Nicho" },
+  { id: "telefone", label: "Telefone" }, { id: "site", label: "Site" }, { id: "contato", label: "E-mail / redes" },
+  { id: "avaliacao", label: "Avaliação" }, { id: "oportunidade", label: "Oportunidade" }, { id: "intencao", label: "Intenção" },
+  { id: "status", label: "Status" }, { id: "temperatura", label: "Temperatura" }, { id: "prioridade", label: "Prioridade" },
+  { id: "campanha", label: "Campanha" }, { id: "ultima", label: "Última abordagem" }, { id: "obs", label: "Observação" },
+  { id: "criado", label: "Criado em" },
+] as const;
+export type ProspectColumn = (typeof PROSPECT_COLUMNS)[number]["id"];
+export const DEFAULT_COLUMNS: ProspectColumn[] = ["cidade", "telefone", "site", "avaliacao", "oportunidade", "status", "temperatura"];
+
+export async function copyText(v: string, what: string) {
+  await navigator.clipboard?.writeText(v).catch(() => undefined);
+  toast.success(`${what} copiado.`);
 }

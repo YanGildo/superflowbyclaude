@@ -325,6 +325,9 @@ export interface Prospect {
   emails: string[]; email_host: string | null; tech: ProspectTech | null; intent_score: number | null;
   opening_hours: Record<string, string[]> | null; price_range: string | null; source: string;
   enriched_at: string | null; enrich_error: string | null;
+  /** Abordagens e mudanças registradas (mais novo primeiro). */
+  approach_history: { at: string; kind: string; note?: string | null }[] | null;
+  raw_data?: Record<string, unknown> | null;
 }
 
 /** Sinais do site do prospect (preenchidos pelo enriquecimento). */

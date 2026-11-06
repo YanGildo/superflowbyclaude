@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Prospect, ProspectCampaign, ProspectSearch } from "@/integrations/supabase/types";
 import { useScope } from "@/hooks/useScope";
 import { useWorkspace } from "@/lib/workspace";
-import { readSettings, scoreProspect, type ProspectSettings } from "@/lib/prospecting";
+import { readSettings, scoreProspect, withEvent, type ProspectSettings } from "@/lib/prospecting";
 
 const KEY = "prospect";
 
@@ -112,6 +112,16 @@ export function useProspectActions() {
     onError: fail,
   });
 
+  /** Muda campos e registra no histórico do prospect (ex.: "Abordagem registrada"). */
+  const record = useMutation({
+    mutationFn: async ({ p, kind, note, values = {} }: { p: Prospect; kind: string; note?: string | null; values?: Partial<Prospect> }) => {
+      const { error } = await supabase.from("prospects").update({ ...values, approach_history: withEvent(p, kind, note) }).eq("id", p.id);
+      if (error) throw error;
+    },
+    onSuccess: refresh,
+    onError: fail,
+  });
+
   const remove = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("prospects").delete().eq("id", id);
@@ -132,5 +142,5 @@ export function useProspectActions() {
     onError: fail,
   });
 
-  return { rescore, test, start, sync, importRows, patch, remove, saveCampaign };
+  return { rescore, test, start, sync, importRows, patch, record, remove, saveCampaign };
 }

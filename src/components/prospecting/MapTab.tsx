@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapPinOff } from "lucide-react";
-import { useProspects } from "@/hooks/useProspects";
+import { useProspectCampaigns, useProspects } from "@/hooks/useProspects";
+import { ProspectSheet } from "./ProspectSheet";
 import type { Prospect } from "@/integrations/supabase/types";
 import { STATUS_TONE, opportunity } from "@/lib/prospecting";
 import { cn } from "@/lib/utils";
@@ -58,6 +59,10 @@ export function MapTab() {
   const { data: prospects = [] } = useProspects();
   const [filter, setFilter] = useState("todos");
   const [target, setTarget] = useState<Prospect | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const { data: campaigns = [] } = useProspectCampaigns();
+  const open = prospects.find((p) => p.id === openId) ?? null;
+  const pick = (p: Prospect) => { setTarget(p); setOpenId(p.id); };
   const located = prospects.filter((p) => p.latitude != null && p.longitude != null);
   const rule = FILTERS.find((f) => f.id === filter) ?? FILTERS[0];
   const list = located.filter(rule.test);
@@ -73,7 +78,7 @@ export function MapTab() {
 
   return (
     <div className="grid h-[calc(100vh-17rem)] min-h-[480px] gap-3 lg:grid-cols-[300px_1fr]">
-      <SideList list={list} filter={filter} setFilter={setFilter} all={located} onPick={setTarget} />
+      <SideList list={list} filter={filter} setFilter={setFilter} all={located} onPick={pick} />
       <div className="overflow-hidden rounded-xl border">
         <MapContainer center={first ? [first.latitude as number, first.longitude as number] : [-15, -50]} zoom={first ? 11 : 4} className="h-full w-full">
           <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -82,13 +87,15 @@ export function MapTab() {
               <Popup>
                 <b>{p.name}</b><br />{p.category ?? ""}<br />{p.phone ?? "sem telefone"}<br />
                 Oportunidade {opportunity(p.score).label} ({p.score ?? "—"}) · {p.status}
-                {p.maps_url && <><br /><a href={p.maps_url} target="_blank" rel="noreferrer">Abrir no Maps</a></>}
+                <br /><button type="button" className="mt-1 font-medium text-primary underline" onClick={() => setOpenId(p.id)}>Ver detalhes</button>
+                {p.maps_url && <> · <a href={p.maps_url} target="_blank" rel="noreferrer">Abrir no Maps</a></>}
               </Popup>
             </CircleMarker>
           ))}
           <FlyTo target={target} />
         </MapContainer>
       </div>
+      <ProspectSheet p={open} campaigns={campaigns} onClose={() => setOpenId(null)} />
     </div>
   );
 }

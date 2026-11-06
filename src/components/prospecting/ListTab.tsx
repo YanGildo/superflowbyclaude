@@ -1,30 +1,39 @@
 import { useMemo, useRef, useState } from "react";
-import { Calculator, Download, Search, Upload } from "lucide-react";
+import { Calculator, Columns3, Download, Search, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/PageHeader";
 import { useConvertProspect } from "@/hooks/useConvertProspect";
 import { useProspectActions, useProspectCampaigns, useProspects } from "@/hooks/useProspects";
 import type { Prospect } from "@/integrations/supabase/types";
-import { importedRow, parseCsv, toCsv } from "@/lib/prospecting";
+import { DEFAULT_COLUMNS, PROSPECT_COLUMNS, importedRow, parseCsv, toCsv, type ProspectColumn } from "@/lib/prospecting";
 import { cn } from "@/lib/utils";
 import { EnrichButton } from "./EnrichDialog";
 import { ProspectRow } from "./ProspectRow";
+import { ProspectSheet } from "./ProspectSheet";
 
 const CHIPS: { id: string; label: string; test: (p: Prospect) => boolean }[] = [
   { id: "semsite", label: "Sem site", test: (p) => !p.website },
   { id: "tel", label: "Com telefone", test: (p) => Boolean(p.phone || p.whatsapp) },
   { id: "alta", label: "Oportunidade alta", test: (p) => (p.score ?? 0) >= 70 },
   { id: "aval", label: "Avaliação 4+", test: (p) => Number(p.rating ?? 0) >= 4 },
+  { id: "quente", label: "Quentes", test: (p) => p.temperature === "quente" },
+  { id: "prio", label: "Prioridade alta/urgente", test: (p) => p.priority === "alta" || p.priority === "urgente" },
   { id: "novo", label: "Novos", test: (p) => p.status === "Novo" },
-  { id: "abordar", label: "Para abordar", test: (p) => p.status === "Para abordar" },
+  { id: "analise", label: "Em análise", test: (p) => p.status === "Em análise" },
+  { id: "qualif", label: "Qualificados", test: (p) => p.status === "Qualificado" },
+  { id: "naoabord", label: "Ainda não abordado", test: (p) => !p.last_approach_at && !["Abordado", "Respondeu", "Sem resposta", "Virou lead", "Descartado"].includes(p.status) },
+  { id: "abordar", label: "Selecionados p/ abordagem", test: (p) => p.status === "Para abordar" },
   { id: "abordado", label: "Já abordado", test: (p) => p.status === "Abordado" },
   { id: "resp", label: "Respondeu", test: (p) => p.status === "Respondeu" },
   { id: "semresp", label: "Sem resposta", test: (p) => p.status === "Sem resposta" },
   { id: "lead", label: "Viraram lead", test: (p) => p.status === "Virou lead" },
   { id: "obs", label: "Com observações", test: (p) => Boolean(p.notes) },
+  { id: "semobs", label: "Sem observações", test: (p) => !p.notes },
+  { id: "descart", label: "Ocultar descartados", test: (p) => p.status !== "Descartado" },
   { id: "email", label: "Com e-mail", test: (p) => Boolean(p.emails?.length || p.email) },
   { id: "anuncia", label: "Já anuncia (pixel)", test: (p) => Boolean(p.tech?.fb_pixel || p.tech?.google_ads_tag) },
   { id: "naoenr", label: "Não enriquecidos", test: (p) => !p.enriched_at },
@@ -52,6 +61,30 @@ function useImporter() {
   };
 }
 
+const COLS_KEY = "superflow:prospect-cols";
+function readCols(): ProspectColumn[] {
+  try { const v = JSON.parse(localStorage.getItem(COLS_KEY) ?? "null"); return Array.isArray(v) ? v : DEFAULT_COLUMNS; } catch { return DEFAULT_COLUMNS; }
+}
+
+/** Escolhe as colunas da tabela (fica salvo neste navegador). */
+function ColumnsMenu({ cols, setCols }: { cols: ProspectColumn[]; setCols: (c: ProspectColumn[]) => void }) {
+  const save = (c: ProspectColumn[]) => { setCols(c); try { localStorage.setItem(COLS_KEY, JSON.stringify(c)); } catch { /* sem storage */ } };
+  const toggle = (id: ProspectColumn) => save(cols.includes(id) ? cols.filter((x) => x !== id) : PROSPECT_COLUMNS.map((c) => c.id).filter((x) => x === id || cols.includes(x)));
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild><Button size="sm" variant="outline"><Columns3 className="size-4" />Colunas</Button></DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="max-h-[60vh] w-56 overflow-y-auto">
+        <DropdownMenuLabel className="text-xs">Colunas da tabela</DropdownMenuLabel>
+        {PROSPECT_COLUMNS.map((c) => (
+          <DropdownMenuCheckboxItem key={c.id} checked={cols.includes(c.id)} onSelect={(e) => e.preventDefault()} onCheckedChange={() => toggle(c.id)}>{c.label}</DropdownMenuCheckboxItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => save(DEFAULT_COLUMNS)}>Voltar ao padrão</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function Toolbar({ list, onImport }: { list: Prospect[]; onImport: (f: File) => void }) {
   const { rescore } = useProspectActions();
   const file = useRef<HTMLInputElement>(null);
@@ -75,6 +108,9 @@ export function ListTab() {
   const onImport = useImporter();
   const [q, setQ] = useState("");
   const [on, setOn] = useState<string[]>([]);
+  const [cols, setCols] = useState<ProspectColumn[]>(readCols);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const open = prospects.find((p) => p.id === openId) ?? null;
   const toggle = (id: string) => setOn((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]));
   const list = useMemo(() => prospects.filter((p) => text(p, q) && CHIPS.filter((c) => on.includes(c.id)).every((c) => c.test(p)))
     .sort((a, b) => (b.score ?? -1) - (a.score ?? -1)), [prospects, q, on]);
@@ -86,7 +122,7 @@ export function ListTab() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por empresa, cidade, telefone, site…" aria-label="Buscar prospect" className="h-9 pl-9" />
         </div>
-        <Toolbar list={list} onImport={onImport} />
+        <div className="flex flex-wrap gap-2"><ColumnsMenu cols={cols} setCols={setCols} /><Toolbar list={list} onImport={onImport} /></div>
       </div>
       <div className="flex flex-wrap gap-1.5">
         {CHIPS.map((c) => (
@@ -100,14 +136,15 @@ export function ListTab() {
           description="Faça uma busca em Buscar leads ou importe um CSV/JSON (dá para importar o export da Apify direto)." />
       ) : (
         <div className="overflow-x-auto rounded-xl border bg-card">
-          <table className="w-full min-w-[1280px]">
+          <table className="w-full min-w-[900px]">
             <thead><tr className="border-b text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-              {["Empresa", "Cidade", "Telefone", "Site", "E-mail / redes", "Avaliação", "Oportunidade", "Intenção", "Status", ""].map((h) => <th key={h} className="px-3 py-2 font-semibold">{h}</th>)}
+              {["Empresa", ...cols.map((c) => PROSPECT_COLUMNS.find((x) => x.id === c)?.label ?? c), ""].map((h, i) => <th key={`${h}-${i}`} className="px-3 py-2 font-semibold">{h}</th>)}
             </tr></thead>
-            <tbody>{list.map((p) => <ProspectRow key={p.id} p={p} campaigns={campaigns} onConvert={() => void convert(p)} />)}</tbody>
+            <tbody>{list.map((p) => <ProspectRow key={p.id} p={p} columns={cols} campaigns={campaigns} onConvert={() => void convert(p)} onOpen={() => setOpenId(p.id)} />)}</tbody>
           </table>
         </div>
       )}
+      <ProspectSheet p={open} campaigns={campaigns} onClose={() => setOpenId(null)} />
     </div>
   );
 }
