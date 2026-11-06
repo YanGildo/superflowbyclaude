@@ -23,13 +23,26 @@ async function apify(path: string, token: string, init?: RequestInit) {
 
 type Filters = { terms?: string[]; city?: string; state?: string; country?: string; neighborhood?: string; limit?: number; language?: string };
 
+// Idiomas que o scraper aceita com região; o resto vai só com a sigla ("es", "en"...).
+const WITH_REGION = new Set(["pt-BR", "pt-PT", "es-419", "zh-CN", "zh-TW"]);
+
+/** Idioma no formato da Apify. Vazio ou "pt" = decide pelo país (Portugal → pt-PT, senão pt-BR). */
+export function apifyLanguage(lang: string | undefined, country: string | undefined) {
+  const raw = (lang ?? "").trim().replace("_", "-");
+  const fixed = raw.includes("-") ? `${raw.split("-")[0].toLowerCase()}-${raw.split("-")[1].toUpperCase()}` : raw.toLowerCase();
+  if (WITH_REGION.has(fixed)) return fixed;
+  const base = fixed.split("-")[0];
+  if (!base || base === "pt") return /portugal/i.test(country ?? "") ? "pt-PT" : "pt-BR";
+  return base;
+}
+
 function runInput(f: Filters) {
   const where = [f.neighborhood, f.city, f.state, f.country].filter(Boolean).join(", ");
   return {
     searchStringsArray: (f.terms ?? []).filter(Boolean),
     locationQuery: where || "Brasil",
     maxCrawledPlacesPerSearch: Math.min(Math.max(Number(f.limit) || 50, 1), 500),
-    language: (f.language ?? "pt-BR").split("-")[0],
+    language: apifyLanguage(f.language, f.country),
     skipClosedPlaces: true,
   };
 }
