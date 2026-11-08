@@ -68,7 +68,7 @@ export const useJourney = () => useCrmList<JourneyItem>("journey_items", [], (q)
 export const useScriptSegments = () => useCrmList<ScriptSegment>("script_segments", [], (q) => q.order("position").order("created_at"));
 
 export const useScripts = () =>
-  useCrmList<Script>("scripts", [], (q) => q.is("archived_at", null).order("created_at"));
+  useCrmList<Script>("scripts", [], (q) => q.is("archived_at", null).order("position").order("created_at"));
 
 /** Campanhas só para escolher em listas (o módulo de Marketing usa a tabela completa). */
 export const useCampaignOptions = () =>

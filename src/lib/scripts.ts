@@ -1,3 +1,5 @@
+import type { Script } from "@/integrations/supabase/types";
+
 // Variáveis dos scripts: [nome], [valor], [prazo]...
 const VAR_RE = /\[([^\]\n]{1,40})\]/g;
 
@@ -26,8 +28,18 @@ export function splitVars(body: string): { text: string; isVar: boolean }[] {
 }
 
 /** Busca simples em título, texto, momento, categoria e tags. */
-export function matchesScript(s: { title: string; body: string; moment: string | null; category: string | null; tags: string[] }, q: string) {
+export function matchesScript(s: { title: string; body: string; moment: string | null; category: string | null; tags: string[]; variations?: { label: string; body: string }[] }, q: string) {
   if (!q.trim()) return true;
   const needle = q.toLowerCase();
-  return [s.title, s.body, s.moment ?? "", s.category ?? "", ...s.tags].some((v) => v.toLowerCase().includes(needle));
+  const vars = (s.variations ?? []).flatMap((v) => [v.label ?? "", v.body ?? ""]);
+  return [s.title, s.body, s.moment ?? "", s.category ?? "", ...s.tags, ...vars].some((v) => v.toLowerCase().includes(needle));
+}
+
+/** Versões do script: o texto principal + variações com texto (nome padrão quando vazio). */
+export function scriptVersions(s: Pick<Script, "body" | "body_label" | "variations">): { label: string; body: string }[] {
+  const extra = (s.variations ?? []).filter((v) => v.body?.trim());
+  return [
+    { label: s.body_label?.trim() || (extra.length ? "Principal" : ""), body: s.body },
+    ...extra.map((v, i) => ({ label: v.label?.trim() || `Variação ${i + 2}`, body: v.body })),
+  ];
 }

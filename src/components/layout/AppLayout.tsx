@@ -6,6 +6,7 @@ import { BusinessSwitcher } from "./BusinessSwitcher";
 import { ALL_NAV_ITEMS } from "@/lib/nav";
 import { useWorkspace } from "@/lib/workspace";
 import { useTeamSync } from "@/hooks/useTeamSync";
+import { FloatingNotes } from "@/components/layout/FloatingNotes";
 
 export function AppLayout() {
   const { pathname } = useLocation();
@@ -25,10 +26,11 @@ export function AppLayout() {
             <BusinessSwitcher />
           </div>
         </header>
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-6">
+        <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-20 md:p-6 md:pb-20">
           <Outlet />
         </main>
       </SidebarInset>
+      <FloatingNotes />
     </SidebarProvider>
   );
 }

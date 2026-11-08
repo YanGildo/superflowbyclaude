@@ -6,17 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RefSelect } from "@/components/common/RefSelect";
+import { VariationsEditor, type Variation } from "@/components/scripts/ScriptVariations";
 import { useCrmMutations } from "@/hooks/useCrm";
 import type { Script, ScriptSegment } from "@/integrations/supabase/types";
 
 const CHANNELS = ["WhatsApp", "Instagram", "E-mail", "Telefone", "Telegram", "Outro"];
-type Form = { title: string; segment_id: string | null; category: string | null; channel: string; moment: string; body: string; tags: string };
+type Form = { title: string; segment_id: string | null; category: string | null; channel: string; moment: string; body: string; tags: string; body_label: string; variations: Variation[] };
 
-const EMPTY: Omit<Form, "segment_id"> = { title: "", category: null, channel: "WhatsApp", moment: "", body: "", tags: "" };
+const EMPTY: Omit<Form, "segment_id"> = { title: "", category: null, channel: "WhatsApp", moment: "", body: "", tags: "", body_label: "", variations: [] };
 
 function toForm(s: Script | null | undefined, segmentId: string | null): Form {
   if (!s) return { ...EMPTY, segment_id: segmentId };
-  return { title: s.title, segment_id: s.segment_id, category: s.category, channel: s.channel, moment: s.moment ?? "", body: s.body, tags: s.tags.join(", ") };
+  return {
+    title: s.title, segment_id: s.segment_id, category: s.category, channel: s.channel, moment: s.moment ?? "", body: s.body,
+    tags: s.tags.join(", "), body_label: s.body_label ?? "", variations: s.variations ?? [],
+  };
 }
 
 export function ScriptDialog({ open, onOpenChange, script, segments, segmentId }: {
@@ -36,13 +40,14 @@ export function ScriptDialog({ open, onOpenChange, script, segments, segmentId }
     await save.mutateAsync({
       id: script?.id, title: f.title.trim(), segment_id: f.segment_id, category: f.category, channel: f.channel,
       moment: f.moment.trim() || null, body: f.body, tags: f.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      body_label: f.body_label.trim() || null, variations: f.variations.filter((v) => v.body.trim()).map((v) => ({ label: v.label.trim(), body: v.body })),
     });
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="font-heading">{script ? "Editar script" : "Novo script"}</DialogTitle>
           <DialogDescription>Use variáveis entre colchetes: [nome], [pacote], [valor], [prazo]…</DialogDescription>
@@ -72,6 +77,7 @@ export function ScriptDialog({ open, onOpenChange, script, segments, segmentId }
             <Label htmlFor="sc-body">Texto do script</Label>
             <Textarea id="sc-body" rows={9} value={f.body} onChange={(e) => set("body", e.target.value)} placeholder="Olá, [nome]! …" />
           </div>
+          <VariationsEditor mainLabel={f.body_label} setMainLabel={(v) => set("body_label", v)} list={f.variations} setList={(v) => set("variations", v)} />
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="sc-tags">Tags (separadas por vírgula)</Label>
             <Input id="sc-tags" value={f.tags} onChange={(e) => set("tags", e.target.value)} placeholder="pagamento, fechamento" />

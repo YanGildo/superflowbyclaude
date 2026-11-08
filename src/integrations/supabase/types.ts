@@ -302,7 +302,14 @@ export interface Script {
   id: string; workspace_id: string; segment_id: string | null; title: string; category: string | null;
   moment: string | null; channel: string; body: string; tags: string[]; favorite: boolean;
   archived_at: string | null; created_at: string; updated_at: string;
+  /** Nome do texto principal (ex.: "Formal"). */
+  body_label: string | null;
+  /** Outras versões do mesmo script. */
+  variations: { label: string; body: string }[];
+  position: number;
 }
+
+export interface UserNote { id: string; user_id: string; body: string; done: boolean; page: string | null; position: number; created_at: string }
 
 export interface ChatThread {
   id: string; workspace_id: string; business_id: string | null; contact_id: string; channel: string;

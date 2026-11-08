@@ -7,6 +7,7 @@ import { ScriptCard, ScriptLine, type ScriptActions } from "@/components/scripts
 import { ScriptDialog } from "@/components/scripts/ScriptDialog";
 import { ScriptPreviewDialog } from "@/components/scripts/ScriptPreviewDialog";
 import { SegmentsDialog } from "@/components/scripts/SegmentsDialog";
+import { SortableScripts } from "@/components/scripts/SortableScripts";
 import { VariablesDialog } from "@/components/scripts/VariablesDialog";
 import { CategoryChips, SearchRow, SegmentBar, ViewToggle, type ScriptView } from "@/components/scripts/ScriptsToolbar";
 import { useBulkInsertScripts, useScriptSegments, useScripts } from "@/hooks/useCrm";
@@ -73,10 +74,11 @@ function ScriptsList({ list, empty, view, act, st, onNew }: {
     );
   }
   const Item = view === "cards" ? ScriptCard : ScriptLine;
+  // Arrastar só faz sentido na lista do segmento (sem busca em todos os segmentos).
+  const canDrag = !(st.everywhere && st.q);
   return (
-    <div className={view === "cards" ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-1.5"}>
-      {list.map((s) => <Item key={s.id} s={s} segments={st.segments} values={st.segment?.variables ?? {}} act={act} />)}
-    </div>
+    <SortableScripts list={list} grid={view === "cards"} enabled={canDrag}
+      render={(s, drag) => <Item s={s} segments={st.segments} values={st.segment?.variables ?? {}} act={act} drag={drag} />} />
   );
 }
 
