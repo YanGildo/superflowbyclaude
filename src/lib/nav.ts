@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Sun, ListTodo, FolderKanban, Target, Workflow,
   KanbanSquare, Users, Search, MessageSquareText, MessagesSquare, Gauge,
-  Megaphone, NotebookPen, PackageCheck, Plug,
+  Megaphone, NotebookPen, PackageCheck, Plug, FileText, Globe,
   Wallet, ArrowLeftRight, Receipt, CreditCard, PiggyBank,
   BarChart3, Bot, GitBranch, Tag, Landmark, Repeat, Crown, Link2,
   Settings, Trash2, UsersRound, CalendarRange, Rocket, type LucideIcon,
@@ -45,6 +45,7 @@ const SECTIONS: NavSection[] = [
       { path: "/comercial", label: "Comercial", icon: KanbanSquare, phase: 0, description: "Pipeline, clientes, propostas, jornada, conversões e contatos." },
       { path: "/prospeccao", label: "Prospecção", icon: Search, phase: 0, description: "Busca de empresas no Google Maps (Apify), mapa e lista de prospects." },
       { path: "/scripts", label: "Scripts", icon: MessageSquareText, phase: 0, description: "Mensagens prontas por segmento, com variáveis." },
+      { path: "/formularios", label: "Formulários", icon: FileText, phase: 0, description: "Páginas de formulário do site: editar perguntas, criar novas e ver respostas." },
       { path: "/whatsapp", label: "WhatsApp", icon: MessagesSquare, phase: 0, description: "WhatsApp simulado ligado ao CRM (o real entra nas integrações)." },
     ],
   },
@@ -54,6 +55,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { path: "/marketing", label: "Marketing", icon: Megaphone, phase: 0, description: "Plano do mês, campanhas, conteúdos, vídeos, calendário e ideias." },
       { path: "/marketing/conteudo", label: "Conteúdo", icon: NotebookPen, phase: 0, description: "Social media: pauta, peças, calendário, ganchos, referências e análise." },
+      { path: "/site", label: "Site", icon: Globe, phase: 0, description: "Domínios, subdomínios, páginas e formulários do site da agência." },
       { path: "/marketing/campanhas-dashboard", label: "Dashboard de Campanhas", icon: BarChart3, phase: 0, description: "Investimento e resultado das campanhas (Meta/Google)." },
       { path: "/marketing/entregas", label: "Entregas", icon: PackageCheck, phase: 0, description: "Entregas para clientes com prazos e aprovação." },
     ],

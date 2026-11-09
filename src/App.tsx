@@ -36,6 +36,8 @@ import Conteudo from "@/pages/Conteudo";
 import CampanhasDashboard from "@/pages/CampanhasDashboard";
 import Entregas from "@/pages/Entregas";
 import Planos from "@/pages/Planos";
+import Formularios from "@/pages/Formularios";
+import Site from "@/pages/Site";
 import Integracoes from "@/pages/Integracoes";
 import VisaoGeral from "@/pages/financeiro/VisaoGeral";
 import Lancamentos from "@/pages/financeiro/Lancamentos";
@@ -99,6 +101,8 @@ const BUILT: Record<string, ReactNode> = {
   "/marketing/conteudo": <Conteudo />,
   "/marketing/campanhas-dashboard": <CampanhasDashboard />,
   "/marketing/entregas": <Entregas />,
+  "/formularios": <Formularios />,
+  "/site": <Site />,
   "/integracoes": <Integracoes />,
   "/planos": <Planos />,
   "/financeiro": <VisaoGeral />,

@@ -48,7 +48,7 @@ export const RESOURCE_MODULE: Record<ResourceType, ModuleKey> = {
 export function moduleOfPath(path: string): ModuleKey | "admin" | null {
   const rules: [string, ModuleKey | "admin"][] = [
     ["/planos", "planos"], ["/tarefas", "tarefas"], ["/projetos", "projetos"], ["/metas", "metas"], ["/funis", "funis"],
-    ["/agencia", "comercial"], ["/comercial", "comercial"], ["/whatsapp", "comercial"], ["/prospeccao", "prospeccao"],
+    ["/agencia", "comercial"], ["/formularios", "comercial"], ["/site", "marketing"], ["/comercial", "comercial"], ["/whatsapp", "comercial"], ["/prospeccao", "prospeccao"],
     ["/scripts", "scripts"], ["/marketing", "marketing"], ["/financeiro", "financeiro"], ["/telegram", "telegram"],
     ["/integracoes", "admin"], ["/configuracoes", "admin"],
   ];

@@ -38,10 +38,10 @@ export const INTEGRATIONS: Integration[] = [
     where: [{ label: "Conteúdo · Central", to: "/marketing/conteudo" }],
   },
   {
-    id: "site-leads", name: "Site rgmarketingbr.com → Superflow (diagnóstico)", status: "ativo",
-    what: "A página rgmarketingbr.com/diagnostico salva cada resposta no funil \"Campanha B · Assessoria\" (etapa Novo lead), com origem, segmento, temperatura e as respostas nas observações. Quem desiste no meio também fica salvo para follow-up. No fim, o WhatsApp abre com o resumo pronto.",
+    id: "site-leads", name: "Site rgmarketingbr.com → Superflow (formulários)", status: "ativo",
+    what: "Cada formulário do site (rgmarketingbr.com/diagnostico, /diagnostico-2...) é editado em Formulários: perguntas, textos, botão final e WhatsApp. Cada resposta vira contato e oportunidade no funil escolhido, e quem desiste no meio também fica salvo.",
     today: "Campanha A (vídeos) vai direto para o WhatsApp: cadastre o lead em Novo lead com o código do anúncio (A1, A2, A3, E1).",
-    where: [{ label: "Comercial · funis das campanhas", to: "/comercial" }],
+    where: [{ label: "CRM Agência · Formulários", to: "/formularios" }, { label: "Marketing · Site (domínios e páginas)", to: "/site" }, { label: "Comercial · funis das campanhas", to: "/comercial" }],
   },
   {
     id: "zernio", name: "Zernio (agendar e medir posts)", status: "em_breve",
