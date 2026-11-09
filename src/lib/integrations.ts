@@ -143,8 +143,8 @@ export const PENDING: PendingItem[] = [
     steps: ["Supabase → Authentication → URL Configuration", "Site URL = https://superflowbyclaude.vercel.app", "Redirect URLs = https://superflowbyclaude.vercel.app/**"],
   },
   {
-    id: "signup", title: "Cadastro aberto (decidir)", why: "Quem recebe o link de convite precisa criar a conta, então o cadastro fica ligado. Quem se cadastra sem convite só ganha um espaço vazio e não vê nada seu.", optional: true,
-    steps: ["Se quiser travar: Supabase → Authentication → Sign In / Providers → desligar \"Allow new users to sign up\"", "Com o cadastro travado, convide pelo Supabase (Authentication → Users → Invite) e depois mande o link da equipe"],
+    id: "signup", title: "Deixar o cadastro ligado no Supabase", why: "Quem recebe o link de convite precisa criar a conta. Quem se cadastra sem convite fica aguardando a sua liberação (Equipe → Novos cadastros).",
+    steps: ["Supabase → Authentication → Sign In / Providers → ligar \"Allow new users to sign up\" e salvar"],
   },
   {
     id: "motor", title: "Ligar o motor de prospecção", why: "Para buscar leads no Google Maps de graça.", auto: "motor",

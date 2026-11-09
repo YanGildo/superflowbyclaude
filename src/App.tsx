@@ -12,6 +12,7 @@ import { WorkspaceProvider } from "@/lib/WorkspaceProvider";
 import { ALL_NAV_ITEMS } from "@/lib/nav";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ModuleGuard } from "@/components/layout/ModuleGuard";
+import { ApprovalGate } from "@/components/layout/ApprovalGate";
 import Convite from "@/pages/Convite";
 import Login from "@/pages/Login";
 import RedefinirSenha from "@/pages/RedefinirSenha";
@@ -62,7 +63,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <FullScreenLoader />;
   if (!user) return <Navigate to="/login" replace />;
-  return <WorkspaceProvider><WorkspaceGate>{children}</WorkspaceGate></WorkspaceProvider>;
+  return <ApprovalGate loader={<FullScreenLoader />}><WorkspaceProvider><WorkspaceGate>{children}</WorkspaceGate></WorkspaceProvider></ApprovalGate>;
 }
 
 /** Espera o workspace carregar; mostra erro claro se o banco não respondeu. */

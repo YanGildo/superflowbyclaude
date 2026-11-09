@@ -8,6 +8,7 @@ import { ALL_NAV_ITEMS } from "@/lib/nav";
 import { useWorkspace } from "@/lib/workspace";
 import { useTeamSync } from "@/hooks/useTeamSync";
 import { FloatingNotes } from "@/components/layout/FloatingNotes";
+import { PendingSignupsBanner } from "@/components/team/SignupsCard";
 import { cn } from "@/lib/utils";
 import { WidthToggle } from "./WidthToggle";
 
@@ -35,6 +36,7 @@ export function AppLayout() {
             <BusinessSwitcher />
           </div>
         </header>
+        <PendingSignupsBanner />
         <main className={cn("mx-auto w-full flex-1 p-4 pb-20 md:p-6 md:pb-20", wide ? "max-w-none" : "max-w-7xl")}>
           <Outlet />
         </main>
