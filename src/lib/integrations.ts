@@ -33,6 +33,16 @@ export const INTEGRATIONS: Integration[] = [
     where: [{ label: "Equipe", to: "/equipe" }, { label: "Botão Acesso em projetos, planos, tarefas e scripts", to: "/projetos" }],
   },
   {
+    id: "conteudo", name: "Conteúdo · chat Social Media do Claude", status: "ativo",
+    what: "O Superflow organiza pauta, peças, calendário, ganchos e métricas. Quem escreve é o Claude, no chat Social Media com as skills minha-voz, producao-conteudo e kit-prompts-conteudo: em cada etapa, o botão Copiar pedido leva o texto pronto. Nada é publicado automaticamente.",
+    where: [{ label: "Conteúdo · Central", to: "/marketing/conteudo" }],
+  },
+  {
+    id: "zernio", name: "Zernio (agendar e medir posts)", status: "em_breve",
+    what: "Agendar em várias redes, ler comentários e puxar métricas sozinho, no lugar da entrada manual da Análise. 2 contas grátis, depois US$ 6/conta/mês. Automação de comentário pro direct também passa por ela (ou ManyChat).",
+    where: [{ label: "Conteúdo · Análise", to: "/marketing/conteudo?aba=analise" }],
+  },
+  {
     id: "motor", name: "Motor de prospecção (Google Maps Scraper)", status: "configurar",
     what: "Busca empresas no Google Maps sem Apify e sem chave de API. Roda no seu PC com o Docker aberto.",
     where: [{ label: "Prospecção → Buscar leads", to: "/prospeccao?aba=buscar" }, { label: "Configurações do motor", to: "/prospeccao?aba=config" }],
@@ -155,4 +165,8 @@ export const PLANNED: { id: string; title: string; what: string; where: string }
     what: "Frequência ideal de contato por cliente, lista \"Falar agora\" com quem está atrasado, botão \"Falei hoje\" e último contato calculado sozinho. Entra também na Central do dia.",
     where: "Comercial (aba Relacionamento) + Central do dia",
   },
+  { id: "1take5reels", title: "1 take, 5 reels", what: "Gravar 1 vez e editar 5 versões (CapCut), com 5 ganchos e 5 legendas.", where: "Claude + CapCut · Conteúdo (fase 2)" },
+  { id: "emalta-auto", title: "Em alta automático", what: "Busca diária em fontes (RSS, blogs) com resumo às 7h.", where: "Edge function + pg_cron · Conteúdo › Em alta" },
+  { id: "ig-skill", title: "Instagram Agent Skill completa e Content Principles", what: "Régua oficial, roteiro cronometrado, pesquisa de nicho e auditoria do que já foi postado.", where: "Claude Code / Claude (app)" },
+  { id: "watch", title: "Watch (analisar vídeo de referência)", what: "O Claude assiste um reel e devolve gancho e estrutura.", where: "Claude Code · Conteúdo › Referências" },
 ];

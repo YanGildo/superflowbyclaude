@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Sun, ListTodo, FolderKanban, Target, Workflow,
   KanbanSquare, Users, Search, MessageSquareText, MessagesSquare, Gauge,
-  Megaphone, PackageCheck, Plug,
+  Megaphone, NotebookPen, PackageCheck, Plug,
   Wallet, ArrowLeftRight, Receipt, CreditCard, PiggyBank,
   BarChart3, Bot, GitBranch, Tag, Landmark, Repeat, Crown, Link2,
   Settings, Trash2, UsersRound, CalendarRange, Rocket, type LucideIcon,
@@ -53,6 +53,7 @@ const SECTIONS: NavSection[] = [
     label: "Marketing",
     items: [
       { path: "/marketing", label: "Marketing", icon: Megaphone, phase: 0, description: "Plano do mês, campanhas, conteúdos, vídeos, calendário e ideias." },
+      { path: "/marketing/conteudo", label: "Conteúdo", icon: NotebookPen, phase: 0, description: "Social media: pauta, peças, calendário, ganchos, referências e análise." },
       { path: "/marketing/campanhas-dashboard", label: "Dashboard de Campanhas", icon: BarChart3, phase: 0, description: "Investimento e resultado das campanhas (Meta/Google)." },
       { path: "/marketing/entregas", label: "Entregas", icon: PackageCheck, phase: 0, description: "Entregas para clientes com prazos e aprovação." },
     ],

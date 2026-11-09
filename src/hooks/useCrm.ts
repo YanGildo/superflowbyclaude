@@ -14,6 +14,8 @@ const HAS_BUSINESS: Record<string, boolean> = {
   proposals: true, proposal_items: false, journey_items: true, scripts: false, script_segments: false,
   chat_threads: true, chat_messages: false, campaigns: true,
   content_items: true, deliveries: true, marketing_plans: true,
+  hooks: true, content_stories: true, client_questions: true, recordings: true,
+  reference_accounts: false, reference_posts: false, content_metrics: false, trend_items: false,
   appointments: true, assistant_drafts: true, assistant_digests: false,
 };
 

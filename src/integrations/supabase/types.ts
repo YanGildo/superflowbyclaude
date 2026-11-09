@@ -357,7 +357,7 @@ export interface ProspectCampaign {
 
 /* ------------------------------ Marketing ------------------------------ */
 
-export type ContentStage = "ideia" | "roteiro" | "gravacao" | "edicao" | "revisao" | "aprovado" | "publicado" | "pausado";
+export type ContentStage = "ideia" | "roteiro" | "gravacao" | "edicao" | "revisao" | "aprovado" | "agendado" | "publicado" | "pausado";
 
 export interface ContentItem {
   id: string; workspace_id: string; business_id: string | null; contact_id: string | null; campaign_id: string | null;
@@ -365,7 +365,38 @@ export interface ContentItem {
   stage: ContentStage; priority: Priority; responsible_id: string | null; script: string | null; caption: string | null;
   recording_at: string | null; due_date: string | null; publish_at: string | null; file_url: string | null;
   notes: string | null; position: number; deleted_at: string | null; created_at: string; updated_at: string;
+  /** Módulo Conteúdo. */
+  pillar: string | null; hook: string | null; hook_formula_id: number | null; cta: string | null;
+  art_url: string | null; video_url: string | null; recording_id: string | null;
+  checklist: Record<string, boolean>;
 }
+
+export interface HookFormula { id: number; name: string; template: string }
+export interface Hook {
+  id: string; workspace_id: string; business_id: string | null; text: string; template: string | null; formula_id: number | null;
+  niche: string | null; kind: string | null; views: number | null; source: string | null; link: string | null;
+  score: number | null; verdict: string | null; weakest: string | null; created_at: string;
+}
+export interface ContentStory {
+  id: string; workspace_id: string; business_id: string | null; title: string; happened_on: string | null; body: string | null;
+  number: string | null; result: string | null; tags: string[]; used_item_ids: string[]; created_at: string;
+}
+export interface ClientQuestion { id: string; workspace_id: string; business_id: string | null; text: string; asked_on: string; origin: string | null; used: boolean; created_at: string }
+export interface RecordingTopic { assunto: string; caso?: string; numero?: string; formato?: string; minutos?: number }
+export type RecordingStatus = "pauta" | "gravado" | "transcrito" | "mapa" | "pecas";
+export interface Recording {
+  id: string; workspace_id: string; business_id: string | null; title: string; recorded_on: string | null; topics: RecordingTopic[];
+  audio_url: string | null; transcript: string | null; status: RecordingStatus; created_at: string;
+}
+export interface ReferenceAccount { id: string; workspace_id: string; handle: string; followers: number | null; median_views: number | null; grp: "diretas" | "vizinhas" | "grandes"; notes: string | null; created_at: string }
+export interface ReferencePost { id: string; workspace_id: string; account_id: string; views: number | null; hook: string | null; format: string | null; link: string | null; posted_on: string | null; created_at: string }
+export interface ContentMetric {
+  id: string; workspace_id: string; item_id: string; measured_on: string; views: number | null; reach: number | null;
+  non_follower_pct: number | null; retention3s: number | null; saves: number | null; shares: number | null; comments: number | null;
+  follows: number | null; dms: number | null; note: string | null; created_at: string;
+}
+export interface TrendItem { id: string; workspace_id: string; link: string | null; source: string | null; summary: string; tag: "potencial" | "explicar" | "pular"; found_on: string; created_at: string }
+export interface ContentSettings { workspace_id: string; frequency: string | null; platforms: string | null; persona: string | null }
 
 export type CampaignStatus = "planejada" | "ativa" | "pausada" | "encerrada";
 

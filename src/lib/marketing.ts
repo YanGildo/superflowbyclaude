@@ -9,6 +9,7 @@ export const CONTENT_STAGE: Record<ContentStage, { label: string; tone: string; 
   edicao:    { label: "Edição",    tone: "bg-primary/10 text-primary",        color: "#2563EB" },
   revisao:   { label: "Revisão",   tone: "bg-warning/15 text-warning",        color: "#F97316" },
   aprovado:  { label: "Aprovado",  tone: "bg-success/10 text-success",        color: "#22C55E" },
+  agendado:  { label: "Agendado",  tone: "bg-info/15 text-info",              color: "#0EA5E9" },
   publicado: { label: "Publicado", tone: "bg-success/15 text-success",        color: "#16A34A" },
   pausado:   { label: "Pausado",   tone: "bg-muted text-muted-foreground",    color: "#64748B" },
 };
