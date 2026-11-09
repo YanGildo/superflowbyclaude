@@ -71,10 +71,15 @@ export default function Site() {
         <h2 className="flex items-center gap-2 font-heading text-lg font-semibold"><Globe className="size-5" />Páginas de rgmarketingbr.com</h2>
         {pages.isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
         {pages.isError && <p className="text-sm text-muted-foreground">Não consegui ler a lista do site agora (ela só existe depois da próxima publicação do site). Os formulários acima continuam corretos.</p>}
-        {groups.map((g) => (
-          <div key={g.title} className="space-y-1.5"><h3 className="text-sm font-semibold text-muted-foreground">{g.title} ({g.items.length})</h3>
-            <Card><ul className="divide-y">{g.items.filter((p) => !formPaths.has(p.path)).map((p) => <LinkRow key={p.path} url={`${SITE_URL}${p.path}`} title={p.titulo} badges={p.indexavel ? <Badge variant="secondary">Aparece no Google</Badge> : undefined} />)}</ul></Card></div>
-        ))}
+        {groups.map((g) => {
+          const items = g.items.filter((p) => !formPaths.has(p.path));
+          const rows = <Card><ul className="divide-y">{items.map((p) => <LinkRow key={p.path} url={`${SITE_URL}${p.path}`} title={p.titulo} badges={p.indexavel ? <Badge variant="secondary">Aparece no Google</Badge> : undefined} />)}</ul></Card>;
+          return g.items.length > 15 ? (
+            <details key={g.title} className="space-y-1.5"><summary className="cursor-pointer text-sm font-semibold text-muted-foreground">{g.title} ({items.length}) · clique para ver</summary><div className="pt-1.5">{rows}</div></details>
+          ) : (
+            <div key={g.title} className="space-y-1.5"><h3 className="text-sm font-semibold text-muted-foreground">{g.title} ({items.length})</h3>{rows}</div>
+          );
+        })}
       </section>
     </div>
   );
