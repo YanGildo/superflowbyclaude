@@ -38,6 +38,12 @@ export const INTEGRATIONS: Integration[] = [
     where: [{ label: "Conteúdo · Central", to: "/marketing/conteudo" }],
   },
   {
+    id: "site-leads", name: "Site rgmarketingbr.com → Superflow (diagnóstico)", status: "ativo",
+    what: "A página rgmarketingbr.com/diagnostico salva cada resposta no funil \"Campanha B · Assessoria\" (etapa Novo lead), com origem, segmento, temperatura e as respostas nas observações. Quem desiste no meio também fica salvo para follow-up. No fim, o WhatsApp abre com o resumo pronto.",
+    today: "Campanha A (vídeos) vai direto para o WhatsApp: cadastre o lead em Novo lead com o código do anúncio (A1, A2, A3, E1).",
+    where: [{ label: "Comercial · funis das campanhas", to: "/comercial" }],
+  },
+  {
     id: "zernio", name: "Zernio (agendar e medir posts)", status: "em_breve",
     what: "Agendar em várias redes, ler comentários e puxar métricas sozinho, no lugar da entrada manual da Análise. 2 contas grátis, depois US$ 6/conta/mês. Automação de comentário pro direct também passa por ela (ou ManyChat).",
     where: [{ label: "Conteúdo · Análise", to: "/marketing/conteudo?aba=analise" }],
@@ -151,6 +157,14 @@ export const PENDING: PendingItem[] = [
   {
     id: "leaked-pw", title: "Proteção contra senhas vazadas", why: "Recomendação de segurança do Supabase (pode exigir plano pago).", optional: true,
     steps: ["Supabase → Authentication → Attack Protection", "Ligar \"Leaked password protection\""],
+  },
+  {
+    id: "dns-site", title: "Apontar o rgmarketingbr.com para a Vercel", why: "O site da agência e a página /diagnostico só abrem no domínio novo depois disso.",
+    steps: ["Hostinger → Domínios → rgmarketingbr.com → Registros DNS", "Apagar os registros A de @ e o CNAME de www que apontam para o estacionamento (2.57.91.91)", "Criar A @ → 216.198.79.1 e CNAME www → de2a35d22f836ca9.vercel-dns-017.com"],
+  },
+  {
+    id: "codigos-anuncio", title: "Código em cada anúncio da Campanha A", why: "Para saber qual vídeo trouxe cada conversa do WhatsApp.",
+    steps: ["Gerenciador de Anúncios → anúncio de mensagens → mensagem pronta", "Usar \"Olá! Quero meu vídeo demo (A1)\" (A2, A3 nos outros vídeos, E1 no estático)", "Ao cadastrar o lead no Superflow, preencher o campo Código do anúncio"],
   },
   {
     id: "dominio", title: "Domínio próprio", why: "Ex.: app.rgmarketing.com.br no lugar do endereço da Vercel.", optional: true,

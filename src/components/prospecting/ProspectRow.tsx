@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useProspectActions } from "@/hooks/useProspects";
 import type { Prospect, ProspectCampaign } from "@/integrations/supabase/types";
 import { waLink } from "@/lib/crm";
-import { PROSPECT_STATUS, STATUS_TONE, copyText, opportunity, priorityLabel, siteUrl, tempOf, type ProspectColumn } from "@/lib/prospecting";
+import { PROSPECT_STATUS, STATUS_TONE, copyText, isInteractiveClick, mapsHref, opportunity, priorityLabel, siteUrl, tempOf, type ProspectColumn } from "@/lib/prospecting";
 import { cn } from "@/lib/utils";
 import { ContactCell, IntentCell } from "./ProspectSignals";
 
@@ -55,6 +55,19 @@ function StatusCell({ p }: { p: Prospect }) {
   );
 }
 
+/** Telefone com botão de copiar ao lado. */
+function PhoneCell({ p }: { p: Prospect }) {
+  const phone = p.phone ?? p.whatsapp;
+  if (!phone) return <>—</>;
+  return (
+    <span className="inline-flex items-center gap-1">
+      {phone}
+      <Button size="icon" variant="ghost" className="size-6 text-muted-foreground hover:text-foreground" aria-label={`Copiar telefone de ${p.name}`} title="Copiar telefone"
+        onClick={() => void copyText(phone, "Telefone")}><Copy className="size-3.5" /></Button>
+    </span>
+  );
+}
+
 const pill = (label: string, tone: string) => <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", tone)}>{label}</span>;
 const date = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("pt-BR") : "—");
 
@@ -62,7 +75,7 @@ const CELLS: Record<ProspectColumn, (p: Prospect, campaigns: ProspectCampaign[])
   cidade: (p) => p.city ?? "—",
   estado: (p) => p.state ?? "—",
   nicho: (p) => p.niche ?? p.category ?? "—",
-  telefone: (p) => p.phone ?? p.whatsapp ?? "—",
+  telefone: (p) => <PhoneCell p={p} />,
   site: (p) => (p.website ? "Sim" : <span className="font-medium text-success">Não</span>),
   contato: (p) => <ContactCell p={p} />,
   avaliacao: (p) => <Rating p={p} />,
@@ -80,9 +93,12 @@ const CELLS: Record<ProspectColumn, (p: Prospect, campaigns: ProspectCampaign[])
 export function ProspectRow({ p, campaigns, onConvert, onOpen, columns }: RowProps & { columns: ProspectColumn[] }) {
   const wa = waLink(p.whatsapp ?? p.phone, `Olá! Tudo bem? Falo com a ${p.name}?`);
   return (
-    <tr className="border-b text-sm last:border-0 hover:bg-accent/30">
+    <tr className="cursor-pointer border-b text-sm last:border-0 hover:bg-accent/30" onClick={(e) => { if (!isInteractiveClick(e.target)) onOpen(); }}>
       <td className="max-w-[320px] px-3 py-2">
-        <button type="button" onClick={onOpen} className="block max-w-full truncate text-left font-medium text-primary hover:underline">{p.name}</button>
+        <a href={mapsHref(p)} target="_blank" rel="noreferrer" title="Abrir no Google Maps (nova guia)"
+          className="inline-flex max-w-full items-center gap-1 truncate text-left font-medium text-primary hover:underline">
+          <span className="truncate">{p.name}</span><MapPin className="size-3.5 shrink-0 opacity-60" aria-hidden="true" />
+        </a>
         <p className="truncate text-xs text-muted-foreground">{p.category ?? "—"}</p>
       </td>
       {columns.map((c) => <td key={c} className="whitespace-nowrap px-3 py-2">{CELLS[c](p, campaigns)}</td>)}

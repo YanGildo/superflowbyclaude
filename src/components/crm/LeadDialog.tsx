@@ -9,9 +9,9 @@ import { RefSelect } from "@/components/common/RefSelect";
 import { useServices } from "@/hooks/useCrm";
 import { useCrmFlows } from "@/hooks/useCrmFlows";
 import type { PipelineStage } from "@/integrations/supabase/types";
-import { SOURCES } from "@/lib/crm";
+import { SEGMENTS, SOURCES } from "@/lib/crm";
 
-type Form = { name: string; company: string; phone: string; email: string; source: string | null; service: string | null; stageId: string; notes: string };
+type Form = { name: string; company: string; phone: string; email: string; source: string | null; service: string | null; segment: string | null; adCode: string; stageId: string; notes: string };
 
 const asOptions = (list: string[]) => list.map((s) => ({ id: s, name: s }));
 
@@ -20,13 +20,13 @@ export function LeadDialog({ open, onOpenChange, stages, pipelineId, initialStag
 }) {
   const { data: services = [] } = useServices();
   const { createLead } = useCrmFlows();
-  const [f, setF] = useState<Form>({ name: "", company: "", phone: "", email: "", source: null, service: null, stageId: "", notes: "" });
+  const [f, setF] = useState<Form>({ name: "", company: "", phone: "", email: "", source: null, service: null, segment: null, adCode: "", stageId: "", notes: "" });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setError(null);
-    setF({ name: "", company: "", phone: "", email: "", source: null, service: null, stageId: initialStageId ?? stages[0]?.id ?? "", notes: "" });
+    setF({ name: "", company: "", phone: "", email: "", source: null, service: null, segment: null, adCode: "", stageId: initialStageId ?? stages[0]?.id ?? "", notes: "" });
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((p) => ({ ...p, [k]: v }));
@@ -71,6 +71,14 @@ export function LeadDialog({ open, onOpenChange, stages, pipelineId, initialStag
             <Label htmlFor="lead-service">Serviço de interesse</Label>
             <RefSelect id="lead-service" value={f.service} onChange={(v) => set("service", v)}
               options={asOptions(services.filter((s) => s.active).map((s) => s.name))} placeholder="Selecione" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-segment">Segmento</Label>
+            <RefSelect id="lead-segment" value={f.segment} onChange={(v) => set("segment", v)} options={asOptions(SEGMENTS)} placeholder="Selecione" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-adcode">Código do anúncio</Label>
+            <Input id="lead-adcode" value={f.adCode} onChange={(e) => set("adCode", e.target.value)} placeholder="Ex.: A1, A2, E1" maxLength={12} />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="lead-stage">Etapa inicial</Label>

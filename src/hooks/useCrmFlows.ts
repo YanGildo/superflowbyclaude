@@ -8,9 +8,16 @@ import { useScope } from "@/hooks/useScope";
 export interface NewLead {
   name: string; company: string; phone: string; email: string; source: string | null; service: string | null;
   stageId: string; pipelineId: string; notes: string; temperature?: Temperature | null; value?: number | null;
+  /** Segmento do lead (cidadania, imigração...). */
+  segment?: string | null;
+  /** Código do anúncio que trouxe o lead (A1, A2, E1...), vai para meta.ad_code. */
+  adCode?: string | null;
 }
 
 const orNull = (s: string) => (s.trim() ? s.trim() : null);
+
+/** Código do anúncio normalizado (A1, E1...) ou null. */
+const adCodeOf = (l: NewLead) => (l.adCode?.trim() ? l.adCode.trim().toUpperCase() : null);
 
 export function useCrmFlows() {
   const qc = useQueryClient();
@@ -36,6 +43,7 @@ export function useCrmFlows() {
         ...base, name: l.name.trim(), company: orNull(l.company), phone: orNull(l.phone), whatsapp: orNull(l.phone),
         email: orNull(l.email), source: l.source, services: l.service ? [l.service] : [], notes: orNull(l.notes),
         temperature: l.temperature ?? null, kind: l.company.trim() ? "empresa" : "pessoa",
+        segment: l.segment ?? null, meta: adCodeOf(l) ? { ad_code: adCodeOf(l) } : {},
       }).select("id").single();
       if (c.error) throw c.error;
       const contactId = (c.data as { id: string }).id;
@@ -44,7 +52,7 @@ export function useCrmFlows() {
         title: l.company.trim() || l.name.trim(), value: l.value ?? null,
       });
       if (d.error) throw d.error;
-      await logActivity({ contact_id: contactId, category: "conversao", type: "Lead gerado", channel: l.source, summary: l.name.trim() });
+      await logActivity({ contact_id: contactId, category: "conversao", type: "Lead gerado", channel: l.source, summary: [l.name.trim(), adCodeOf(l)].filter(Boolean).join(" · ") });
       return contactId;
     },
     onSuccess: () => { refresh(); toast.success("Lead adicionado ao pipeline."); },

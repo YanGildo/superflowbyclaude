@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { ActionPlan, ActionPlanAsset, ActionPlanCheckin, ActionPlanStep } from "@/integrations/supabase/types";
 import { useScope } from "@/hooks/useScope";
+import { documentWithMetrics, type ImportedPlan } from "@/lib/planPrompt";
 
 type Table = "action_plans" | "action_plan_steps" | "action_plan_assets" | "action_plan_checkins";
 type Builder = (q: any) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -86,5 +87,36 @@ export function useSaveCheckin() {
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["plans"] }); toast.success("Números da semana salvos."); },
     onError: (e: Error) => toast.error(`Não salvou: ${e.message}`),
+  });
+}
+
+/** Cria um plano completo (plano + etapas + scripts/prompts) a partir do resultado do prompt universal. */
+export function useImportPlan() {
+  const qc = useQueryClient();
+  const scope = useScope();
+  return useMutation({
+    mutationFn: async (p: ImportedPlan) => {
+      const ws = scope.wsId;
+      const plan = await supabase.from("action_plans").insert({
+        workspace_id: ws, title: p.title, goal: p.goal, summary: p.summary, document: documentWithMetrics(p),
+      }).select("id").single();
+      if (plan.error) throw plan.error;
+      const planId = (plan.data as { id: string }).id;
+      const steps = await supabase.from("action_plan_steps")
+        .insert(p.steps.map((s, i) => ({ workspace_id: ws, plan_id: planId, position: i, ...s })))
+        .select("id,title");
+      if (steps.error) throw steps.error;
+      const byTitle = new Map(((steps.data ?? []) as { id: string; title: string }[]).map((s) => [s.title.toLowerCase(), s.id]));
+      if (p.assets.length) {
+        const { error } = await supabase.from("action_plan_assets").insert(p.assets.map((a, i) => ({
+          workspace_id: ws, plan_id: planId, position: i, kind: a.kind, title: a.title, body: a.body, url: a.url,
+          step_id: a.step ? byTitle.get(a.step.toLowerCase()) ?? null : null,
+        })));
+        if (error) throw error;
+      }
+      return planId;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["plans"] }); toast.success("Plano criado a partir do texto colado."); },
+    onError: (e: Error) => toast.error(`Não criou o plano: ${e.message}`),
   });
 }

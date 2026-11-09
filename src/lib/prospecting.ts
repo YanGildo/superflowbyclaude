@@ -165,6 +165,21 @@ export const PROSPECT_COLUMNS = [
 export type ProspectColumn = (typeof PROSPECT_COLUMNS)[number]["id"];
 export const DEFAULT_COLUMNS: ProspectColumn[] = ["cidade", "telefone", "site", "avaliacao", "oportunidade", "status", "temperatura"];
 
+/** Link do Google Maps do estabelecimento (o salvo na busca ou uma pesquisa por nome + endereço). */
+export function mapsHref(p: { name: string; maps_url?: string | null; address?: string | null; city?: string | null }) {
+  if (p.maps_url) return p.maps_url;
+  const q = [p.name, p.address ?? p.city].filter(Boolean).join(" ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+}
+
+/** Clique veio de um botão, link, campo ou menu (não deve abrir o painel da linha). */
+export function isInteractiveClick(target: EventTarget | null) {
+  const el = target as HTMLElement | null;
+  if (!el?.closest) return true;
+  if (window.getSelection()?.toString()) return true;
+  return Boolean(el.closest("a,button,input,select,textarea,label,[role=option],[role=menuitem],[role=menuitemcheckbox],[role=combobox],[role=listbox],[data-no-row-open]"));
+}
+
 export async function copyText(v: string, what: string) {
   await navigator.clipboard?.writeText(v).catch(() => undefined);
   toast.success(`${what} copiado.`);

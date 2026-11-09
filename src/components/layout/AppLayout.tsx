@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -7,12 +8,19 @@ import { ALL_NAV_ITEMS } from "@/lib/nav";
 import { useWorkspace } from "@/lib/workspace";
 import { useTeamSync } from "@/hooks/useTeamSync";
 import { FloatingNotes } from "@/components/layout/FloatingNotes";
+import { cn } from "@/lib/utils";
+import { WidthToggle } from "./WidthToggle";
+
+const WIDE_KEY = "superflow:wide";
+const readWide = () => { try { return localStorage.getItem(WIDE_KEY) === "1"; } catch { return false; } };
 
 export function AppLayout() {
   const { pathname } = useLocation();
   const current = ALL_NAV_ITEMS.find((i) => i.path === pathname);
   const { workspace, isTeam } = useWorkspace();
   useTeamSync(workspace?.id, isTeam);
+  const [wide, setWide] = useState(readWide);
+  const toggleWide = () => setWide((w) => { try { localStorage.setItem(WIDE_KEY, w ? "0" : "1"); } catch { /* sem storage */ } return !w; });
 
   return (
     <SidebarProvider>
@@ -22,11 +30,12 @@ export function AppLayout() {
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-5" />
           <p className="hidden truncate font-heading text-sm font-medium sm:block">{current?.label ?? "Superflow"}</p>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-1">
+            <WidthToggle wide={wide} onToggle={toggleWide} />
             <BusinessSwitcher />
           </div>
         </header>
-        <main className="mx-auto w-full max-w-7xl flex-1 p-4 pb-20 md:p-6 md:pb-20">
+        <main className={cn("mx-auto w-full flex-1 p-4 pb-20 md:p-6 md:pb-20", wide ? "max-w-none" : "max-w-7xl")}>
           <Outlet />
         </main>
       </SidebarInset>

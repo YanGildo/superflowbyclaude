@@ -19,8 +19,11 @@ export const TEMPERATURE: Record<Temperature, { label: string; tone: string }> =
 };
 
 export const SOURCES = [
-  "Instagram", "Facebook", "Google", "Anúncio", "Indicação", "Prospecção", "WhatsApp", "Site / Landing page", "Telegram", "Evento", "Outro",
+  "Anúncio · WhatsApp", "Instagram", "Facebook", "Google", "Anúncio", "Indicação", "Prospecção", "WhatsApp", "Site / Landing page", "Telegram", "Evento", "Outro",
 ];
+
+/** Segmentos atendidos pela agência (campanhas A e B). */
+export const SEGMENTS = ["Cidadania", "Imigração / advocacia", "Vistos", "Relocation", "Outro jurídico", "Outro"];
 
 export const CHANNELS = ["WhatsApp", "Instagram", "E-mail", "Telefone", "Reunião online", "Presencial", "Telegram", "Outro"];
 
