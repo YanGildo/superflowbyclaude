@@ -44,6 +44,12 @@ export const INTEGRATIONS: Integration[] = [
     where: [{ label: "CRM Agência · Formulários", to: "/formularios" }, { label: "Marketing · Site (domínios e páginas)", to: "/site" }, { label: "Comercial · funis das campanhas", to: "/comercial" }],
   },
   {
+    id: "meta-leads-csv", name: "Leads do Meta (Formulário instantâneo) por CSV", status: "ativo",
+    what: "Em cada campanha do Comercial: Importar leads (CSV). Lê o arquivo da Central de Leads do Meta (UTF-16 com TAB) ou qualquer planilha, reconhece nome/telefone/e-mail/dados do anúncio, guarda as perguntas como Respostas do formulário, evita duplicados (ID do lead, telefone, e-mail) e define a temperatura pelas regras da campanha. Também dá para criar, renomear e arquivar campanhas.",
+    today: "Manual: baixar o CSV no Meta (Central de Leads ou Gerenciador → Formulários) e importar. A importação automática (webhook do Meta) fica para depois.",
+    where: [{ label: "Comercial · Pipeline → Importar leads (CSV)", to: "/comercial" }],
+  },
+  {
     id: "zernio", name: "Zernio (agendar e medir posts)", status: "em_breve",
     what: "Agendar em várias redes, ler comentários e puxar métricas sozinho, no lugar da entrada manual da Análise. 2 contas grátis, depois US$ 6/conta/mês. Automação de comentário pro direct também passa por ela (ou ManyChat).",
     where: [{ label: "Conteúdo · Análise", to: "/marketing/conteudo?aba=analise" }],

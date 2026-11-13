@@ -23,7 +23,7 @@ export function NewChatDialog({ open, onOpenChange, onOpened }: { open: boolean;
     e.preventDefault();
     let id = contactId;
     if (!id) {
-      const pl = pipelines[0];
+      const pl = pipelines.find((p) => !p.archived_at) ?? pipelines[0];
       const first = stages.filter((s) => s.pipeline_id === pl?.id)[0];
       if (!name.trim() || !pl || !first) return;
       id = await createLead.mutateAsync({ name, company: "", phone, email: "", source: "WhatsApp", service: null, stageId: first.id, pipelineId: pl.id, notes: "" });

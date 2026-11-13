@@ -245,7 +245,13 @@ export interface Contact {
   deleted_at: string | null; created_at: string; updated_at: string;
 }
 
-export interface Pipeline { id: string; workspace_id: string; business_id: string | null; name: string; position: number }
+export interface TemperatureRule { temperature: "quente" | "morno" | "frio"; contains: string[] }
+export interface Pipeline {
+  id: string; workspace_id: string; business_id: string | null; name: string; position: number;
+  archived_at?: string | null;
+  /** Regras para a temperatura automática na importação de leads. */
+  temperature_rules?: { rules: TemperatureRule[]; fallback: "quente" | "morno" | "frio" } | null;
+}
 
 export interface PipelineStage {
   id: string; workspace_id: string; pipeline_id: string; name: string; position: number;

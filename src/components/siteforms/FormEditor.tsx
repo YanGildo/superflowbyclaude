@@ -60,7 +60,7 @@ export function FormEditor({ form, initialTab = "perguntas" }: { form: SiteForm;
         <TabsContent value="textos"><TextsTab content={content} onChange={setContent} /></TabsContent>
         <TabsContent value="funil" className="max-w-xl space-y-3">
           <p className="text-sm text-muted-foreground">Cada pessoa que preencher vira um contato e uma oportunidade neste funil, na etapa escolhida. Quem desiste no meio também fica salvo.</p>
-          <div className="space-y-1.5"><Label>Funil</Label><RefSelect value={pipeline} onChange={(p) => { setPipeline(p); setStage(stages.find((s) => s.pipeline_id === p)?.id ?? null); }} options={pipelines} placeholder="Não criar oportunidade" /></div>
+          <div className="space-y-1.5"><Label>Funil</Label><RefSelect value={pipeline} onChange={(p) => { setPipeline(p); setStage(stages.find((s) => s.pipeline_id === p)?.id ?? null); }} options={pipelines.filter((p) => !p.archived_at || p.id === pipeline)} placeholder="Não criar oportunidade" /></div>
           {pipeline && <div className="space-y-1.5"><Label>Etapa inicial</Label><RefSelect value={stage} onChange={setStage} options={stageOptions} placeholder="Escolha a etapa" /></div>}
           <div className="space-y-1.5"><Label htmlFor="f-src">Origem registrada no contato</Label><Input id="f-src" value={source} onChange={(e) => setSource(e.target.value)} /></div>
         </TabsContent>

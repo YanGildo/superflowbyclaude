@@ -10,6 +10,7 @@ import { useTaskMutations } from "@/hooks/useTasks";
 import type { Contact, Deal, PipelineStage, Temperature } from "@/integrations/supabase/types";
 import { CONTACT_STATUS, TEMPERATURE, waLink } from "@/lib/crm";
 import { brl, localISODate } from "@/lib/format";
+import { formAnswers } from "@/lib/leadImport";
 import { cn } from "@/lib/utils";
 import { ActivityDialog } from "./ActivityDialog";
 import { ContactDialog } from "./ContactDialog";
@@ -34,7 +35,23 @@ function ContactInfo({ c }: { c: Contact }) {
         <div className="col-span-2 flex flex-wrap gap-1">{c.services.map((s) => <Badge key={s} variant="secondary">{s}</Badge>)}</div>
       )}
       {c.notes && <p className="col-span-2 whitespace-pre-wrap rounded-md bg-muted/60 p-2 text-sm text-muted-foreground">{c.notes}</p>}
+      <FormAnswers c={c} />
     </div>
+  );
+}
+
+function FormAnswers({ c }: { c: Contact }) {
+  const list = formAnswers(c.meta);
+  if (!list.length) return null;
+  const ad = [c.meta?.form_name, c.meta?.campaign_name, c.meta?.ad_name].filter((v) => typeof v === "string" && v).join(" · ");
+  return (
+    <section className="col-span-2 rounded-md border p-2.5" aria-label="Respostas do formulário">
+      <p className="mb-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">Respostas do formulário</p>
+      {ad && <p className="mb-1.5 text-xs text-muted-foreground">{ad}</p>}
+      <dl className="space-y-1 text-sm">
+        {list.map((a, i) => <div key={i}><dt className="font-medium">{a.pergunta}</dt><dd className="text-muted-foreground">{a.resposta}</dd></div>)}
+      </dl>
+    </section>
   );
 }
 
