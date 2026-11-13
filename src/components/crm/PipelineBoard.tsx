@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Contact, Deal, PipelineStage } from "@/integrations/supabase/types";
 import { stageColor } from "@/lib/crm";
+import { groupDeals, type SortMode } from "@/lib/pipelineView";
 import { cn } from "@/lib/utils";
 import { DealCard } from "./DealCard";
 
@@ -13,6 +14,8 @@ interface BoardProps {
   onMove: (dealId: string, stageId: string) => void;
   onAdd: (stageId: string) => void;
   onOpen: (deal: Deal) => void;
+  /** Ordem já aplicada nos deals; define os grupos (temperatura ou dia de chegada). */
+  sort?: SortMode;
 }
 
 /** Resumo no topo: quantidade e % de cada etapa; clique foca a etapa. */
@@ -74,8 +77,24 @@ function NarrowColumn({ stage, count, onFocus, onAdd, onMove }: {
 }
 
 /** Etapa aberta: coluna larga com os cards. */
-function WideColumn({ stage, deals, contacts, onAdd, onOpen, onMove }: {
-  stage: PipelineStage; deals: Deal[]; contacts: Map<string, Contact>; onAdd: () => void; onOpen: (d: Deal) => void; onMove: BoardProps["onMove"];
+function Cards({ deals, contacts, onOpen, sort }: { deals: Deal[]; contacts: Map<string, Contact>; onOpen: (d: Deal) => void; sort?: SortMode }) {
+  const groups = sort ? groupDeals(deals, contacts, sort) : [{ key: "all", title: "", deals }];
+  return (
+    <div className="space-y-3">
+      {groups.map((g) => (
+        <div key={g.key}>
+          {g.title && <p className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{g.title}<span className="rounded-full border px-1.5 font-medium">{g.deals.length}</span><span className="h-px flex-1 bg-border" /></p>}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 2xl:grid-cols-3">
+            {g.deals.map((d) => <DealCard key={d.id} deal={d} contact={contacts.get(d.contact_id)} onOpen={() => onOpen(d)} />)}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function WideColumn({ stage, deals, contacts, onAdd, onOpen, onMove, sort }: {
+  stage: PipelineStage; deals: Deal[]; contacts: Map<string, Contact>; onAdd: () => void; onOpen: (d: Deal) => void; onMove: BoardProps["onMove"]; sort?: SortMode;
 }) {
   const { over, handlers } = useDropTarget(stage.id, onMove);
   return (
@@ -92,15 +111,13 @@ function WideColumn({ stage, deals, contacts, onAdd, onOpen, onMove }: {
           <Button size="sm" variant="outline" onClick={onAdd}><Plus className="size-4" />Adicionar</Button>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-2">
-          {deals.map((d) => <DealCard key={d.id} deal={d} contact={contacts.get(d.contact_id)} onOpen={() => onOpen(d)} />)}
-        </div>
+        <Cards deals={deals} contacts={contacts} onOpen={onOpen} sort={sort} />
       )}
     </section>
   );
 }
 
-export function PipelineBoard({ stages, deals, contacts, onMove, onAdd, onOpen }: BoardProps) {
+export function PipelineBoard({ stages, deals, contacts, onMove, onAdd, onOpen, sort }: BoardProps) {
   const byStage = useMemo(() => {
     const m = new Map<string, Deal[]>();
     deals.forEach((d) => m.set(d.stage_id, [...(m.get(d.stage_id) ?? []), d]));
@@ -118,7 +135,7 @@ export function PipelineBoard({ stages, deals, contacts, onMove, onAdd, onOpen }
       <StageStrip stages={stages} counts={counts} total={deals.length} focus={current.id} setFocus={setFocus} />
       <div className="flex gap-2 overflow-x-auto pb-2">
         {stages.map((s) => s.id === current.id
-          ? <WideColumn key={s.id} stage={s} deals={byStage.get(s.id) ?? []} contacts={contacts} onAdd={() => onAdd(s.id)} onOpen={onOpen} onMove={onMove} />
+          ? <WideColumn key={s.id} stage={s} deals={byStage.get(s.id) ?? []} contacts={contacts} onAdd={() => onAdd(s.id)} onOpen={onOpen} onMove={onMove} sort={sort} />
           : <NarrowColumn key={s.id} stage={s} count={counts.get(s.id) ?? 0} onFocus={() => setFocus(s.id)} onAdd={() => onAdd(s.id)} onMove={onMove} />)}
       </div>
     </div>

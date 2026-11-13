@@ -6,17 +6,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useContacts, useCrmMutations, useDeals, usePipelines, useStages } from "@/hooks/useCrm";
 import { useCrmFlows } from "@/hooks/useCrmFlows";
 import type { Contact, Deal, Pipeline } from "@/integrations/supabase/types";
+import { applyView, DEFAULT_VIEW, downloadText, leadsCsv, slug, type ViewOpts } from "@/lib/pipelineView";
 import { cn } from "@/lib/utils";
 import { CampaignActions } from "./CampaignActions";
 import { ContactSheet } from "./ContactSheet";
 import { LeadDialog } from "./LeadDialog";
 import { NewCampaignDialog } from "./NewCampaignDialog";
+import { PipelineViewBar } from "./PipelineViewBar";
 import { PipelineBoard } from "./PipelineBoard";
 
 const matches = (d: Deal, c: Contact | undefined, q: string) =>
   !q || [d.title, c?.name, c?.company, c?.phone, c?.email].some((v) => v?.toLowerCase().includes(q.toLowerCase()));
 
 const PIPE_KEY = "superflow:pipeline";
+const VIEW_KEY = "superflow:pipeline-view";
+const readView = (): ViewOpts => { try { return { ...DEFAULT_VIEW, ...JSON.parse(localStorage.getItem(VIEW_KEY) ?? "{}") }; } catch { return DEFAULT_VIEW; } };
 const readPipe = () => { try { return localStorage.getItem(PIPE_KEY); } catch { return null; } };
 
 /** Funil escolhido (lembrado neste navegador) com os contatos indexados por id. */
@@ -60,6 +64,8 @@ export function PipelineTab() {
   const [chosen, setChosen] = useState<string | null>(readPipe);
   const { pipelines, pipeline, allStages, stages, deals, byId, loading } = usePipelineData(chosen);
   const [newCamp, setNewCamp] = useState(false);
+  const [view, setViewState] = useState<ViewOpts>(readView);
+  const setView = (v: ViewOpts) => { setViewState(v); try { localStorage.setItem(VIEW_KEY, JSON.stringify(v)); } catch { /* sem storage */ } };
   const pick = (id: string) => { setChosen(id); try { localStorage.setItem(PIPE_KEY, id); } catch { /* sem storage */ } };
   const dealM = useCrmMutations("deals");
   const { logConversion } = useCrmFlows();
@@ -78,7 +84,8 @@ export function PipelineTab() {
 
   if (loading) return <Skeleton className="h-80 rounded-xl" />;
   if (!pipeline) return <p className="text-sm text-muted-foreground">Nenhum pipeline encontrado neste workspace.</p>;
-  const visible = deals.filter((d) => matches(d, byId.get(d.contact_id), q));
+  const visible = applyView(deals.filter((d) => matches(d, byId.get(d.contact_id), q)), byId, view);
+  const exportCsv = () => downloadText(leadsCsv(visible, byId, stages), `leads-${slug(pipeline.name)}-${new Date().toISOString().slice(0, 10)}.csv`);
   const active = deals.find((d) => d.id === openDeal);
 
   return (
@@ -109,7 +116,9 @@ export function PipelineTab() {
         </div>
       )}
 
-      <PipelineBoard stages={stages} deals={visible} contacts={byId} onMove={move}
+      <PipelineViewBar view={view} setView={setView} shown={visible.length} total={deals.length} onExport={exportCsv} />
+
+      <PipelineBoard stages={stages} deals={visible} contacts={byId} onMove={move} sort={view.sort}
         onAdd={(stageId) => setLead({ open: true, stageId })} onOpen={(d) => setOpenDeal(d.id)} />
 
       <LeadDialog open={lead.open} onOpenChange={(o) => setLead((l) => ({ ...l, open: o }))} stages={stages}

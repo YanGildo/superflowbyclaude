@@ -1,11 +1,10 @@
 import type { DragEvent } from "react";
-import { MessageCircle } from "lucide-react";
+import { Clock, MessageCircle } from "lucide-react";
 import type { Contact, Deal } from "@/integrations/supabase/types";
 import { TEMPERATURE, waLink } from "@/lib/crm";
 import { brl } from "@/lib/format";
+import { arrivalFull, arrivalShort, arrivedAt } from "@/lib/pipelineView";
 import { cn } from "@/lib/utils";
-
-const daysSince = (iso: string) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 864e5));
 
 function DealValue({ deal }: { deal: Deal }) {
   if (deal.recurring_value) return <span className="font-medium text-foreground">{brl(Number(deal.recurring_value))}/mês</span>;
@@ -17,6 +16,7 @@ function DealValue({ deal }: { deal: Deal }) {
 export function DealCard({ deal, contact, onOpen }: { deal: Deal; contact?: Contact; onOpen: () => void }) {
   const wa = waLink(contact?.whatsapp ?? contact?.phone);
   const temp = contact?.temperature ? TEMPERATURE[contact.temperature] : null;
+  const at = arrivedAt(deal, contact);
   const onDragStart = (e: DragEvent) => {
     e.dataTransfer.setData("text/deal", deal.id);
     e.dataTransfer.effectAllowed = "move";
@@ -36,7 +36,7 @@ export function DealCard({ deal, contact, onOpen }: { deal: Deal; contact?: Cont
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
         <DealValue deal={deal} />
         {contact?.source && <span>{contact.source}</span>}
-        <span>{daysSince(deal.created_at)}d no funil</span>
+        <span className="inline-flex items-center gap-1" title={`Chegou em ${arrivalFull(at)}`}><Clock className="size-3" />{arrivalShort(at)}</span>
         {wa && (
           <a href={wa} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} aria-label={`WhatsApp de ${deal.title}`}
             className="ml-auto inline-flex items-center gap-1 text-success hover:underline">
