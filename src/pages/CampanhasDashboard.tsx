@@ -3,13 +3,16 @@ import { BarChart3, DollarSign, Eye, MousePointerClick, Plus, ShoppingCart, Spar
 import { EmptyState, PageHeader } from "@/components/common/PageHeader";
 import { RefSelect, SimpleSelect } from "@/components/common/RefSelect";
 import { Button } from "@/components/ui/button";
+import { AdsTab } from "@/components/marketing/dashboard/AdsTab";
 import { CampaignCharts } from "@/components/marketing/dashboard/CampaignCharts";
 import { CampaignTable } from "@/components/marketing/dashboard/CampaignTable";
 import { ConnectionsBar } from "@/components/marketing/dashboard/ConnectionsBar";
 import { KpiGrid, type Kpi } from "@/components/marketing/Kpis";
 import { MarketingDialogsProvider } from "@/components/marketing/MarketingDialogs";
 import { opts } from "@/components/marketing/options";
+import { SectionTabs } from "@/components/personal/Bits";
 import { useContacts } from "@/hooks/useCrm";
+import { useTab } from "@/hooks/useTab";
 import { useCampaigns, useDemoCampaigns } from "@/hooks/useMarketing";
 import { useMarketingDialogs } from "@/hooks/useMarketingDialogs";
 import type { Campaign } from "@/integrations/supabase/types";
@@ -58,14 +61,26 @@ function Header({ hasDemo }: { hasDemo: boolean }) {
   );
 }
 
+const TABS = [{ id: "visao", label: "Visão geral" }, { id: "anuncios", label: "Campanhas, conjuntos e anúncios" }];
+
 function Dashboard() {
+  const [tab, go] = useTab(TABS.map((t) => t.id));
   const { data: all = [] } = useCampaigns();
+  return (
+    <div className="space-y-4">
+      <Header hasDemo={all.some((c) => c.notes === DEMO_TAG)} />
+      <SectionTabs tabs={TABS} tab={tab} go={go} label="Seções do dashboard" />
+      {tab === "visao" ? <Overview all={all} /> : <AdsTab />}
+    </div>
+  );
+}
+
+function Overview({ all }: { all: Campaign[] }) {
   const { data: contacts = [] } = useContacts();
   const f = useFilters();
   const list = all.filter(f.keep);
   return (
     <div className="space-y-4">
-      <Header hasDemo={all.some((c) => c.notes === DEMO_TAG)} />
       <ConnectionsBar />
       <div className="flex flex-wrap gap-2">
         <div className="w-44"><SimpleSelect<Period> value={f.period} onChange={f.setPeriod} options={PERIOD_OPTIONS} /></div>

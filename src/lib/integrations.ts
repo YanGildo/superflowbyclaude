@@ -128,8 +128,8 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: "ads", name: "Meta Ads · Google Ads · Google Analytics", status: "em_breve",
     what: "Puxar investimento, cliques, leads e vendas das campanhas automaticamente.",
-    today: "Os números são preenchidos à mão em cada campanha (ou pela demonstração).",
-    where: [{ label: "Dashboard de Campanhas", to: "/marketing/campanhas-dashboard" }],
+    today: "Importar o relatório em CSV (Gerenciador de Anúncios, Google Ads, TikTok) por campanha, conjunto ou anúncio, com ou sem quebra por dia: importar de novo não duplica, e o CPL real por conjunto usa os leads do CRM.",
+    where: [{ label: "Dashboard de Campanhas → Campanhas, conjuntos e anúncios", to: "/marketing/campanhas-dashboard?aba=anuncios" }],
   },
   {
     id: "openfinance", name: "Open Finance (bancos e investimentos)", status: "em_breve",
