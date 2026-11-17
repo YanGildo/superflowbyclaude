@@ -11,7 +11,7 @@ export interface ImportSummary { novos: number; atualizados: number; ignorados: 
 export function useCampaigns() {
   const qc = useQueryClient();
   const scope = useScope();
-  const invalidate = () => { qc.invalidateQueries({ queryKey: ["crm"] }); qc.invalidateQueries({ queryKey: ["dashboard-kpis"] }); };
+  const invalidate = () => { qc.invalidateQueries({ queryKey: ["crm"] }); qc.invalidateQueries({ queryKey: ["dashboard-kpis"] }); qc.invalidateQueries({ queryKey: ["outbox"] }); };
   const fail = (e: Error) => toast.error(e.message);
 
   const create = useMutation({

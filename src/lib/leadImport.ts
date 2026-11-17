@@ -68,6 +68,8 @@ const KNOWN: Record<string, Field> = {
   full_name: "name", nome: "name", nome_completo: "name", name: "name", first_name: "first_name", primeiro_nome: "first_name",
   last_name: "last_name", sobrenome: "last_name",
   phone_number: "phone", telefone: "phone", phone: "phone", whatsapp: "phone", celular: "phone", telemovel: "phone",
+  numero_de_telefone: "phone", numero_de_whatsapp: "phone", telefone_celular: "phone", numero_de_celular: "phone",
+  nome_e_sobrenome: "name", seu_nome: "name", endereco_de_email: "email", cidade_atual: "city",
   email: "email", e_mail: "email", city: "city", cidade: "city", country: "country", pais: "country",
   id: "meta_lead_id", lead_id: "meta_lead_id", created_time: "created_time", campaign_name: "campaign_name", adset_name: "adset_name",
   ad_name: "ad_name", form_name: "form_name", platform: "platform", is_organic: "is_organic",
@@ -86,7 +88,11 @@ const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 /** "quando_pretende_mudar?" → "Quando pretende mudar?" */
 export const prettyQuestion = (h: string) => cap(h.replace(/_/g, " ").replace(/\s+/g, " ").trim());
 /** "nos_próximos_30_dias" → "Nos próximos 30 dias" (só mexe em respostas sem espaço com "_"). */
-export const prettyAnswer = (v: string) => (/_/.test(v) && !/\s/.test(v.trim()) ? cap(v.replace(/_/g, " ").trim()) : v.trim());
+export const prettyAnswer = (v: string) => {
+  const t = v.trim();
+  if (/\s/.test(t) || /[@:]/.test(t)) return t;
+  return /_/.test(t) || /^[a-zà-ú]+$/.test(t) ? cap(t.replace(/_/g, " ").replace(/\s+/g, " ").trim()) : t;
+};
 
 export const DEFAULT_RULES: { rules: TemperatureRule[]; fallback: "quente" | "morno" | "frio" } = {
   rules: [

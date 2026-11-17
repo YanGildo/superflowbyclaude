@@ -58,8 +58,21 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: "meta-leads-csv", name: "Leads do Meta (Formulário instantâneo) por CSV", status: "ativo",
     what: "Em cada campanha do Comercial: Importar leads (CSV). Lê o arquivo da Central de Leads do Meta (UTF-16 com TAB) ou qualquer planilha, reconhece nome/telefone/e-mail/dados do anúncio, guarda as perguntas como Respostas do formulário, evita duplicados (ID do lead, telefone, e-mail) e define a temperatura pelas regras da campanha. Também dá para criar, renomear e arquivar campanhas.",
-    today: "Manual: baixar o CSV no Meta (Central de Leads ou Gerenciador → Formulários) e importar. A importação automática (webhook do Meta) fica para depois.",
+    today: "Manual: baixar o CSV no Meta (Central de Leads ou Gerenciador → Formulários) e importar. Serve também para recuperar leads antigos.",
     where: [{ label: "Comercial · Pipeline → Importar leads (CSV)", to: "/comercial" }],
+  },
+  {
+    id: "meta-leads-auto", name: "Leads do Meta automáticos (webhook)", status: "configurar",
+    what: "Cada lead do Formulário instantâneo cai sozinho na campanha ligada (com respostas, temperatura e sem duplicar). A função meta-leads já está no ar; a Campanha C já está ligada ao formulário v3 de Novembro.",
+    today: "Importar o CSV do Meta na campanha.",
+    where: [{ label: "Campanha → ⋯ → Leads do Meta automáticos", to: "/comercial" }],
+    steps: [
+      "developers.facebook.com → criar app (tipo Empresa) e adicionar o produto Webhooks",
+      "Webhooks → Page → assinar o campo leadgen com a URL https://jxzogffjeedimdvcliqp.supabase.co/functions/v1/meta-leads e um token de verificação que você inventar",
+      "Gerar um token de página de longa duração com leads_retrieval e pages_manage_metadata (página da Samantha)",
+      "Supabase → Edge Functions → Secrets: META_VERIFY_TOKEN, META_PAGE_TOKEN e META_APP_SECRET",
+      "Inscrever o app na página (subscribed_apps) e testar no Lead Ads Testing Tool",
+    ],
   },
   {
     id: "zernio", name: "Zernio (agendar e medir posts)", status: "em_breve",
@@ -125,10 +138,16 @@ export const INTEGRATIONS: Integration[] = [
     where: [{ label: "Lançamentos → Importar extrato", to: "/financeiro/lancamentos" }, { label: "Fluxo de caixa", to: "/financeiro/fluxo-de-caixa" }, { label: "Patrimônio", to: "/financeiro/carteira?aba=patrimonio" }],
   },
   {
-    id: "notify", name: "Avisos fora do Superflow (e-mail / celular)", status: "em_breve",
-    what: "Receber o resumo do dia e os alertas mesmo com o Superflow fechado.",
-    today: "O mascote no topo do menu avisa quando tem coisa esperando.",
-    where: [{ label: "Hoje · Central do dia", to: "/hoje" }],
+    id: "notify", name: "Avisos de lead novo por e-mail (Resend)", status: "configurar",
+    what: "Cada lead novo numa campanha com aviso ligado gera um e-mail com nome, WhatsApp, temperatura e respostas. A fila e o envio a cada 2 minutos já estão prontos; a Campanha C já avisa o seu e-mail.",
+    today: "Os avisos ficam na fila (Campanha → ⋯ → Avisos de lead novo) até a chave do Resend existir. O mascote no menu continua avisando dentro do Superflow.",
+    where: [{ label: "Campanha → ⋯ → Avisos de lead novo", to: "/comercial" }],
+    steps: [
+      "resend.com → criar conta (grátis até 3.000 e-mails/mês) e gerar uma API key",
+      "Para enviar de um e-mail seu (ex.: avisos@rgmarketing...), verificar o domínio no Resend (DNS); sem isso, só envia para o e-mail da sua conta Resend",
+      "Supabase → Edge Functions → Secrets: RESEND_API_KEY e, se verificou o domínio, RESEND_FROM = \"Superflow <avisos@seudominio>\"",
+      "Notificação no celular (push) fica para uma próxima etapa",
+    ],
   },
   {
     id: "ia", name: "IA via conector (MCP)", status: "em_breve",

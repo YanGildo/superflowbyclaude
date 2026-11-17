@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Archive, ArchiveRestore, FileUp, MoreHorizontal, Pencil, Thermometer, Trash2 } from "lucide-react";
+import { Archive, ArchiveRestore, BellRing, Facebook, FileUp, MoreHorizontal, Pencil, Thermometer, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { SimpleSelect } from "@/components/common/RefSelect";
 import { useCampaigns } from "@/hooks/useCampaigns";
 import type { Pipeline, PipelineStage } from "@/integrations/supabase/types";
 import { rulesOf } from "@/lib/leadImport";
+import { AlertsDialog, MetaRouteDialog } from "./CampaignAlerts";
 import { ImportLeadsDialog } from "./ImportLeadsDialog";
 
 type Temp = "quente" | "morno" | "frio";
@@ -79,7 +80,7 @@ export function CampaignActions({ pipeline, stages, dealCount, onRemoved }: {
   pipeline: Pipeline; stages: PipelineStage[]; dealCount: number; onRemoved: () => void;
 }) {
   const { update, remove } = useCampaigns();
-  const [open, setOpen] = useState<"import" | "temp" | "rename" | null>(null);
+  const [open, setOpen] = useState<"import" | "temp" | "rename" | "alerts" | "meta" | null>(null);
   const archived = Boolean(pipeline.archived_at);
   const close = (o: boolean) => { if (!o) setOpen(null); };
   const del = () => {
@@ -92,6 +93,8 @@ export function CampaignActions({ pipeline, stages, dealCount, onRemoved }: {
       <DropdownMenu>
         <DropdownMenuTrigger asChild><Button variant="outline" size="icon" aria-label="Opções da campanha"><MoreHorizontal className="size-4" /></Button></DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => setOpen("alerts")}><BellRing className="size-4" />Avisos de lead novo</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setOpen("meta")}><Facebook className="size-4" />Leads do Meta automáticos</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setOpen("temp")}><Thermometer className="size-4" />Regras de temperatura</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setOpen("rename")}><Pencil className="size-4" />Renomear</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => update.mutate({ id: pipeline.id, values: { archived_at: archived ? null : new Date().toISOString() } })}>
@@ -106,6 +109,8 @@ export function CampaignActions({ pipeline, stages, dealCount, onRemoved }: {
       <ImportLeadsDialog open={open === "import"} onOpenChange={close} pipeline={pipeline} stages={stages} />
       <TemperatureDialog open={open === "temp"} onOpenChange={close} pipeline={pipeline} />
       <RenameDialog open={open === "rename"} onOpenChange={close} pipeline={pipeline} />
+      <AlertsDialog open={open === "alerts"} onOpenChange={close} pipeline={pipeline} />
+      <MetaRouteDialog open={open === "meta"} onOpenChange={close} pipeline={pipeline} stages={stages} />
     </>
   );
 }
