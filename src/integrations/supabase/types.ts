@@ -480,3 +480,61 @@ export interface ActionPlanAsset {
 export interface ActionPlanCheckin {
   id: string; workspace_id: string; plan_id: string; week_start: string; values: Record<string, number | null>; notes: string | null; created_at: string;
 }
+
+/* ------------------------------ Módulos pessoais ------------------------------ */
+export interface TtsSettings {
+  workspace_id: string; month_goal: number; avg_commission_pct: number; avg_price: number;
+  orders_per_video: number; videos_per_day_goal: number; lives_per_week_goal: number;
+}
+export type TtsSampleStatus = "quero" | "solicitada" | "a_caminho" | "recebida" | "sem_amostra";
+export type TtsProductStatus = "ideia" | "testando" | "vencedor" | "pausado" | "descartado";
+export interface TtsProduct {
+  id: string; workspace_id: string; name: string; link: string | null; category: string | null; price: number | null;
+  commission_pct: number | null; sample_status: TtsSampleStatus; status: TtsProductStatus; notes: string | null; created_at: string;
+}
+export type TtsVideoStatus = "ideia" | "roteiro" | "gravado" | "editado" | "postado";
+export interface TtsVideo {
+  id: string; workspace_id: string; product_id: string | null; title: string; status: TtsVideoStatus; planned_for: string | null;
+  posted_on: string | null; link: string | null; views: number; clicks: number; orders: number; gmv: number; commission: number;
+  notes: string | null; created_at: string;
+}
+export interface TtsDay {
+  id: string; workspace_id: string; day: string; videos_posted: number; lives: number; live_minutes: number;
+  orders: number; gmv: number; commission: number; notes: string | null;
+}
+export interface Vehicle {
+  id: string; workspace_id: string; name: string; plate: string | null; brand: string | null; model: string | null;
+  year: number | null; color: string | null; current_km: number | null; notes: string | null; archived_at: string | null; created_at: string;
+}
+export type VehicleServiceCategory = "manutencao" | "revisao" | "pneus" | "combustivel" | "documentacao" | "seguro" | "lavagem" | "multa" | "outros";
+export interface ServiceItem { desc: string; qty: number; unit: number; discount?: number }
+export interface VehicleService {
+  id: string; workspace_id: string; vehicle_id: string; date: string; km: number | null; category: VehicleServiceCategory;
+  shop: string | null; shop_phone: string | null; os_number: string | null; items: ServiceItem[]; total: number;
+  notes: string | null; next_date: string | null; next_km: number | null; to_finance: boolean; created_at: string;
+}
+export interface BodyAssessment {
+  id: string; workspace_id: string; date: string; evaluator: string | null; place: string | null; age: number | null; sex: "M" | "F" | null;
+  weight: number | null; height: number | null; protocol: string | null; fat_pct: number | null; fat_kg: number | null; lean_kg: number | null;
+  muscle_kg: number | null; residual_kg: number | null; bone_kg: number | null; bio_fat_pct: number | null; bio_muscle_pct: number | null;
+  skinfolds: Record<string, number>; circumferences: Record<string, number>; goal: string | null; anamnese: string | null;
+  notes: string | null; next_date: string | null; created_at: string;
+}
+export interface Exercise { name: string; sets?: string; reps?: string; load?: string; rest?: string; notes?: string }
+export interface WorkoutPlan {
+  id: string; workspace_id: string; name: string; focus: string | null; exercises: Exercise[]; position: number; archived_at: string | null; created_at: string;
+}
+export type WorkoutKind = "musculacao" | "cardio" | "luta" | "funcional" | "outro";
+export interface WorkoutLog {
+  id: string; workspace_id: string; date: string; plan_id: string | null; kind: WorkoutKind; duration_min: number | null;
+  effort: number | null; notes: string | null; created_at: string;
+}
+export interface Meal { time?: string; name: string; items?: string }
+export interface FitnessSettings {
+  workspace_id: string; goal: string | null; target_fat_pct: number | null; target_weight: number | null; workouts_per_week: number;
+  kcal: number | null; protein_g: number | null; carbs_g: number | null; fat_g: number | null; water_l: number | null; meals: Meal[];
+}
+export interface DietLog {
+  id: string; workspace_id: string; date: string; followed: "sim" | "parcial" | "nao"; water_l: number | null; kcal: number | null;
+  protein_g: number | null; notes: string | null; created_at: string;
+}

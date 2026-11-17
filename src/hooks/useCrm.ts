@@ -17,6 +17,8 @@ const HAS_BUSINESS: Record<string, boolean> = {
   hooks: true, content_stories: true, client_questions: true, recordings: true,
   reference_accounts: false, reference_posts: false, content_metrics: false, trend_items: false,
   appointments: true, assistant_drafts: true, assistant_digests: false,
+  tts_products: false, tts_videos: false, tts_days: false, vehicles: false, vehicle_services: false,
+  body_assessments: false, workout_plans: false, workout_logs: false, diet_logs: false,
 };
 
 /** Tabelas com lixeira (deleted_at) em vez de exclusão definitiva. */

@@ -4,7 +4,7 @@ import {
   Megaphone, NotebookPen, PackageCheck, Plug, FileText, Globe,
   Wallet, ArrowLeftRight, Receipt, CreditCard, PiggyBank,
   BarChart3, Bot, GitBranch, Tag, Landmark, Repeat, Crown, Link2,
-  Settings, Trash2, UsersRound, CalendarRange, Rocket, type LucideIcon,
+  Settings, Trash2, UsersRound, CalendarRange, Rocket, ShoppingBag, Dumbbell, Car, type LucideIcon,
 } from "lucide-react";
 import { FEATURES } from "@/lib/features";
 
@@ -73,6 +73,15 @@ const SECTIONS: NavSection[] = [
     ],
   },
   {
+    id: "pessoal",
+    label: "Pessoal",
+    items: [
+      { path: "/pessoal/tiktok-shop", label: "TikTok Shop", icon: ShoppingBag, phase: 0, description: "Produtos, vídeos, diário e quanto você precisa fazer por dia para bater a meta." },
+      { path: "/pessoal/treino", label: "Treino e dieta", icon: Dumbbell, phase: 0, description: "Nível de evolução, avaliações físicas, treinos e dieta." },
+      { path: "/pessoal/veiculos", label: "Veículos", icon: Car, phase: 0, description: "Manutenções, peças e gastos de cada veículo, com histórico." },
+    ],
+  },
+  {
     id: "telegram",
     label: "Vendas Telegram",
     items: [
@@ -100,7 +109,7 @@ const SECTIONS: NavSection[] = [
 ];
 
 /** Seções visíveis (módulos desligados em FEATURES somem do menu e das rotas). */
-export const NAV = SECTIONS.filter((s) => s.id !== "telegram" || FEATURES.telegram);
+export const NAV = SECTIONS.filter((s) => (s.id !== "telegram" || FEATURES.telegram) && (s.id !== "pessoal" || FEATURES.pessoal));
 
 export const ALL_NAV_ITEMS = NAV.flatMap((s) => s.items);
 

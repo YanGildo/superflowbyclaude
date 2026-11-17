@@ -6,7 +6,7 @@ import type { MemberRole } from "@/integrations/supabase/types";
 export type Level = "none" | "view" | "edit" | "manage";
 export type ModuleKey =
   | "tarefas" | "projetos" | "metas" | "funis" | "planos" | "comercial" | "prospeccao" | "scripts"
-  | "marketing" | "financeiro" | "central" | "telegram";
+  | "marketing" | "financeiro" | "central" | "telegram" | "pessoal";
 export type Permissions = Partial<Record<ModuleKey, Level>>;
 export type ResourceType = "tasks" | "projects" | "scripts" | "prospects" | "action_plans";
 
@@ -33,8 +33,9 @@ const ALL_MODULES: { key: ModuleKey; label: string }[] = [
   { key: "financeiro", label: "Financeiro" },
   { key: "central", label: "Agenda e assistente" },
   { key: "telegram", label: "Vendas Telegram" },
+  { key: "pessoal", label: "Pessoal (TikTok Shop, treino, veículos)" },
 ];
-export const MODULES = ALL_MODULES.filter((m) => m.key !== "telegram" || FEATURES.telegram);
+export const MODULES = ALL_MODULES.filter((m) => (m.key !== "telegram" || FEATURES.telegram) && (m.key !== "pessoal" || FEATURES.pessoal));
 export const MODULE_LABEL = Object.fromEntries(ALL_MODULES.map((m) => [m.key, m.label])) as Record<ModuleKey, string>;
 
 export const RESOURCE_LABEL: Record<ResourceType, string> = {
@@ -49,7 +50,7 @@ export function moduleOfPath(path: string): ModuleKey | "admin" | null {
   const rules: [string, ModuleKey | "admin"][] = [
     ["/planos", "planos"], ["/tarefas", "tarefas"], ["/projetos", "projetos"], ["/metas", "metas"], ["/funis", "funis"],
     ["/agencia", "comercial"], ["/formularios", "comercial"], ["/site", "marketing"], ["/comercial", "comercial"], ["/whatsapp", "comercial"], ["/prospeccao", "prospeccao"],
-    ["/scripts", "scripts"], ["/marketing", "marketing"], ["/financeiro", "financeiro"], ["/telegram", "telegram"],
+    ["/scripts", "scripts"], ["/marketing", "marketing"], ["/financeiro", "financeiro"], ["/telegram", "telegram"], ["/pessoal", "pessoal"],
     ["/integracoes", "admin"], ["/configuracoes", "admin"],
   ];
   return rules.find(([p]) => path === p || path.startsWith(`${p}/`))?.[1] ?? null;

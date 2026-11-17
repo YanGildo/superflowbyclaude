@@ -44,6 +44,18 @@ export const INTEGRATIONS: Integration[] = [
     where: [{ label: "CRM Agência · Formulários", to: "/formularios" }, { label: "Marketing · Site (domínios e páginas)", to: "/site" }, { label: "Comercial · funis das campanhas", to: "/comercial" }],
   },
   {
+    id: "tiktok-shop", name: "TikTok Shop (afiliado/criador)", status: "em_breve",
+    what: "Módulo Pessoal → TikTok Shop: meta do mês, quanto fazer por dia, fila de vídeos, produtos e diário. Hoje os números são lançados à mão (1 minuto por dia).",
+    today: "Manual. Puxar vendas e comissão sozinho exige a API de afiliados do TikTok Shop (aprovação de app) ou uma ferramenta paga como Kalodata/FastMoss; fica para quando o volume justificar.",
+    where: [{ label: "Pessoal · TikTok Shop", to: "/pessoal/tiktok-shop" }],
+  },
+  {
+    id: "veiculos-financeiro", name: "Veículos → Financeiro", status: "ativo",
+    what: "Cada gasto registrado em Pessoal → Veículos (oficina, peças, combustível, IPVA) vira uma saída no Financeiro na categoria Veículo. Editar ou excluir o registro atualiza o lançamento.",
+    today: "Automático, dentro do Superflow. Dá para desligar por registro.",
+    where: [{ label: "Pessoal · Veículos", to: "/pessoal/veiculos" }, { label: "Financeiro · Lançamentos", to: "/financeiro/lancamentos" }],
+  },
+  {
     id: "meta-leads-csv", name: "Leads do Meta (Formulário instantâneo) por CSV", status: "ativo",
     what: "Em cada campanha do Comercial: Importar leads (CSV). Lê o arquivo da Central de Leads do Meta (UTF-16 com TAB) ou qualquer planilha, reconhece nome/telefone/e-mail/dados do anúncio, guarda as perguntas como Respostas do formulário, evita duplicados (ID do lead, telefone, e-mail) e define a temperatura pelas regras da campanha. Também dá para criar, renomear e arquivar campanhas.",
     today: "Manual: baixar o CSV no Meta (Central de Leads ou Gerenciador → Formulários) e importar. A importação automática (webhook do Meta) fica para depois.",

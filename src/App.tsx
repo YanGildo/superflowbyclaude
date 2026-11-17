@@ -34,6 +34,9 @@ import Agencia from "@/pages/Agencia";
 import Prospeccao from "@/pages/Prospeccao";
 import Marketing from "@/pages/Marketing";
 import Conteudo from "@/pages/Conteudo";
+import TiktokShop from "@/pages/TiktokShop";
+import Treino from "@/pages/Treino";
+import Veiculos from "@/pages/Veiculos";
 import CampanhasDashboard from "@/pages/CampanhasDashboard";
 import Entregas from "@/pages/Entregas";
 import Planos from "@/pages/Planos";
@@ -112,6 +115,9 @@ const BUILT: Record<string, ReactNode> = {
   "/financeiro/fluxo-de-caixa": <FluxoCaixa />,
   "/financeiro/carteira": <Carteira />,
   "/financeiro/reservas": <Reservas />,
+  "/pessoal/tiktok-shop": <TiktokShop />,
+  "/pessoal/treino": <Treino />,
+  "/pessoal/veiculos": <Veiculos />,
 };
 
 export default function App() {
