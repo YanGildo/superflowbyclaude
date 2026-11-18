@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useContacts, useCrmMutations, useDeals, usePipelines, useStages } from "@/hooks/useCrm";
 import { useCrmFlows } from "@/hooks/useCrmFlows";
 import type { Contact, Deal, Pipeline } from "@/integrations/supabase/types";
-import { applyView, DEFAULT_VIEW, downloadText, leadsCsv, slug, type ViewOpts } from "@/lib/pipelineView";
+import { applyView, DEFAULT_VIEW, downloadText, leadsCsv, passSource, slug, sourceOptions, type ViewOpts } from "@/lib/pipelineView";
 import { cn } from "@/lib/utils";
 import { CampaignActions } from "./CampaignActions";
 import { ContactSheet } from "./ContactSheet";
@@ -64,9 +64,10 @@ export function PipelineTab() {
   const [chosen, setChosen] = useState<string | null>(readPipe);
   const { pipelines, pipeline, allStages, stages, deals, byId, loading } = usePipelineData(chosen);
   const [newCamp, setNewCamp] = useState(false);
+  const [source, setSource] = useState("todas");
   const [view, setViewState] = useState<ViewOpts>(readView);
   const setView = (v: ViewOpts) => { setViewState(v); try { localStorage.setItem(VIEW_KEY, JSON.stringify(v)); } catch { /* sem storage */ } };
-  const pick = (id: string) => { setChosen(id); try { localStorage.setItem(PIPE_KEY, id); } catch { /* sem storage */ } };
+  const pick = (id: string) => { setChosen(id); setSource("todas"); try { localStorage.setItem(PIPE_KEY, id); } catch { /* sem storage */ } };
   const dealM = useCrmMutations("deals");
   const { logConversion } = useCrmFlows();
   const [q, setQ] = useState("");
@@ -84,7 +85,7 @@ export function PipelineTab() {
 
   if (loading) return <Skeleton className="h-80 rounded-xl" />;
   if (!pipeline) return <p className="text-sm text-muted-foreground">Nenhum pipeline encontrado neste workspace.</p>;
-  const visible = applyView(deals.filter((d) => matches(d, byId.get(d.contact_id), q)), byId, view);
+  const visible = applyView(deals.filter((d) => matches(d, byId.get(d.contact_id), q) && passSource(byId.get(d.contact_id), source)), byId, view);
   const exportCsv = () => downloadText(leadsCsv(visible, byId, stages), `leads-${slug(pipeline.name)}-${new Date().toISOString().slice(0, 10)}.csv`);
   const active = deals.find((d) => d.id === openDeal);
 
@@ -116,7 +117,8 @@ export function PipelineTab() {
         </div>
       )}
 
-      <PipelineViewBar view={view} setView={setView} shown={visible.length} total={deals.length} onExport={exportCsv} />
+      <PipelineViewBar view={view} setView={setView} shown={visible.length} total={deals.length} onExport={exportCsv}
+        source={source} setSource={setSource} sources={sourceOptions(deals, byId)} />
 
       <PipelineBoard stages={stages} deals={visible} contacts={byId} onMove={move} sort={view.sort}
         onAdd={(stageId) => setLead({ open: true, stageId })} onOpen={(d) => setOpenDeal(d.id)} />

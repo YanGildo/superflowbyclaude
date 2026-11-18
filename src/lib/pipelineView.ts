@@ -119,3 +119,28 @@ export function downloadText(text: string, filename: string) {
 }
 
 export const slug = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+
+/* ------------------------------ Origem do lead ------------------------------ */
+
+/** Grupo da origem: o texto antes do primeiro " · " ("Meta", "Site Samantha"…). */
+const originGroup = (src: string) => src.split(" · ")[0].trim();
+const SEM = "(sem origem)";
+
+/** Opções do filtro de origem com a contagem: "Todas", cada grupo (quando tem mais de uma origem) e cada origem exata. */
+export function sourceOptions(deals: Deal[], contacts: Map<string, Contact>) {
+  const exact = new Map<string, number>();
+  deals.forEach((d) => { const s = contacts.get(d.contact_id)?.source?.trim() || SEM; exact.set(s, (exact.get(s) ?? 0) + 1); });
+  const groups = new Map<string, { n: number; kinds: number }>();
+  exact.forEach((n, s) => { const g = originGroup(s); const cur = groups.get(g) ?? { n: 0, kinds: 0 }; groups.set(g, { n: cur.n + n, kinds: cur.kinds + 1 }); });
+  const opts = [{ value: "todas", label: `Todas as origens · ${deals.length}` }];
+  [...groups.entries()].filter(([, g]) => g.kinds > 1).sort((a, b) => b[1].n - a[1].n)
+    .forEach(([g, v]) => opts.push({ value: `g:${g}`, label: `${g} (todas) · ${v.n}` }));
+  [...exact.entries()].sort((a, b) => b[1] - a[1]).forEach(([s, n]) => opts.push({ value: `s:${s}`, label: `${s} · ${n}` }));
+  return opts;
+}
+
+export function passSource(c: Contact | undefined, f: string) {
+  if (!f || f === "todas") return true;
+  const s = c?.source?.trim() || SEM;
+  return f.startsWith("g:") ? originGroup(s) === f.slice(2) : s === f.slice(2);
+}
